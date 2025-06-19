@@ -333,7 +333,7 @@ const GroupDetails = () => {
   const [userFound, setUserFound] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [adding, setAdding] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
   const [currentUserId, setCurrentUserId] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -353,10 +353,10 @@ const GroupDetails = () => {
           const userId = decodedToken.id;
           // console.log("decoode toekn",decodedToken)
           setCurrentUserId(userId);
-          setIsAdmin(res.data.adminId === userId);
+          // setIsAdmin(res.data.adminId === userId);
         } catch (decodeError) {
           console.error("Error decoding token:", decodeError);
-          setIsAdmin(false);
+          setIsAdmin(true);
         }
       }
     } catch (err) {

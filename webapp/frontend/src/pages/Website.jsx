@@ -125,11 +125,11 @@ import BottomNavBarBar from "../component/BottomNavBar";
 
 // export default Articles;
 
-const Articles = () => (
+const Website = () => (
   <div className="w-full h-screen mt-16">
     <iframe
-      src="http://www.credzin.com/articles/"
-      title="Credzin WordPress"
+      src="http://www.credzin.com/"
+      title="Credzin"
       className="w-full h-screen border-0"
       style={{ minHeight: "100vh" }}
     />
@@ -137,4 +137,4 @@ const Articles = () => (
   </div>
 );
 
-export default Articles;
+export default Website;

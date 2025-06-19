@@ -227,6 +227,19 @@ const Navbar = () => {
                 Home
               </button>
             </li>
+
+            <li>
+              <button
+                onClick={() => {
+                  navigate("/website");
+                  setIsOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-700 text-white transition-colors duration-200"
+              >
+                Website
+              </button>
+            </li>
+
             <li>
               <button
                 onClick={() => {

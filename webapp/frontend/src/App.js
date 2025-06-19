@@ -20,6 +20,7 @@ import { setRecommendedList } from './app/slices/recommendedSlice';
 import BottomNavBar from './component/BottomNavBar';
 import CardPool from './pages/Card_pool';
 import Articles from './pages/Articles';
+import Website from './pages/website';
 import GroupDetails from './pages/GroupDetails';
 import Transactions from './pages/Transactions';
 
@@ -199,6 +200,7 @@ const getRecommendedCard = async () => {
           />
           <Route path="/group/:groupId" element={<GroupDetails/>} />
       <Route path="/articles" element={<Articles/>} />
+      <Route path="/website" element={<Website/>} />
       <Route path="/Transactions" element={<Transactions/>} />
       </Routes>
       <Footer />

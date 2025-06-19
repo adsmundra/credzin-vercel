@@ -50,12 +50,10 @@
   require('./config/passport');
 
   const authRoutes = require('./routes/user');
-  const googleRoutes = require('./routes/googleAuthRoutes');
   const cardRoutes = require('./routes/cardroutes');
   const oauthRoutes = require('./routes/oauthRoute');
 
   app.use('/api/v1/auth', authRoutes);
-  app.use('/api/v1/auth/google', googleRoutes);
   app.use('/api/v1/card', cardRoutes);
   app.use('/api/v1/auth/oauth', oauthRoutes);
 

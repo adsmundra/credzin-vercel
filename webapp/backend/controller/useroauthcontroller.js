@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const userOauthDetails = require("../models/user_oauth_details")
 const User = require("../models/User")
@@ -6,100 +7,189 @@ const GmailMessage = require("../models/gmail_messages")
 const refreshTokenMiddleware = require("../middlewares/tokenRefresh");
 const fs = require('fs').promises;
 const path = require('path');
+// Import the signup function from Auth.js
+const { signup } = require('./Auth');
+const { isBuffer } = require('util');
 
-const client_secret = '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';
+const client_secret = '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';
 const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleusercontent.com';
-const redirect_uris = ['http://localhost:5000/api/v1/auth/oauth2callback'];
+
+// Use environment variable for redirect URI or default to port 4000
+const PORT = 5000;
+const redirect_uri = `https://app.credzin.com/api/v1/auth/oauth/oauth2callback`;
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,
     client_secret,
-    redirect_uris[0]
+    redirect_uri
 );
-const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email'];
+delete oAuth2Client.codeVerifier;
+const SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
+
 exports.getAuthUrl = async (req, res) => {
     try {
-
-
-
-
+        // Generate auth URL and redirect directly
         const authUrl = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
-            prompt: 'consent',
+            prompt:"consent",
             scope: SCOPES,
         });
-        console.log(authUrl);
-        return authUrl
+        console.log('Redirecting to auth URL');
+        
+        // Redirect the user directly to Google OAuth
+        res.redirect(authUrl);
     }
     catch (error) {
+        console.error('Error in getAuthUrl:', error);
         return res.status(500).json({
             success: false,
             message: `error in fetching authurl`,
             error: error.message
         })
-
     }
 }
 
 exports.oauthCallback = async (req, res) => {
     try {
-        const { code } = req.query;
-        const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
-        console.log(tokens);
-        const oauth2 = google.oauth2({
-            auth: oAuth2Client,
-            version: 'v2',
-        });
-
-        const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-            headers: {
-                Authorization: `Bearer ${tokens.access_token}`,
-            },
-        });
-
-        console.log('User Email:', response.data);
-
-        const user_email = response.data.email;
-        const access_token = tokens.access_token;
-        const refresh_token = tokens.refresh_token;
-
-        const expiry_date = tokens.expiry_date;
-        const refresh_token_expires_in = tokens.refresh_token_expires_in;
-        const created_at = null;
-        console.log("===============here==========================");
-        const user = await User.findOne({ email: user_email })
-        if (!user) {
+        const { code, error } = req.query;
+        // Check for OAuth errors
+        if (error) {
+            console.error('OAuth error:', error);
             return res.status(400).json({
                 success: false,
-                message: `No user found`
-            })
-        };
-        const user_oauth_details = await userOauthDetails.create({
-            user_email,
-            access_token,
-            refresh_token,
-            created_at,
-            expiry_date,
-            refresh_token_expires_in,
-        });
-        user_oauth_details.save();
-        return res.status(200).json({
-            success:true,
-            message:`saved `,
-            details:user_oauth_details
-        })
+                message: `OAuth error: ${error}`
+            });
+        }
+        
+        // Validate authorization code
+        if (!code) {
+            console.error('No authorization code received');
+            return res.status(400).json({
+                success: false,
+                message: 'No authorization code received'
+            });
+        }
+        
+        console.log('Received authorization code:', code);
+        
+        try {
+            // Exchange authorization code for tokens (no code_verifier needed for web apps)
+            console.log('Attempting to exchange code for tokens...');
+            
+           
+            //const { tokens } = await oAuth2Client.getToken(code);
+            const tokens = await axios.post('https://oauth2.googleapis.com/token', null, {
+                params: {
+                    code,
+                    client_id: client_id,
+                    client_secret: client_secret,
+                    redirect_uri: redirect_uri,
+                    grant_type: 'authorization_code',
+                    // 🔥 DO NOT include `code_verifier` here
+                },
+            });
+            
+            console.log('Token exchange successful:', tokens.data);
+            const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                    Authorization: `Bearer ${tokens.data.access_token}`,
+                },
+            });
+
+            console.log('User Email:', response.data);
+
+            const email = response.data.email;
+            
+            const access_token = tokens.data.access_token;
+            const refresh_token = tokens.data.refresh_token;
+            const expiry_date = tokens.data.expires_in;
+            const refresh_token_expires_in = tokens.data.expires_in;
+            const created_at = new Date();
+            let password = null;
+            let lastName = null;
+            let firstName = null;
+            if(response.data.name){
+                const user_name = response.data.name;
+                lastName = user_name.split(" ")[1];
+                firstName = user_name.split(" ")[0];
+            
+            }
+            let contact = null;
+            console.log("===============here==========================");
+            
+            // Check if user exists
+            const existing_user = await User.findOne({ email: email });
+            if(existing_user) {
+              return res.status(200).json({
+                success: true,
+                user: existing_user,  
+                message: 'User already exists',
+              })
+
+           
+            }   
+                // Prepare user data for signup
+                const user = await User.create({
+                      firstName,
+                      lastName,
+                      email,
+                      password,
+                      contact,
+                    });
+                const jwt_token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                      expiresIn: '1h',
+                    });
+                user.token = jwt_token;
+                await user.save();
+            
+            // Save OAuth details
+            const user_email = email;
+            const user_oauth_details = await userOauthDetails.create({
+                user_email,
+                access_token,
+                refresh_token,
+                created_at,
+                expiry_date,
+                refresh_token_expires_in,
+            });
+            await user_oauth_details.save();
+            
+            console.log('OAuth details saved successfully for user:', email);
+            
+            
+           return res.status(200).json({ user: user, jwt_token });
+            
+            
+            
+            //oAuth2Client.setCredentials(response);
+        
+            
+        } catch (tokenError) {
+            console.error('Token exchange failed:', tokenError);
+            console.error('Token error details:', {
+                message: tokenError.message,
+                code: tokenError.code,
+                status: tokenError.status
+            });
+            return res.status(400).json({
+                success: false,
+                message: 'Failed to exchange authorization code for tokens',
+                error: tokenError.message
+            });
+        }
 
     }
     catch (error) {
+        console.error('Error in oauthCallback:', error);
         return res.status(500).json({
             success: false,
-            message: `error in saving the refrsh token`,
+            message: `error in saving the refresh token`,
             error: error.message
         })
 
     }
 }
+
 exports.fetchGmailMessages = async (req, res) => {
     try {
         // Get user email from request

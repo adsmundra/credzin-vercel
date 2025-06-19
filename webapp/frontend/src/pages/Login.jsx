@@ -41,7 +41,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.open(`${apiEndpoint}/api/v1/auth/google`, "_self");
+    window.open(`${apiEndpoint}/api/v1/auth/oauth/get_auth_url`, "_self");
   };
 
   return (

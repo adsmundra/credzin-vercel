@@ -1,5 +1,5 @@
-!pip install firecrawl-py
-!pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 pydantic
+# !pip install firecrawl-py
+# !pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 pydantic
 
 from pydantic import BaseModel
 import gspread

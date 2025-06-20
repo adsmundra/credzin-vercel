@@ -446,8 +446,9 @@ const GroupDetails = () => {
           { groupId},
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        alert("You have left the group!");
-        navigate("/groups");
+        
+        alert("You have left the group!"); 
+        navigate("/card-pool");
       } catch (error) {
         alert(
           error.response?.data?.message ||

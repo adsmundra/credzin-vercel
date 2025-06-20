@@ -2,7 +2,7 @@
 Ingest Agent: Reads a case file, extracts its content, and prepares it for further processing.
 """
 import os
-from src.Utils.utils import *
+from src.utils.logger_utils import *
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from docx import Document

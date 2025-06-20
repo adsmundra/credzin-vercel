@@ -126,7 +126,7 @@ import BottomNavBarBar from "../component/BottomNavBar";
 // export default Articles;
 
 const Website = () => (
-  <div className="w-full h-screen mt-16">
+  <div className="w-full h-screen mt-12">
     <iframe
       src="http://www.credzin.com/"
       title="Credzin"

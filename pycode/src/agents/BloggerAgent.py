@@ -19,7 +19,7 @@ from qdrant_client import QdrantClient
 base_path = Path(__file__).resolve().parent.parent.parent  # Two levels up
 sys.path.append(str(base_path))
 
-from src.utils.utils import setup_env
+from src.utils.logger_utils import setup_env
 from src.DataLoaders.QdrantDB import qdrantdb_client
 
 # Decide Run mode

@@ -1,4 +1,4 @@
-from src.Utils.utils import logger
+from src.utils.logger_utils import logger
 import requests
 from bs4 import BeautifulSoup
 import json

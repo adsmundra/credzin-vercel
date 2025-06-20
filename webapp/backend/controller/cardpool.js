@@ -276,9 +276,9 @@ exports.leaveGroup = async (req, res) => {
         const group = await card_group.findById(groupId);
         if (!group) return res.status(404).json({ message: "Group not found" });
         
-        // if (group.admin.toString() === userId) {
-        //     return res.status(403).json({ message: "Admin cannot leave group" });
-        // }
+        if (group.admin.toString() === userId.toString()) {
+            return res.status(403).json({ message: "Admin cannot leave group" });
+        }
         
         await card_group_user.deleteOne({ group_id: groupId, user_id: userId });
         res.json({ message: "Left group successfully" });

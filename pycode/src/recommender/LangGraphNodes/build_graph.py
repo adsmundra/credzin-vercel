@@ -1,4 +1,4 @@
-from src.Utils.utils import *
+from src.utils.logger_utils import *
 from src.Recommender.agents.ingest_agent import ingest_agent
 from src.Recommender.agents.rag_agent import rag_agent
 

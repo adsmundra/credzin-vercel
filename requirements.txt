@@ -82,3 +82,8 @@ playground
 
 # Huggingface
 huggingface_hub[hf_xet]
+
+pendulum>=3.0
+numpy>=1.26
+requests>=2.32
+fpdf==1.7.2    

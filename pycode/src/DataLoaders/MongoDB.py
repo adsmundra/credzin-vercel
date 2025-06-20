@@ -1,5 +1,5 @@
 from pymongo import MongoClient, errors
-from src.utils.utils import logger
+from src.utils.logger_utils import logger
 
 
 def mongodb_client():

@@ -20,7 +20,7 @@ import { setRecommendedList } from './app/slices/recommendedSlice';
 import BottomNavBar from './component/BottomNavBar';
 import CardPool from './pages/Card_pool';
 import Articles from './pages/Articles';
-import Website from './pages/website';
+import Website from './pages/Website';
 import GroupDetails from './pages/GroupDetails';
 import Transactions from './pages/Transactions';
 

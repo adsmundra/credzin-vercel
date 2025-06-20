@@ -126,6 +126,14 @@ const Navbar = () => {
             </li>
             <li>
               <button
+                onClick={() => navigate("/website")}
+                className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
+              >
+                Website
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => navigate("/articles")}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >

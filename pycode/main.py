@@ -1,9 +1,59 @@
-from src.Recommender.LangGraphNodes.build_graph import card_graph
-from src.Utils.utils import logger
-from src.Scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
-from src.Scrapers.sites import CardInsiderScraper
-
+# from src.Recommender.LangGraphNodes.build_graph import card_graph
+from src.utils.logger_utils import logger
+# from src.Scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
+# from src.Scrapers.sites import CardInsiderScraper
+from src.scrapers.banks.Final_scrapper import firecrawl_scraper
 import os
+import pandas as pd
+import sys
+
+def get_card_names_from_excel(excel_path, bank_name):
+    """
+    Read the Excel file and extract card names for the specified bank.
+    
+    Args:
+        excel_path (str): Path to the Excel file containing multiple bank worksheets.
+        bank_name (str): Name of the bank to filter card names for.
+    
+    Returns:
+        list: List of card names for the specified bank.
+    """
+    logger.info("Reading the excel to get corresponding credit names from a bank....")
+
+    try:
+        # Read all sheets from the Excel file
+        xl = pd.ExcelFile(excel_path)
+        
+        # Check if the bank_name exists as a sheet
+        if bank_name not in xl.sheet_names:
+            print(f"No worksheet found for bank: {bank_name}")
+            return []
+        
+        # Read the specific bank's worksheet
+        df = pd.read_excel(excel_path, sheet_name=bank_name)
+        
+        # Extract card names, dropping any NaN values
+        card_names = df['card_name'].dropna().tolist()
+        return card_names
+    
+    except Exception as e:
+        print(f"Error reading Excel file for bank {bank_name}: {e}")
+        return []
+
+
+def run_bank_scrapers_new(bank_name, card_names, excel_path):
+    '''
+    Func:
+        run final_scrapper for the bank credit_card details
+    
+    Args: 
+        df: read str from the input path
+    '''
+    logger.info("Starting credit card scraping process (NEW) ...")
+    # firecrawl_scraper(df)
+    # Run Firecrawl scraper
+    firecrawl_scraper(bank_name, card_names, excel_path)
+
 
 def run_bank_scrapers(bank_names):
     """
@@ -69,8 +119,49 @@ def run_site_scrapers(site_names):
 
 if __name__ == "__main__":
     try:
-        logger.info("✅ Starting the credit card recommendation system...")
+        logger.info("Running main function...")
+
+        excel_path = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
+    
+        # Input bank name
+        bank_names = ["HDFC"] #input("Enter the bank name (e.g., Axis, SBI, HDFC): ").strip()
         
+        # if not bank_name:
+        #     print("Bank name cannot be empty.")
+        # # Get card names for the specified bank
+        # card_names = get_card_names_from_excel(excel_path, bank_name)
+        
+        # if not card_names:
+        #     print(f"No card names found for bank {bank_name}.")
+        
+        # print(f"Found {len(card_names)} cards for {bank_name}: {card_names}")
+        
+        # Validate bank_names
+        if not bank_names or not isinstance(bank_names, list):
+            print("Error: bank_names must be a non-empty list.")
+            sys.exit(0)
+        
+        for bank_name in bank_names:
+            # Validate bank_name
+            if not bank_name or not isinstance(bank_name, str):
+                print(f"Skipping invalid bank name: {bank_name}")
+                continue
+            
+            bank_name = bank_name.strip()
+            print(f"\nProcessing bank: {bank_name}")
+            
+            # Get card names for the specified bank
+            card_names = get_card_names_from_excel(excel_path, bank_name)
+            
+            if not card_names:
+                print(f"No card names found for bank {bank_name}.")
+                continue
+            card_names = card_names[:5]
+            print(f"Found {len(card_names)} cards for {bank_name}: {card_names}")
+       
+        
+            run_bank_scrapers_new(bank_name, card_names, excel_path)
+             
         '''
         # List of banks to scrape
         banks_to_scrape = ['axis', 'sbi', 'icici']
@@ -79,7 +170,7 @@ if __name__ == "__main__":
         # List of sites to scrape
         sites_to_scrape = ['cardinsider']
         run_site_scrapers(sites_to_scrape)
-        '''
+        
 
         graph = card_graph()
         logger.info("Graph created successfully.")
@@ -120,7 +211,8 @@ if __name__ == "__main__":
 
             except Exception as e:
                 logger.error(f"Error processing case file {case_file}: {e}")
-
+        '''
     except Exception as e:
         logger.critical(f"Critical error in the main process: {e}")
     
+

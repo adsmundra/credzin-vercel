@@ -1,3 +1,6 @@
+import sys
+sys.path.append("pycode")
+
 import os
 import sys
 from pathlib import Path
@@ -16,10 +19,10 @@ from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 from qdrant_client import QdrantClient
 
 # Get the parent directory (one level up from current file)
-base_path = Path(__file__).resolve().parent.parent.parent  # Two levels up
-sys.path.append(str(base_path))
+# base_path = Path(__file__).resolve().parent.parent.parent  # Two levels up
+# sys.path.append(str(base_path))
 
-from src.utils.logger_utils import setup_env
+from pycode.src.utils.utilities import setup_env
 from src.DataLoaders.QdrantDB import qdrantdb_client
 
 # Decide Run mode

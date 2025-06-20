@@ -8,3 +8,15 @@
 2025-06-19 16:42:17,166 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
 2025-06-19 16:43:01,938 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
 2025-06-19 16:49:07,949 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:55:18,273 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:55:38,918 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 13:55:40,442 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 13:56:28,553 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:56:40,642 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 13:56:41,839 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 14:03:05,863 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 14:03:15,936 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 14:03:17,393 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 14:03:35,925 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 14:03:44,772 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 14:03:45,678 - credzin - INFO - QdrantDB connection successful.

@@ -31,11 +31,11 @@ exports.getAuthUrl = async (req, res) => {
         // Generate auth URL and redirect directly
         const authUrl = oAuth2Client.generateAuthUrl({
             access_type: 'offline',
-            prompt:"consent",
+            prompt: "consent",
             scope: SCOPES,
         });
         console.log('Redirecting to auth URL');
-        
+
         // Redirect the user directly to Google OAuth
         res.redirect(authUrl);
     }
@@ -60,7 +60,7 @@ exports.oauthCallback = async (req, res) => {
                 message: `OAuth error: ${error}`
             });
         }
-        
+
         // Validate authorization code
         if (!code) {
             console.error('No authorization code received');
@@ -69,14 +69,14 @@ exports.oauthCallback = async (req, res) => {
                 message: 'No authorization code received'
             });
         }
-        
+
         console.log('Received authorization code:', code);
-        
+
         try {
             // Exchange authorization code for tokens (no code_verifier needed for web apps)
             console.log('Attempting to exchange code for tokens...');
-            
-           
+
+
             //const { tokens } = await oAuth2Client.getToken(code);
             const tokens = await axios.post('https://oauth2.googleapis.com/token', null, {
                 params: {
@@ -88,7 +88,7 @@ exports.oauthCallback = async (req, res) => {
                     // 🔥 DO NOT include `code_verifier` here
                 },
             });
-            
+
             console.log('Token exchange successful:', tokens.data);
             const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: {
@@ -99,7 +99,7 @@ exports.oauthCallback = async (req, res) => {
             console.log('User Email:', response.data);
 
             const email = response.data.email;
-            
+
             const access_token = tokens.data.access_token;
             const refresh_token = tokens.data.refresh_token;
             const expiry_date = tokens.data.expires_in;
@@ -108,40 +108,40 @@ exports.oauthCallback = async (req, res) => {
             let password = null;
             let lastName = null;
             let firstName = null;
-            if(response.data.name){
+            if (response.data.name) {
                 const user_name = response.data.name;
                 lastName = user_name.split(" ")[1];
                 firstName = user_name.split(" ")[0];
-            
+
             }
             let contact = null;
             console.log("===============here==========================");
-            
+
             // Check if user exists
             const existing_user = await User.findOne({ email: email });
-            if(existing_user) {
-              return res.status(200).json({
-                success: true,
-                user: existing_user,  
-                message: 'User already exists',
-              })
+            console.log("Existing user:", existing_user);
+            if (existing_user) {
+                req.user = { email: email };
+                await exports.fetchGmailMessages(req, res);
 
-           
-            }   
-                // Prepare user data for signup
-                const user = await User.create({
-                      firstName,
-                      lastName,
-                      email,
-                      password,
-                      contact,
-                    });
-                const jwt_token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-                      expiresIn: '1h',
-                    });
-                user.token = jwt_token;
-                await user.save();
-            
+                return res.redirect(`https://app.credzin.com/additional-details?token=${existing_user.token}`);
+
+
+            }
+            // Prepare user data for signup
+            const user = await User.create({
+                firstName,
+                lastName,
+                email,
+                password,
+                contact,
+            });
+            const jwt_token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+                expiresIn: '1h',
+            });
+            user.token = jwt_token;
+            await user.save();
+
             // Save OAuth details
             const user_email = email;
             const user_oauth_details = await userOauthDetails.create({
@@ -153,17 +153,19 @@ exports.oauthCallback = async (req, res) => {
                 refresh_token_expires_in,
             });
             await user_oauth_details.save();
-            
+
             console.log('OAuth details saved successfully for user:', email);
-            
-            
-           return res.status(200).json({ user: user, jwt_token });
-            
-            
-            
+
+            req.user = { email: user_email };
+            console.log('user:', user);
+            await exports.fetchGmailMessages(req, res);
+            return res.redirect(`https://app.credzin.com/additional-details?token=${user.token}`);
+
+
+
             //oAuth2Client.setCredentials(response);
-        
-            
+
+
         } catch (tokenError) {
             console.error('Token exchange failed:', tokenError);
             console.error('Token error details:', {
@@ -194,7 +196,7 @@ exports.fetchGmailMessages = async (req, res) => {
     try {
         // Get user email from request
         const userEmail = req.user.email;
-        
+
         // Find user's OAuth details
         const oauthDetails = await userOauthDetails.findOne({ user_email: userEmail });
         if (!oauthDetails) {
@@ -205,6 +207,7 @@ exports.fetchGmailMessages = async (req, res) => {
         }
 
         // Fetch messages using the access token directly
+        console.log('Fetching Gmail messages for user:', userEmail);
         const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
             headers: {
                 'Authorization': `Bearer ${oauthDetails.access_token}`
@@ -213,10 +216,10 @@ exports.fetchGmailMessages = async (req, res) => {
                 maxResults: 10
             }
         });
-
+        console.log('Gmail messages fetched successfully:', response.data);
         const messages = response.data.messages || [];
         const processedMessages = [];
-        
+
         // Process each message
         for (const message of messages) {
             const detail = await axios.get(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
@@ -226,13 +229,13 @@ exports.fetchGmailMessages = async (req, res) => {
             });
 
             const messageData = detail.data;
-            
+
             // Extract headers
             const headers = messageData.payload.headers;
             const subject = headers.find(h => h.name === 'Subject')?.value || '';
             const from = headers.find(h => h.name === 'From')?.value || '';
             const to = headers.find(h => h.name === 'To')?.value || '';
-            
+
             // Get message body
             let body = '';
             if (messageData.payload.parts) {
@@ -245,7 +248,7 @@ exports.fetchGmailMessages = async (req, res) => {
             }
 
             // Limit body to first 200 characters
-            body = body.substring(0, 200) + (body.length > 200 ? '...' : '');
+            body = body.substring(0, 800) + (body.length > 200 ? '...' : '');
 
             // Create message object
             const processedMessage = {
@@ -271,31 +274,10 @@ exports.fetchGmailMessages = async (req, res) => {
             processedMessages.push(processedMessage);
         }
 
-        // Save to local file
-        const outputDir = path.join(__dirname, '../../data/gmail_messages');
-        await fs.mkdir(outputDir, { recursive: true });
-        
-        const fileName = `${userEmail.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.json`;
-        const filePath = path.join(outputDir, fileName);
-        
-        await fs.writeFile(
-            filePath,
-            JSON.stringify(processedMessages, null, 2)
-        );
-
-        return res.status(200).json({
-            success: true,
-            message: 'Gmail messages fetched and saved successfully',
-            messages: processedMessages,
-            saved_to: filePath
-        });
+        return processedMessages;
 
     } catch (error) {
         console.error('Error fetching Gmail messages:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error fetching Gmail messages',
-            error: error.message
-        });
+        return error;
     }
 }

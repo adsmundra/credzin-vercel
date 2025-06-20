@@ -1,3 +1,6 @@
+import sys
+sys.path.append("pycode")
+
 import os, re 
 import pandas as pd
 import PyPDF2

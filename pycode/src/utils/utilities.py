@@ -1,3 +1,6 @@
+import sys
+sys.path.append("pycode")
+
 import logging
 from langchain_ollama import ChatOllama
 from langchain_core.messages import AIMessage

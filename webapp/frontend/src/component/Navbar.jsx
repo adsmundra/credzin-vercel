@@ -65,6 +65,12 @@ const Navbar = () => {
     setSearchTerm("");
     setShowMobileSearch(false);
   };
+  const handleBlogClick = () => {
+  window.open('http://www.credzin.com/articles/', '_blank');
+};
+const handleWebsiteClick=()=>{
+   window.open('http://www.credzin.com/', '_blank');
+}
 
   return (
     <nav className="bg-[#1b2127] p-1 shadow-md w-full fixed top-0 z-50">
@@ -126,7 +132,7 @@ const Navbar = () => {
             </li>
             <li>
               <button
-                onClick={() => navigate("/website")}
+                onClick={handleWebsiteClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Website
@@ -134,7 +140,7 @@ const Navbar = () => {
             </li>
             <li>
               <button
-                onClick={() => navigate("/articles")}
+                onClick={handleBlogClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Blogs

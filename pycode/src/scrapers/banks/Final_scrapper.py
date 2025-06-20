@@ -1,85 +1,118 @@
-# !pip install firecrawl-py
-# !pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 pydantic
-
-from pydantic import BaseModel
-import gspread
-from google.colab import auth
-from google.auth import default
+# Imports
+import os
+import sys
+from pathlib import Path
 import pandas as pd
-import json
-from datetime import datetime
-from gspread.utils import rowcol_to_a1
+from pydantic import BaseModel
 from firecrawl import FirecrawlApp
 
-app = FirecrawlApp(api_key='fc-c6da5733ff2e428892368f824a39fc32')
+# Get the parent directory (one level up from current file)
+base_path = Path(__file__).resolve().parent.parent.parent.parent  # Adjust as per your directory structure
+sys.path.append(str(base_path))
+
+from src.utils.utils import setup_env
+# Decide Run mode
+setup_env()
 
 class ExtractSchema(BaseModel):
-    bank_name: str = "NILL"
-    card_name: str = "NILL"
-    card_type: str = "NILL"
-    card_category: str = "NILL"
-    card_usp: str = "NILL"
-    card_image_url: str = "NILL"
-    know_more_link: str = "NILL"
-    apply_now_link: str = "NILL"
-    joining_fee: str = "NILL"
-    annual_fee: str = "NILL"
-    annual_fee_waiver: str = "NILL"
-    add_on_card_fee: str = "NILL"
-    interest_rate_pa: str = "NILL"
-    card_replacement_fee: str = "NILL"
-    cash_payment_fee: str = "NILL"
-    duplicate_statement_fee: str = "NILL"
-    outstation_cheque_fee: str = "NILL"
-    hostlisting_charges: str = "NILL"
-    cash_withdrawal_fee: str = "NILL"
-    overdue_penalty_fee: str = "NILL"
-    over_limit_penalty: str = "NILL"
-    foreign_currency_transaction_fee: str = "NILL"
-    reward_point_redemption_fee: str = "NILL"
-    dynamic_currency_conversion_markup: str = "NILL"
-    education_transaction_fee: str = "NILL"
-    wallet_load_transaction_fee: str = "NILL"
-    fuel_transaction_fee: str = "NILL"
-    utility_transaction_fee: str = "NILL"
-    rewards_program: str = "NILL"
-    cashback_with_every_transaction: str = "NILL"
-    spend_based_reversal: str = "NILL"
-    flexipay: str = "NILL"
-    reward_points: str = "NILL"
-    rewards: str = "NILL"
-    features: str = "NILL"
-    returns_rate: str = "NILL"
-    welcome_benefit: str = "NILL"
-    welcome_points: str = "NILL"
-    milestone_benefit: str = "NILL"
-    bonus_points: str = "NILL"
-    fuel_benefits: str = "NILL"
-    dining_benefits: str = "NILL"
-    culinary_treats: str = "NILL"
-    travel_benefits: str = "NILL"
-    movie_benefits: str = "NILL"
-    OTT_benefits: str = "NILL"
-    cashback_offers: str = "NILL"
-    voucher_offers: str = "NILL"
-    mobile_app_benefits: str = "NILL"
-    stay_benefits: str = "NILL"
-    lifestyle_benefits: str = "NILL"
-    e_commerce: str = "NILL"
-    lounge_access: str = "NILL"
-    concierge_service: str = "NILL"
-    insurance: str = "NILL"
-    fraud_protection: str = "NILL"
-    health_and_wellness_benefits: str = "NILL"
-    security_features: str = "NILL"
-    international_use: str = "NILL"
-    full_card_description: str = "NILL"
-    eligibility_criteria: str = "NILL"
-    terms_and_conditions: str = "NILL"
+        bank_name: str = "NILL"
+        card_name: str = "NILL"
+        card_type: str = "NILL"
+        card_category: str = "NILL"
+        card_usp: str = "NILL"
+        card_image_url: str = "NILL"
+        know_more_link: str = "NILL"
+        apply_now_link: str = "NILL"
+        joining_fee: str = "NILL"
+        annual_fee: str = "NILL"
+        annual_fee_waiver: str = "NILL"
+        add_on_card_fee: str = "NILL"
+        interest_rate_pa: str = "NILL"
+        card_replacement_fee: str = "NILL"
+        cash_payment_fee: str = "NILL"
+        duplicate_statement_fee: str = "NILL"
+        outstation_cheque_fee: str = "NILL"
+        hostlisting_charges: str = "NILL"
+        cash_withdrawal_fee: str = "NILL"
+        overdue_penalty_fee: str = "NILL"
+        over_limit_penalty: str = "NILL"
+        foreign_currency_transaction_fee: str = "NILL"
+        reward_point_redemption_fee: str = "NILL"
+        dynamic_currency_conversion_markup: str = "NILL"
+        education_transaction_fee: str = "NILL"
+        wallet_load_transaction_fee: str = "NILL"
+        fuel_transaction_fee: str = "NILL"
+        utility_transaction_fee: str = "NILL"
+        rewards_program: str = "NILL"
+        cashback_with_every_transaction: str = "NILL"
+        spend_based_reversal: str = "NILL"
+        flexipay: str = "NILL"
+        reward_points: str = "NILL"
+        rewards: str = "NILL"
+        features: str = "NILL"
+        returns_rate: str = "NILL"
+        welcome_benefit: str = "NILL"
+        welcome_points: str = "NILL"
+        milestone_benefit: str = "NILL"
+        bonus_points: str = "NILL"
+        fuel_benefits: str = "NILL"
+        dining_benefits: str = "NILL"
+        culinary_treats: str = "NILL"
+        travel_benefits: str = "NILL"
+        movie_benefits: str = "NILL"
+        OTT_benefits: str = "NILL"
+        cashback_offers: str = "NILL"
+        voucher_offers: str = "NILL"
+        mobile_app_benefits: str = "NILL"
+        stay_benefits: str = "NILL"
+        lifestyle_benefits: str = "NILL"
+        e_commerce: str = "NILL"
+        lounge_access: str = "NILL"
+        concierge_service: str = "NILL"
+        insurance: str = "NILL"
+        fraud_protection: str = "NILL"
+        health_and_wellness_benefits: str = "NILL"
+        security_features: str = "NILL"
+        international_use: str = "NILL"
+        full_card_description: str = "NILL"
+        eligibility_criteria: str = "NILL"
+        terms_and_conditions: str = "NILL"
 
-prompt_template = '''
-            • Extract all the data for {card_name}:
-                1. bank_name: The name of the financial institution that issues the respective credit card.
+# Save results to CSV
+def save_to_csv(output_path, rows, mode='a'):
+    """
+    Save or append scraped data to a CSV file.
+    
+    Args:
+        output_path (Path): Path to the output CSV file.
+        rows (list): List of data rows to save.
+        mode (str): 'a' for append, 'w' for write (overwrite).
+    """
+    df = pd.DataFrame(rows, columns=list(ExtractSchema.model_fields.keys()))
+    if mode == 'a' and output_path.exists():
+        existing_df = pd.read_csv(output_path)
+        combined_df = pd.concat([existing_df, df], ignore_index=True)
+        combined_df.to_csv(output_path, index=False)
+    else:
+        df.to_csv(output_path, index=False)
+
+# Firecrawl scraper function
+def firecrawl_scraper(bank_name, card_names, excel_path):
+    """
+    Perform Firecrawl scraping for each card of the specified bank.
+    
+    Args:
+        bank_name (str): Name of the bank.
+        card_names (list): List of card names for the bank.
+        excel_path (str): Path to the Excel file.
+    """
+    # Firecrawl API Key
+    app = FirecrawlApp(api_key='fc-d1c3971c376242f492e6a1edc12c32f3')
+
+    # Prompt template
+    prompt_template = '''
+        • Extract all the data for {card_name}:
+            1. bank_name: The name of the financial institution that issues the respective credit card.
                 2. card_name: The official name of the credit card.
                 3. card_type: The card’s primary classification based on its target user or function (e.g., Retail,Business).
                 4. card_category: The main spending focus or benefit area the card is designed for (e.g., Fuel,Shopping).
@@ -143,60 +176,43 @@ prompt_template = '''
                 62. terms_and_conditions: Official terms, rules, and conditions governing card usage(e.g., All dues must be paid on time; rewards program subject to change).
             • If a particular field is not available, set its value to "NILL".
             • If information is split across multiple pages, aggregate it and return one value.
-        '''
-
-def setup_google_sheets():
-    """Set up Google Sheets API client using Colab authentication."""
-    auth.authenticate_user()
-    creds, _ = default()
-    client = gspread.authorize(creds)
-    spreadsheet = client.open("credit_card_details")
-    return spreadsheet
-
-def create_or_get_worksheet(spreadsheet, bank_name):
-    """Create a new worksheet for the bank if it doesn't exist, or return existing one."""
-    try:
-        worksheet = spreadsheet.worksheet(bank_name)
-    except gspread.exceptions.WorksheetNotFound:
-        worksheet = spreadsheet.add_worksheet(title=bank_name, rows="200", cols="70")
-        headers = list(ExtractSchema.model_fields.keys())
-        worksheet.append_row(headers)
-    return worksheet
-
-def main():
-    # Configuration
-    SPREADSHEET_NAME = "credit_card_details"
-    BANK_NAME = "IDBI"
-    card_names = [
-        "IDBI Royale Signature",
-        "IDBI Euphoria World",
-        "IDBI Aspire Platinum",
-        "IDBI Imperium Platinum",
-        "IDBI Winnings"
-    ]
-
-    spreadsheet = setup_google_sheets()
-    worksheet = create_or_get_worksheet(spreadsheet, BANK_NAME)
-
+    '''
+    
     all_rows = []
-
+    
     for card_name in card_names:
-        prompt = prompt_template.format(card_name=card_name)
-        scrape_result = app.extract(prompt=prompt, schema=ExtractSchema.model_json_schema())
-        print(f"Results for {card_name}:", scrape_result)
+        if not card_name.strip():  # Skip blank card names
+            continue
 
-        data_dict = scrape_result.data if hasattr(scrape_result, 'data') else {}
+        full_card_name = f"{bank_name} {card_name}"
+        prompt = prompt_template.format(card_name=full_card_name)
+
+        # --- Firecrawl call ---
+        try:
+            scrape_result = app.extract(
+                prompt=prompt,
+                schema=ExtractSchema.model_json_schema()
+            )
+            print(f"\nResult for {full_card_name}:\n", scrape_result)
+        except Exception as e:
+            print(f"Error scraping for {full_card_name}: {e}")
+            continue
+
+        # --- Collect row ---
+        data_dict = getattr(scrape_result, "data", {}) or {}
         values = [str(data_dict.get(field, "NILL")) for field in ExtractSchema.model_fields]
         all_rows.append(values)
 
-    # Get where to insert
-    start_row = len(worksheet.get_all_values()) + 1
-    end_row = start_row + len(all_rows) - 1
-    end_col = len(all_rows[0])
-    cell_range = f"A{start_row}:{rowcol_to_a1(end_row, end_col)}"
+        # --- Create bank folder ---
+        formatted_bank_name = f"{bank_name.title()}bank"
+        base_output_dir = Path('KnowledgeBase/banks')
+        bank_folder = base_output_dir / formatted_bank_name / 'csv'
+        bank_folder.mkdir(parents=True, exist_ok=True)
 
-    # ✅ Write all rows in one go
-    worksheet.update(cell_range, all_rows)
+        # --- Save to CSV ---
+        output_path = bank_folder / "new_credit_card_details.csv"
+        save_to_csv(output_path, [values], mode='a')
+        print(f"\nAppended record for {full_card_name} → {output_path}")
 
-if __name__ == "__main__":
-    main()
+    if not all_rows:
+        print(f"No rows processed for bank {bank_name}.")

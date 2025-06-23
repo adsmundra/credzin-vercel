@@ -26,7 +26,7 @@ function Login() {
         { withCredentials: true }
       );
       if (response.status !== 200) throw new Error("Login failed");
-      toast.success("Login successful!");
+      toast.success("Login successful!", { position: "top-center", autoClose: 2000 });
       localStorage.setItem("token", response.data.token);
       if (response.data.user.isfirstLogin === true) {
         navigate("/additional-details");
@@ -110,11 +110,10 @@ function Login() {
             Remember me
           </p>
           <label
-            className={`relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-colors ${
-              remember
+            className={`relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-colors ${remember
                 ? "justify-end bg-[#0c7ff2]"
                 : "justify-start bg-[#283039]"
-            }`}
+              }`}
           >
             <div
               className="h-full w-[27px] rounded-full bg-white transition-all"

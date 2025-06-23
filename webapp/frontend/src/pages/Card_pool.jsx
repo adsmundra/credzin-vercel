@@ -102,17 +102,17 @@ const CardPool = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
           onClick={() => setShowCreatePoolModal(true)}
         >
-          Create Pool
+          Create a New Pool
         </button>
       </div>
 
       {/* List of Groups */}
       <div className="mb-10">
-        <h3 className="text-xl font-semibold mb-3">All Groups</h3>
+        {/* <h3 className="text-xl font-semibold mb-3">All Groups</h3> */}
         {loading ? (
           <div className="text-[#9cabba]">Loading groups...</div>
         ) : groups.length === 0 ? (
-          <div className="text-[#9cabba]">No groups found.</div>
+          <div className="text-[#9cabba]">No Pools Found.</div>
         ) : (
           <ul className="space-y-3">
             {groups.map((group) => (
@@ -164,7 +164,7 @@ const CardPool = () => {
             </h3>
             <input
               type="text"
-              placeholder="Enter group name"
+              placeholder="Enter your Pool Name e.g. travel_pool"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               className="w-full px-3 py-2 rounded bg-[#181c22] text-white mb-4 border border-[#3a3f45] focus:outline-none"
@@ -174,7 +174,7 @@ const CardPool = () => {
               onClick={handleCreatePool}
               disabled={!groupName || isCreating} // Disable when creating
             >
-              {isCreating ? "Creating..." : "Done"} 
+              {isCreating ? "Creating..." : "Create a Pool"} 
             </button>
           </div>
         </div>

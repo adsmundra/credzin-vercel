@@ -23,6 +23,8 @@ import Articles from './pages/Articles';
 import Website from './pages/Website';
 import GroupDetails from './pages/GroupDetails';
 import Transactions from './pages/Transactions';
+import NotificationSettings from './pages/NotificationSettings';
+import GoogleLoginAdditionalDetails from './pages/GoogleLoginAdditionalDetails';
 
 function App() {
   const dispatch = useDispatch();
@@ -39,17 +41,21 @@ function App() {
   const showHeader = (visible) => {
     setIsHeaderVisible(visible);
   };
-
-  // Step 1: Get token from URL and store it
+  
   useEffect(() => {
+    // Extract token from URL query parameters
     const queryParams = new URLSearchParams(location.search);
-    const tokenFromUrl = queryParams.get('token');
-    if (tokenFromUrl) {
-      localStorage.setItem('token', tokenFromUrl);
-      window.history.replaceState({}, document.title, '/home'); // remove query param
-      navigate('/home'); // force redirect to /home route
+    const token = queryParams.get('token');
+
+    if (token) {
+      // Store token securely (e.g., in localStorage or state)
+      localStorage.setItem('token', token);
+      console.log('Token saved:', token);
+
+      // Remove token from URL
+      // navigate('/googleAdditionaldetails', { replace: true });
     }
-  }, [location.search, navigate]);
+  }, [location, navigate]);
 
   // Step 2: Fetch user info
   const getUser = async () => {
@@ -185,11 +191,14 @@ const getRecommendedCard = async () => {
             </PrivateRoute>
           }
         />
+        
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/manage-cards" element={<ManageCards />} /> {/* New Route */}
         <Route path="/additional-details" element={<AdditionalDetails/>}/>
         <Route path="/profile" element={<Profile/>}/>
+        <Route path="/googleAdditionaldetails" element={<GoogleLoginAdditionalDetails/>}/>
+
         <Route
           path="/card-pool"
           element={
@@ -202,6 +211,7 @@ const getRecommendedCard = async () => {
       <Route path="/articles" element={<Articles/>} />
       <Route path="/website" element={<Website/>} />
       <Route path="/Transactions" element={<Transactions/>} />
+      <Route path="/notification-settings" element={<NotificationSettings/>} />
       </Routes>
       <Footer />
     </div>

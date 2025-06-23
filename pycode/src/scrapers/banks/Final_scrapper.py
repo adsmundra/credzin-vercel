@@ -10,7 +10,7 @@ from firecrawl import FirecrawlApp
 base_path = Path(__file__).resolve().parent.parent.parent.parent  # Adjust as per your directory structure
 sys.path.append(str(base_path))
 
-from src.utils.utils import setup_env
+from src.utils.utilities import setup_env
 # Decide Run mode
 setup_env()
 
@@ -97,7 +97,7 @@ def save_to_csv(output_path, rows, mode='a'):
         df.to_csv(output_path, index=False)
 
 # Firecrawl scraper function
-def firecrawl_scraper(bank_name, card_names, excel_path):
+def firecrawl_scraper(bank_name, card_info, excel_path):
     """
     Perform Firecrawl scraping for each card of the specified bank.
     
@@ -106,7 +106,7 @@ def firecrawl_scraper(bank_name, card_names, excel_path):
         card_names (list): List of card names for the bank.
         excel_path (str): Path to the Excel file.
     """
-    # Firecrawl API Key
+    # Firecrawl API Key 
     app = FirecrawlApp(api_key='fc-d1c3971c376242f492e6a1edc12c32f3')
 
     # Prompt template
@@ -180,14 +180,53 @@ def firecrawl_scraper(bank_name, card_names, excel_path):
     
     all_rows = []
     
-    for card_name in card_names:
-        if not card_name.strip():  # Skip blank card names
+    # for card_name in card_names:
+    #     if not card_name.strip():  # Skip blank card names
+    #         continue
+
+    #     full_card_name = f"{bank_name} {card_name}"
+    #     prompt = prompt_template.format(card_name=full_card_name)
+
+    #     # --- Firecrawl call ---
+    #     try:
+    #         scrape_result = app.extract(
+    #             prompt=prompt,
+    #             schema=ExtractSchema.model_json_schema()
+    #         )
+    #         print(f"\nResult for {full_card_name}:\n", scrape_result)
+    #     except Exception as e:
+    #         print(f"Error scraping for {full_card_name}: {e}")
+    #         continue
+
+    #     # --- Collect row ---
+    #     data_dict = getattr(scrape_result, "data", {}) or {}
+    #     values = [str(data_dict.get(field, "NILL")) for field in ExtractSchema.model_fields]
+    #     all_rows.append(values)
+
+    #     # --- Create bank folder ---
+    #     formatted_bank_name = f"{bank_name.title()}bank"
+    #     base_output_dir = Path('KnowledgeBase/banks')
+    #     bank_folder = base_output_dir / formatted_bank_name / 'csv'
+    #     bank_folder.mkdir(parents=True, exist_ok=True)
+
+    #     # --- Save to CSV ---
+    #     output_path = bank_folder / "new_credit_card_details.csv"
+    #     save_to_csv(output_path, [values], mode='a')
+    #     print(f"\nAppended record for {full_card_name} → {output_path}")
+
+    # if not all_rows:
+    #     print(f"No rows processed for bank {bank_name}.")
+
+    for entry in card_info:
+        card_name = entry.get("card_name", "").strip()
+        original_image_url = entry.get("card_image_url", "NILL")
+
+        if not card_name:
             continue
 
         full_card_name = f"{bank_name} {card_name}"
         prompt = prompt_template.format(card_name=full_card_name)
 
-        # --- Firecrawl call ---
         try:
             scrape_result = app.extract(
                 prompt=prompt,
@@ -198,18 +237,20 @@ def firecrawl_scraper(bank_name, card_names, excel_path):
             print(f"Error scraping for {full_card_name}: {e}")
             continue
 
-        # --- Collect row ---
         data_dict = getattr(scrape_result, "data", {}) or {}
+
+        # Overwrite card_image_url with the one from Excel if present
+        if original_image_url and original_image_url != "NILL":
+            data_dict["card_image_url"] = original_image_url
+
         values = [str(data_dict.get(field, "NILL")) for field in ExtractSchema.model_fields]
         all_rows.append(values)
 
-        # --- Create bank folder ---
         formatted_bank_name = f"{bank_name.title()}bank"
         base_output_dir = Path('KnowledgeBase/banks')
         bank_folder = base_output_dir / formatted_bank_name / 'csv'
         bank_folder.mkdir(parents=True, exist_ok=True)
 
-        # --- Save to CSV ---
         output_path = bank_folder / "new_credit_card_details.csv"
         save_to_csv(output_path, [values], mode='a')
         print(f"\nAppended record for {full_card_name} → {output_path}")

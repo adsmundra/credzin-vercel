@@ -1,0 +1,16 @@
+type Merchant {
+    id: ID
+    legalName: String,
+    displayName: String,
+    merchantCategoryCode: String,
+}
+
+type MerchantCategoryCode {
+    id: String,
+    businessType: MerchantBusinessType
+    cardNetworks: [CardNetwork]
+}
+
+enum MerchantBusinessType {
+    GET_FROM_THE_FILE_AND_STORE
+}

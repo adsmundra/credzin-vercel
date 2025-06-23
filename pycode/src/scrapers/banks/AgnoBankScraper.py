@@ -13,7 +13,7 @@ from pathlib import Path
 base_path = Path(__file__).resolve().parent.parent.parent.parent  # Two levels up
 sys.path.append(str(base_path))
 
-from src.utils.utils import setup_env
+from src.utils.utilities import setup_env
 
 # Decide Run mode
 setup_env()

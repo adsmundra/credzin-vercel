@@ -1,0 +1,10 @@
+type GiftCard {
+    id: ID,
+    reference: String,
+    externalSystemId: String,
+    type: GiftCardType
+}
+
+enum GiftCardType {
+    AMAZON_PAY,
+}

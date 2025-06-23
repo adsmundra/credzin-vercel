@@ -1,6 +1,6 @@
 import os
 from qdrant_client import QdrantClient
-from src.utils.utils import logger
+from utils.utilities import logger
 
 def qdrantdb_client():
     logger.info("Connecting to QdrantDB ...")

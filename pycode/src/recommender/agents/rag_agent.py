@@ -1,7 +1,7 @@
 """
 RAG Agent: Ingests case files and performs document-based retrieval using embeddings.
 """
-from src.utils.logger_utils import *
+from src.utils.utilities import *
 
 def rag_agent(input):
     """

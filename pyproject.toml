@@ -1,0 +1,94 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "credzin"
+version = "0.1.0"
+authors = [
+  { name = "Aman Mundra", email = "aman@thewelzin.com" },
+  { name="Credzin Team", email="team@credzin.com" },
+]
+description = "Credzin project package"
+readme = "README.md"
+requires-python = ">=3.12, <3.13"
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools]
+package-dir = {"" = "pycode/src"}
+
+[tool.setuptools.packages.find]
+where = ["pycode/src"]
+
+[project.urls]
+homepage = "https://python-poetry.org/"
+repository = "https://github.com/python-poetry/poetry"
+documentation = "https://python-poetry.org/docs/"
+"Bug Tracker" = "https://github.com/python-poetry/poetry/issues"
+
+[tool.poetry.dependencies]
+neo4j = "^5.28.1"
+lxml-html-clean = "^0.4.2"
+image = "^1.5.33"
+automated = "^1.3.2"
+plotting = "^0.0.7"
+yfiles-jupyter-graphs = "^1.10.7"
+excel = "^1.0.1"
+files = "^1.1.1"
+pypdf2 = "^3.0.1"
+ollama = "^0.5.1"
+openai = "^1.90.0"
+anthropic = "^0.54.0"
+fastapi = "^0.115.13"
+huggingface-hub = {extras = ["hf-xet"], version = "^0.33.0"}
+pendulum = ">=3.0"
+requests = ">=2.32"
+fpdf = "1.7.2"
+langchain = "^0.3.26"
+langchain-core = "^0.3.66"
+langchain-community = "^0.3.26"
+langchain-experimental = "^0.3.4"
+langchain-huggingface = "^0.3.0"
+langchain-neo4j = "^0.4.0"
+langchain-ollama = "^0.3.3"
+langgraph = "^0.4.8"
+langchain-openai = "^0.3.24"
+langchain-qdrant = "^0.2.0"
+neo4j-graphrag = "^1.7.0"
+chromadb = "^1.0.13"
+qdrant-client = "^1.14.3"
+pymongo = "^4.13.2"
+pymupdf = "^1.26.1"
+python-docx = "^1.2.0"
+pillow = "^11.2.1"
+pandas = "^2.3.0"
+numpy = ">=1.26"
+featuretools = "^1.31.0"
+spacy = "^3.8.7"
+sentence-transformers = "^4.1.0"
+transformers = "^4.52.4"
+matplotlib = "^3.10.3"
+gradio = "^5.34.2"
+tqdm = "^4.67.1"
+pydantic = "^2.11.7"
+typing-extensions = "^4.14.0"
+python-dotenv = "^1.1.0"
+pytest = "^8.4.1"
+tavily-python = "^0.7.7"
+duckduckgo-search = "^8.0.4"
+newspaper4k = "^0.9.3.1"
+ipython = "^9.3.0"
+jupyter = "^1.1.1"
+requests-html = "^0.10.0"
+beautifulsoup4 = "^4.13.4"
+firecrawl-py = "^2.9.0"
+bs4 = "^0.0.2"
+pypdf = "^5.6.0"
+openpyxl = "^3.1.5"
+fastembed = "^0.7.1"
+agno = "^1.6.3"
+playground = "^0.0.4"

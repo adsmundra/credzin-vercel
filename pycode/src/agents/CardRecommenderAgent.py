@@ -1,5 +1,5 @@
 import sys
-sys.path.append("pycode")
+sys.path.append("/home/cygwin/welzin/credzin/pycode")
 
 import os, re 
 import pandas as pd
@@ -33,6 +33,17 @@ import pymongo
 from agno.run.response import RunResponse
 
 from src.DataLoaders.QdrantDB import qdrantdb_client
+from bson import ObjectId
+
+if len(sys.argv) < 2:
+    print("Error: missing user_id argument")
+    sys.exit(1)
+user_id_str = sys.argv[1]
+try:
+    user_object_id = ObjectId(user_id_str)
+except Exception as e:
+    print(f"Error: invalid user_id '{user_id_str}': {e}")
+    sys.exit(1)
 
 # Initialize the local embedder
 # embedder = SentenceTransformerEmbedder(id="all-MiniLM-L6-v2")
@@ -192,10 +203,14 @@ adapted_retriever = RetrieverAdapter(retriever)
 myclient = pymongo.MongoClient("mongodb+srv://Welzin:yYsuyoXrWcxPKmPV@welzin.1ln7rs4.mongodb.net/credzin?retryWrites=true&w=majority&appName=Welzin")
 db = myclient["credzin"]       
 users_collection = db["users"]           
-all_users = list(users_collection.find({}))
+
+#all_users = list(users_collection.find({}))
+all_users = list(users_collection.find({ "_id": user_object_id }))
+
 cards_collection = db["credit_cards"] 
 # users = users_collection.find()
 pipeline = [
+    { "$match": { "_id": user_object_id } },
     {
         "$lookup": {
             "from": "credit_cards",

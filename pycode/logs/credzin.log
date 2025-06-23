@@ -20,3 +20,26 @@
 2025-06-20 14:03:35,925 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
 2025-06-20 14:03:44,772 - credzin - INFO - Connecting to QdrantDB ...
 2025-06-20 14:03:45,678 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 16:52:07,142 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 16:52:07,450 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 16:52:08,465 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 16:52:08,468 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 16:52:08,802 - credzin - INFO - Running main function...
+2025-06-20 16:52:08,802 - credzin - INFO - Reading the excel to get corresponding credit names from a bank....
+2025-06-20 16:52:11,171 - credzin - INFO - Starting credit card scraping process (NEW) ...
+2025-06-20 16:59:28,498 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 16:59:28,653 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 16:59:29,696 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 16:59:29,697 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:23,205 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 17:00:23,414 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 17:00:24,440 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 17:00:24,440 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:31,499 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 17:00:31,611 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 17:00:32,194 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 17:00:32,194 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:32,198 - credzin - INFO - Loading CardInsider credit cards class
+2025-06-20 17:00:32,383 - credzin - INFO - Running main function...
+2025-06-20 17:00:32,383 - credzin - INFO - Reading the excel to get corresponding credit names from a bank....
+2025-06-20 17:00:34,692 - credzin - INFO - Starting credit card scraping process (NEW) ...

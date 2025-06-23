@@ -1,12 +1,12 @@
 const express= require("express")
 const router= express.Router()
 
-const {signup, login}=  require("../controller/Auth")
+
 const {verifyToken} = require("../middlewares/verifyToken")
 const {getUserData}= require("../controller/Auth")
 const {addcards} = require("../controller/Auth")
 const {getUserCards} =require("../controller/Auth")
-const {removeCardFromCart, updateAdditionalDetails,getFullUserDetails}=require("../controller/Auth")
+const {login,signup, removeCardFromCart, updateAdditionalDetails,getFullUserDetails,googlgeLoginUpdateAdditionalDetails}=require("../controller/Auth")
 const{findIdByContact}=require("../controller/Auth")
 
 
@@ -20,7 +20,7 @@ router.post("/removeCardFromCart",verifyToken,removeCardFromCart)
 router.post("/additionalDetails",verifyToken,updateAdditionalDetails)
 router.get("/userdetail",verifyToken,getFullUserDetails)
 router.post("/findbycontact",verifyToken,findIdByContact)
-
+router.post("/loginAdditional", verifyToken,googlgeLoginUpdateAdditionalDetails)
 // router.post("/your_recomendation",Cardfetch)
 
 module.exports= router

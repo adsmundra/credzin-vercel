@@ -1,6 +1,6 @@
-from src.Utils.utils import *
-from src.Recommender.agents.ingest_agent import ingest_agent
-from src.Recommender.agents.rag_agent import rag_agent
+from src.utils.utilities import *
+from src.recommender.agents.ingest_agent import ingest_agent
+from src.recommender.agents.rag_agent import rag_agent
 
 import json
 

@@ -52,10 +52,12 @@
   const authRoutes = require('./routes/user');
   const cardRoutes = require('./routes/cardroutes');
   const oauthRoutes = require('./routes/oauthRoute');
+  const notificationRoutes = require('./routes/notificationRoutes');
 
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/card', cardRoutes);
   app.use('/api/v1/auth/oauth', oauthRoutes);
+  app.use('/api/v1/notifications', notificationRoutes);
 
   app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', uptime: process.uptime() });

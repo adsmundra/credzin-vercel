@@ -3,15 +3,18 @@ import axios from 'axios';
 import { apiEndpoint } from '../api';  
 import { useNavigate } from 'react-router-dom';
 import BottomNavBar from '../component/BottomNavBar';
+
 const AdditionalDetails = () => {
   const [ageRange, setAgeRange] = useState('');
   const [salaryRange, setSalaryRange] = useState('');
   const [expenseRange, setExpenseRange] = useState('');
-  const [profession, setProfession] = useState('');       // New profession state
+  const [profession, setProfession] = useState('');
   const [location, setLocation] = useState('');
+  const [contact, setContact] = useState(''); // New contact state
   const navigate = useNavigate();
+
   const handleSubmit = async () => {
-    const userData = { ageRange, salaryRange, expenseRange, profession, location };
+    const userData = { ageRange, salaryRange, expenseRange, profession, location, contact };
     console.log('Submitted:', userData);
     try {
       const token = localStorage.getItem("token"); 
@@ -30,11 +33,9 @@ const AdditionalDetails = () => {
       }
       if (response.status === 200) {
         console.log("Submission successful"); 
-        // localStorage.setItem("token", response.data.token); // Store the new token if provided
-        // Redirect to the next page or show a success message  
-        navigate('/manage-cards'); // Adjust the route as needed
+        navigate('/manage-cards');
       }
-        console.log("Server response:", response.data);
+      console.log("Server response:", response.data);
     } catch (error) {
       console.error("Submission failed:", error.response?.data || error.message);
     }
@@ -42,14 +43,10 @@ const AdditionalDetails = () => {
 
   const handleOnSkip = () => {
     console.log('User skipped the form');
-    // Add redirect or close modal logic here
   };
 
   return (
     <div className="min-h-screen w-full bg-gray-100 flex flex-col">
-      {/* Navbar */}
-
-      {/* Form Content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 md:p-8">
         <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 sm:p-8 md:p-10">
           <h2 className="text-2xl sm:text-3xl font-bold text-blue-700 mb-4 text-center">
@@ -59,7 +56,6 @@ const AdditionalDetails = () => {
             This helps us personalize your experience. You can skip this step.
           </p>
 
-          {/* Age Range */}
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
               Age Range
@@ -78,7 +74,6 @@ const AdditionalDetails = () => {
             </select>
           </div>
 
-          {/* Salary Range */}
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
               Monthly Salary Range
@@ -97,7 +92,6 @@ const AdditionalDetails = () => {
             </select>
           </div>
 
-          {/* Expense Range */}
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
               Monthly Expense Range
@@ -115,7 +109,6 @@ const AdditionalDetails = () => {
             </select>
           </div>
 
-          {/* Profession (NEW) */}
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
               Profession
@@ -129,7 +122,6 @@ const AdditionalDetails = () => {
             />
           </div>
 
-          {/* Location */}
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
               Location
@@ -139,6 +131,19 @@ const AdditionalDetails = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="Enter your location"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              placeholder="Enter your contact number"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
             />
           </div>
@@ -160,7 +165,6 @@ const AdditionalDetails = () => {
         </div>
       </div>
       <BottomNavBar/>
-      {/* Footer */}
     </div>
   );
 };

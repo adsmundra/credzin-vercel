@@ -129,7 +129,7 @@ const Articles = () => (
   <div className="w-full h-screen mt-16">
     <iframe
       src="http://www.credzin.com/articles/"
-      title="Credzin WordPress"
+      title="Credzin"
       className="w-full h-screen border-0"
       style={{ minHeight: "100vh" }}
     />

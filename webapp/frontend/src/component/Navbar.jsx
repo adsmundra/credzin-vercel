@@ -5,6 +5,7 @@ import { setUser, logout } from "../app/slices/authSlice";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { apiEndpoint } from "../api";
+import NotificationBell from "./NotificationBell";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,6 +66,12 @@ const Navbar = () => {
     setSearchTerm("");
     setShowMobileSearch(false);
   };
+  const handleBlogClick = () => {
+  window.open('http://www.credzin.com/articles/', '_blank');
+};
+const handleWebsiteClick=()=>{
+   window.open('http://www.credzin.com/', '_blank');
+}
 
   return (
     <nav className="bg-[#1b2127] p-1 shadow-md w-full fixed top-0 z-50">
@@ -105,6 +112,11 @@ const Navbar = () => {
               <Search size={24} />
             </button>
           )}
+          {!isAuthPage && (
+            <div className="text-white">
+              <NotificationBell />
+            </div>
+          )}
           <button
             onClick={toggleMenu}
             className="text-white focus:outline-none p-2 hover:bg-blue-700 rounded-lg transition-colors duration-200"
@@ -126,7 +138,7 @@ const Navbar = () => {
             </li>
             <li>
               <button
-                onClick={() => navigate("/website")}
+                onClick={handleWebsiteClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Website
@@ -134,11 +146,14 @@ const Navbar = () => {
             </li>
             <li>
               <button
-                onClick={() => navigate("/articles")}
+                onClick={handleBlogClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Blogs
               </button>
+            </li>
+            <li>
+              <NotificationBell />
             </li>
             <li className="relative" ref={profileRef}>
               <button
@@ -180,6 +195,17 @@ const Navbar = () => {
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-200"
                       >
                         View Profile
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => {
+                          navigate("/notification-settings");
+                          setProfileOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-200"
+                      >
+                        Notification Settings
                       </button>
                     </li>
                     <li>
@@ -301,6 +327,32 @@ const Navbar = () => {
                 className="w-full text-left px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors duration-200"
               >
                 Logout
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => {
+                  navigate("/notification-settings");
+                  setIsOpen(false);
+                }}
+                className="w-full text-left px-4 py-3 rounded-lg hover:bg-blue-700 text-white transition-colors duration-200 flex items-center justify-between"
+              >
+                <span>Notification Settings</span>
+                <div className="relative">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v4.5l2.25 2.25a.75.75 0 0 1-.75 1.25H3a.75.75 0 0 1-.75-.75L4.5 14.25V9.75a6 6 0 0 1 6-6Z"
+                    />
+                  </svg>
+                </div>
               </button>
             </li>
           </ul>

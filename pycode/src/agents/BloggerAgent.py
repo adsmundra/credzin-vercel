@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 import re
+from datetime import datetime
 
 from agno.agent import Agent
 from agno.models.ollama import Ollama
@@ -10,46 +11,38 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.newspaper4k import Newspaper4kTools
 
 from langchain_qdrant import QdrantVectorStore
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 
-from qdrant_client import QdrantClient
+from utils.logger import configure_logging
+from utils.utilities import setup_env
+from DataLoaders.QdrantDB import qdrantdb_client
 
-# Get the parent directory (one level up from current file)
-base_path = Path(__file__).resolve().parent.parent.parent  # Two levels up
-sys.path.append(str(base_path))
-
-from src.utils.utils import setup_env
-from src.DataLoaders.QdrantDB import qdrantdb_client
+logger = configure_logging("BloggerAgent")
 
 # Decide Run mode
 setup_env()
-
-# ENV SETUP 
-# os.environ["QDRANT_API_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.SsEx9xbs-jY9DjYKrmyGatbRchqs3vQ4lbfF0vS5M4A"
-# os.environ["QDRANT_URL"] = "https://76d501b6-b754-42c1-a4da-9e0bc8cca319.us-east4-0.gcp.cloud.qdrant.io:6333/"
-# QDRANT_URL = os.getenv("QDRANT_URL")
-# QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
 COLLECTION_NAME = "knowledge_base_hybrid1"
 embedder = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
 sparse_embeddings=FastEmbedSparse(model_name="Qdrant/bm25")
 
-#qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 qdrant_client = qdrantdb_client()
 
 try:
-    print(f"Collection '{COLLECTION_NAME}' info:")
+    logger.info(f"Collection '{COLLECTION_NAME}' info:")
     resp1 = qdrant_client.collection_exists('knowledge_base_hybrid2')
-    print('resp1: ', resp1)
+    logger.info(f'resp1: {resp1}')
     resp2 = qdrant_client.get_collection('knowledge_base_hybrid1')
-    print('resp2: ', resp2)
+    logger.info(f'resp2: {resp2}')
 except Exception as e:
-    print(f"Error checking collection: {str(e)}")
-    print(f"Error type: {type(e).__name__}")
+    logger.error(f"Error checking collection: {str(e)}")
+    logger.error(f"Error type: {type(e).__name__}")
+
 # Correctly use QdrantVectorStore from langchain_qdrant
 vectorstore = QdrantVectorStore(
-    client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
+    #client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
+    client=qdrant_client,
     collection_name=COLLECTION_NAME,
     embedding=embedder,
     sparse_embedding=sparse_embeddings,
@@ -67,7 +60,7 @@ retriever = retriever = vectorstore.as_retriever(
     },
 )
 
-print("\n--- Direct Retriever Test ---")
+logger.info("\n--- Direct Retriever Test ---")
 test_query = "tell me about axis bank" # Or another relevant query
 def validate_document(doc):
     """Validate and clean document content"""
@@ -86,18 +79,18 @@ try:
     valid_docs = [doc for doc in retrieved_docs if validate_document(doc)]
     if valid_docs:
     #if retrieved_docs:
-        print(f":white_check_mark: Directly retrieved {len(retrieved_docs)} documents for query: '{test_query}'")
+        logger.info(f":white_check_mark: Directly retrieved {len(retrieved_docs)} documents for query: '{test_query}'")
         for i, doc in enumerate(retrieved_docs):
-            print(f"--- Doc {i+1} ---")
-            print(f"Content: {doc.page_content[:200]}...") # Print first 200 chars
+            logger.info(f"--- Doc {i+1} ---")
+            logger.info(f"Content: {doc.page_content[:200]}...") # Print first 200 chars
             if doc.metadata:
-                print(f"Metadata: {doc.metadata}")
+                logger.info(f"Metadata: {doc.metadata}")
     else:
-        print(f":x: No documents retrieved by direct retriever for query: '{test_query}'")
+        logger.warning(f":x: No documents retrieved by direct retriever for query: '{test_query}'")
 except Exception as e:
-    print(f"Error during retrieval: {str(e)}")
-    print(f"Error type: {type(e).__name__}")
-print("---------------------------\n")
+    logger.error(f"Error during retrieval: {str(e)}")
+    logger.error(f"Error type: {type(e).__name__}")
+logger.info("---------------------------\n")
 
 
 
@@ -106,9 +99,6 @@ ollama_model = Ollama(
     id = "llama3.2",
     options={"temperature":0.5, "top_p":0.95}
 )
-
-
-
 
 def is_trusted_url(url):
     return any(domain in url for domain in [
@@ -216,7 +206,6 @@ writer = Agent(
 )
 
 
-
 # --- GRADER AGENT ---
 grader = Agent(
     name="Grader",
@@ -283,28 +272,25 @@ editor = Team(
 # EXECUTION
 # !nohup ollama serve &
 if __name__ == "__main__":
-    topics = [
-        "Axis bank Vs SBI bank credit cards, which one is better",
-        
-    ]
-    output_dir = r"D:\\Welzin\\credzin\\Output\\Articles" # Change this to your desired output directory
-    os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
+    date_str = datetime.now().strftime('%Y-%m-%d')
+    output_dir = os.path.join("Output", "blogs", date_str)
+    os.makedirs(output_dir, exist_ok=True)
+
+    topics = ["Credit Card Annual Fees in India 2024"]
 
     for topic in topics:
-        print(f"\nGenerating article for: {topic}")
+        logger.info(f"\nGenerating article for: {topic}")
         response = editor.run(f"Write a detailed article about {topic}.")
 
         # Print the raw content to understand its structure
-        print("\n--- Raw Response Content ---")
-        print(response.content)
-        print("----------------------------")
+        logger.info("\n--- Raw Response Content ---")
+        logger.info(response.content)
+        logger.info("----------------------------")
 
         # Generate a filename-safe version of the topic
-        safe_title = re.sub(r'[^\w\s-]', '', topic).strip().lower()
-        safe_title = re.sub(r'[\s-]+', '_', safe_title)
-        filename = f"{safe_title}.md"
+        filename = re.sub(r'[\\/*?:"<>|]', "", topic).replace(" ", "_") + ".md"
         file_path = os.path.join(output_dir, filename)
-        # Save the article (for now, saving the raw content)
+
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(response.content)
-        print(f"Raw article content saved to {file_path}")
+        logger.info(f"Raw article content saved to {file_path}")

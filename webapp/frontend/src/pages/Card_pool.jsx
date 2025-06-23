@@ -10,12 +10,8 @@ const CardPool = () => {
   const [loading, setLoading] = useState(true);
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [groupName, setGroupName] = useState("");
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [searchContact, setSearchContact] = useState("");
-  const [searchResult, setSearchResult] = useState(null);
-  const [searching, setSearching] = useState(false);
-  const [userFound, setUserFound] = useState(false);
   const [deletingGroup, setDeletingGroup] = useState(null);
+  const [isCreating, setIsCreating] = useState(false); // New state to track creation in progress
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -41,6 +37,8 @@ const CardPool = () => {
 
   const handleCreatePool = async (e) => {
     e.preventDefault();
+    if (isCreating) return; // Prevent multiple submissions
+    setIsCreating(true); // Disable button
     try {
       const response = await axios.post(
         `${apiEndpoint}/api/v1/card/createPool`,
@@ -51,7 +49,6 @@ const CardPool = () => {
       );
       if (response.status === 200) {
         setShowCreatePoolModal(false);
-        setShowSearchModal(true);
         setGroupName("");
         // Refresh group list
         const res = await axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
@@ -63,55 +60,8 @@ const CardPool = () => {
       }
     } catch (error) {
       alert("An error occurred while creating the pool.");
-    }
-  };
-
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    setSearching(true);
-    setUserFound(false);
-    setSearchResult(null);
-
-    try {
-      const response = await axios.post(
-        `${apiEndpoint}/api/v1/auth/findbycontact`,
-        { searchContact },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const { status, user } = response.data;
-      if (status && user) {
-        setUserFound(true);
-        setSearchResult(user);
-      } else {
-        alert("Contact not found or inactive.");
-      }
-    } catch (error) {
-      alert("An error occurred while searching.");
-    }
-    setSearching(false);
-  };
-
-  const handleAddToPool = async () => {
-    try {
-      const response = await axios.post(
-        `${apiEndpoint}/api/v1/card/addUserToPool`,
-        { searchContact },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (response.status === 200) {
-        setShowSearchModal(false);
-        setSearchContact("");
-        setSearchResult(null);
-        setUserFound(false);
-      } else {
-        alert("Failed to add user to pool.");
-      }
-    } catch (error) {
-      alert("An error occurred while adding to pool.");
+    } finally {
+      setIsCreating(false); // Re-enable button
     }
   };
 
@@ -141,7 +91,6 @@ const CardPool = () => {
 
   // When a group is clicked, go to group detail page
   const handleGroupClick = (groupId) => {
-    // Implement navigation to group detail if needed
     navigate(`/group/${groupId}`);
   };
 
@@ -153,17 +102,17 @@ const CardPool = () => {
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"
           onClick={() => setShowCreatePoolModal(true)}
         >
-          Create Pool
+          Create a New Pool
         </button>
       </div>
 
       {/* List of Groups */}
       <div className="mb-10">
-        <h3 className="text-xl font-semibold mb-3">All Groups</h3>
+        {/* <h3 className="text-xl font-semibold mb-3">All Groups</h3> */}
         {loading ? (
           <div className="text-[#9cabba]">Loading groups...</div>
         ) : groups.length === 0 ? (
-          <div className="text-[#9cabba]">No groups found.</div>
+          <div className="text-[#9cabba]">No Pools Found.</div>
         ) : (
           <ul className="space-y-3">
             {groups.map((group) => (
@@ -215,7 +164,7 @@ const CardPool = () => {
             </h3>
             <input
               type="text"
-              placeholder="Enter group name"
+              placeholder="Enter your Pool Name e.g. travel_pool"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               className="w-full px-3 py-2 rounded bg-[#181c22] text-white mb-4 border border-[#3a3f45] focus:outline-none"
@@ -223,77 +172,10 @@ const CardPool = () => {
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition w-full"
               onClick={handleCreatePool}
-              disabled={!groupName}
+              disabled={!groupName || isCreating} // Disable when creating
             >
-              Done
+              {isCreating ? "Creating..." : "Create a Pool"} 
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Search Contact Modal */}
-      {showSearchModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-[#23272f] rounded-lg p-6 w-full max-w-md mx-auto relative">
-            <button
-              className="absolute top-2 right-3 text-white text-2xl font-bold"
-              onClick={() => {
-                setShowSearchModal(false);
-                setSearchContact("");
-                setSearchResult(null);
-                setUserFound(false);
-              }}
-            >
-              ×
-            </button>
-            <h3 className="text-lg font-semibold mb-4 text-blue-300">
-              Search by Contact Number
-            </h3>
-            <input
-              type="text"
-              placeholder="Enter contact number"
-              value={searchContact}
-              onChange={(e) => setSearchContact(e.target.value)}
-              className="w-full px-3 py-2 rounded bg-[#181c22] text-white mb-4 border border-[#3a3f45] focus:outline-none"
-              disabled={userFound}
-            />
-            {userFound ? (
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded transition w-full"
-                onClick={handleAddToPool}
-              >
-                Add to Pool
-              </button>
-            ) : (
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded transition w-full"
-                onClick={handleSearch}
-                disabled={searching || !searchContact}
-              >
-                {searching ? "Searching..." : "Search"}
-              </button>
-            )}
-            {searchResult && (
-              <div className="mt-6 bg-[#1b2127] p-4 rounded-lg">
-                <div className="font-medium text-lg">
-                  {searchResult.user_name}
-                </div>
-                <div className="text-sm text-[#6c7a89] mb-2">
-                  {searchResult.contact}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {searchResult.cards?.map((card, idx) => (
-                    <img
-                      key={idx}
-                      src={card.image_url || "https://via.placeholder.com/60x40"}
-                      alt={card.card_name}
-                      className="object-contain rounded w-16 h-10"
-                      title={card.card_name}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

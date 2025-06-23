@@ -1,0 +1,88 @@
+# Core dependencies
+langchain
+langchain-core
+langchain-community
+langchain-experimental
+langchain-huggingface
+langchain-neo4j
+langchain-ollama
+langgraph
+langchain-openai
+langchain-qdrant
+
+# Database and Graph
+neo4j
+neo4j-graphrag
+chromadb
+qdrant-client
+pymongo
+
+# Document Processing
+pymupdf
+python-docx
+lxml-html-clean
+pillow
+
+# Data Processing
+pandas
+numpy
+featuretools
+spacy
+
+# Machine Learning and Embeddings
+sentence-transformers
+transformers
+
+# Visualization
+matplotlib
+yfiles-jupyter-graphs
+
+# Web Interface
+gradio
+
+# Utilities
+tqdm
+pydantic
+typing-extensions
+python-dotenv
+pytest
+
+# Search and Retrieval
+tavily-python
+duckduckgo-search
+newspaper4k
+
+# Jupyter
+ipython
+jupyter
+
+# Scrapping pack
+requests
+requests-html
+beautifulsoup4
+firecrawl-py
+
+# Document processing
+bs4
+pypdf
+openpyxl
+PyPDF2
+
+# LLMs and Embeddings
+ollama
+openai
+anthropic
+fastembed
+
+# Agno/PhiData API
+agno
+fastapi
+playground
+
+# Huggingface
+huggingface_hub[hf_xet]
+
+pendulum>=3.0
+numpy>=1.26
+requests>=2.32
+fpdf==1.7.2    

@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const Cards = require('../models/card');
@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const { PythonShell } = require('python-shell');
 const { spawn } = require('child_process');
 const path = require('path');
+const notificationService = require('../services/notificationService');
 
 exports.signup = async (req, res) => {
   // Validate request body
@@ -178,6 +179,23 @@ exports.addcards = async (req, res) => {
     // console.log(user.CardAdded)
 
     await user.save();
+    
+    // Send notification for card added
+    try {
+      const cardNames = products.map(card => card.card_name).join(', ');
+      await notificationService.sendNotification(
+        userId,
+        'card_added',
+        'Card Added Successfully!',
+        `You have successfully added ${cardNames} to your collection.`,
+        { inApp: true, email: false, whatsapp: false },
+        { cardIds: productIds, cardNames: products.map(card => card.card_name) }
+      );
+    } catch (notificationError) {
+      console.error('Error sending notification:', notificationError);
+      // Don't fail the main request if notification fails
+    }
+    
     console.log("Triggering python")
     console.log('UserId:', userId);
     
@@ -192,9 +210,14 @@ exports.addcards = async (req, res) => {
 
     const { spawn } = require('child_process');
 
-    const pythonProcess = spawn('wsl', [
-        'bash', '-c', 
-        `cd /mnt/c/Users/MANISH/Downloads/credzin && source venv/bin/activate && python pycode/src/agents/CardRecommendation.py ${userId}`
+    // const pythonProcess = spawn('wsl', [
+    //     'bash', '-c', 
+    //     `python pycode/src/agents/CardRecommendation.py ${userId}`
+    // ]);
+
+    const pythonProcess = spawn('python', [
+      '/home/cygwin/welzin/credzin/pycode/src/agents/CardRecommenderAgent.py',
+      userId
     ]);
 
     pythonProcess.stdout.on('data', (data) => {
@@ -299,6 +322,24 @@ exports.removeCardFromCart = async (req, res) => {
         .json({ success: false, message: 'User not found.' });
     }
 
+    // Send notification for card removed
+    try {
+      const removedCard = await Cards.findById(cardId);
+      if (removedCard) {
+        await notificationService.sendNotification(
+          userId,
+          'card_added',
+          'Card Removed Successfully!',
+          `You have removed ${removedCard.card_name} from your collection.`,
+          { inApp: true, email: false, whatsapp: false },
+          { cardId: cardId, cardName: removedCard.card_name }
+        );
+      }
+    } catch (notificationError) {
+      console.error('Error sending notification:', notificationError);
+      // Don't fail the main request if notification fails
+    }
+
     console.log("Triggering python")
     console.log('UserId:', userId);
     
@@ -315,7 +356,8 @@ exports.removeCardFromCart = async (req, res) => {
 
     const pythonProcess = spawn('wsl', [
         'bash', '-c', 
-        `cd /mnt/c/Users/MANISH/Downloads/credzin && source venv/bin/activate && python pycode/src/agents/CardRecommendation.py ${userId}`
+        //`cd /mnt/c/Users/MANISH/Downloads/credzin && source venv/bin/activate && python pycode/src/agents/CardRecommendation.py ${userId}`
+        `python pycode/src/agents/CardRecommenderAgent.py ${userId}`
     ]);
 
     pythonProcess.stdout.on('data', (data) => {
@@ -398,6 +440,66 @@ exports.updateAdditionalDetails = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.googlgeLoginUpdateAdditionalDetails = async (req, res) => {
+  try {
+    const userId = req.id;
+    if (!userId) {
+      return res.status(400).json({ message: "User ID missing in request" });
+    }
+
+    const { ageRange, salaryRange, expenseRange, profession, location,contact } = req.body;
+    if(!ageRange || !salaryRange ||!expenseRange || !profession || !location  || !contact){
+      return res.status(400).json({
+        message:'missing the data field',
+        status:false
+      })
+    }
+    // Basic validation
+    const validAgeRanges = ["18-24", "25-34", "35-44", "45-54", "55+"];
+    const validSalaryRanges = ["0-10000", "10000-25000", "25000-50000", "50000-100000", "100000+"];
+    const validExpenseRanges = ["0-5000", "5000-15000", "15000-30000", "30000+"];
+
+    if (
+      !validAgeRanges.includes(ageRange) ||
+      !validSalaryRanges.includes(salaryRange) ||
+      !validExpenseRanges.includes(expenseRange)
+    ) {
+      return res.status(400).json({ message: 'Invalid range values provided' });
+    }
+
+    if (typeof profession !== 'string' || typeof location !== 'string') {
+      return res.status(400).json({ message: 'Invalid profession or location' });
+    }
+
+    
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ageRange,
+        salaryRange,
+        expenseRange,
+        profession,
+        location,
+        contact,
+        isfirstLogin: false  // Set isFirstLogin to false
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: 'User details updated successfully',
+      user: updatedUser,
+    });
+
+  } catch (err) {
+    // console.error('Error updating user additional details:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 // Fetch full user details including populated CardAdded
 exports.getFullUserDetails  = async (req, res) => {
   try {

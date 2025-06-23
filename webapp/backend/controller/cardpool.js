@@ -3,6 +3,7 @@ const card_group =  require('../models/cardGroups');
 const User= require("../models/User")
 const card = require("../models/card");
 const cardGroupUser = require('../models/cardGroupUser')
+const notificationService = require('../services/notificationService');
 
  exports.createCardGroup=async(req, res)=>{
     try{
@@ -201,6 +202,31 @@ exports.addUserToGroup = async (req, res) => {
             // created_at: Datw()e.no
         });
 
+        // Send notification to the invited user
+        try {
+            const group = await card_group.findById(groupId);
+            const inviter = await User.findById(userId);
+            
+            if (group && inviter) {
+                await notificationService.sendNotification(
+                    user._id,
+                    'group_invite',
+                    'You\'ve been invited to a Card Pool!',
+                    `${inviter.firstName} ${inviter.lastName} has invited you to join the card pool "${group.name}".`,
+                    { inApp: true, email: true, whatsapp: true },
+                    { 
+                        groupId: groupId,
+                        groupName: group.name,
+                        inviterId: userId,
+                        inviterName: `${inviter.firstName} ${inviter.lastName}`
+                    }
+                );
+            }
+        } catch (notificationError) {
+            console.error('Error sending group invite notification:', notificationError);
+            // Don't fail the main request if notification fails
+        }
+
         return res.status(200).json({
             status: true,
             message: 'Added successfully',
@@ -276,9 +302,9 @@ exports.leaveGroup = async (req, res) => {
         const group = await card_group.findById(groupId);
         if (!group) return res.status(404).json({ message: "Group not found" });
         
-        // if (group.admin.toString() === userId) {
-        //     return res.status(403).json({ message: "Admin cannot leave group" });
-        // }
+        if (group.admin.toString() === userId.toString()) {
+            return res.status(403).json({ message: "Admin cannot leave group" });
+        }
         
         await card_group_user.deleteOne({ group_id: groupId, user_id: userId });
         res.json({ message: "Left group successfully" });

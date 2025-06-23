@@ -1,4 +1,0 @@
-type Bank {
-    id: ID
-    name: String,
-}

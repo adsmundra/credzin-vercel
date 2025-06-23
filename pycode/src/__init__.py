@@ -1,3 +1,0 @@
-"""
-Credzin source code package.
-""" 

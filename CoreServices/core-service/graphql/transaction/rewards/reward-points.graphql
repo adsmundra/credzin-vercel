@@ -1,8 +1,0 @@
-type RewardPoint {
-    type: RewardPointType
-    value: Float
-}
-
-enum RewardPointType {
-    STANDARD
-}

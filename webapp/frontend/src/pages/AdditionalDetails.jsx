@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { apiEndpoint } from '../api';  
+import { apiEndpoint } from '../api';
 import { useNavigate } from 'react-router-dom';
 import BottomNavBar from '../component/BottomNavBar';
 
@@ -17,10 +17,10 @@ const AdditionalDetails = () => {
     const userData = { ageRange, salaryRange, expenseRange, profession, location, contact };
     console.log('Submitted:', userData);
     try {
-      const token = localStorage.getItem("token"); 
+      const token = localStorage.getItem("token");
 
       const response = await axios.post(
-        `${apiEndpoint}/api/v1/auth/additionalDetails`, 
+        `${apiEndpoint}/api/v1/auth/additionalDetails`,
         userData,
         {
           headers: {
@@ -29,10 +29,10 @@ const AdditionalDetails = () => {
         }
       );
       if (response.status !== 200) {
-        throw new Error('Submission failed');  
+        throw new Error('Submission failed');
       }
       if (response.status === 200) {
-        console.log("Submission successful"); 
+        console.log("Submission successful");
         navigate('/manage-cards');
       }
       console.log("Server response:", response.data);
@@ -42,7 +42,7 @@ const AdditionalDetails = () => {
   };
 
   const handleOnSkip = () => {
-    console.log('User skipped the form');
+    navigate('/manage-cards'); 
   };
 
   return (
@@ -164,7 +164,7 @@ const AdditionalDetails = () => {
           </div>
         </div>
       </div>
-      <BottomNavBar/>
+      <BottomNavBar />
     </div>
   );
 };

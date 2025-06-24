@@ -16,14 +16,8 @@ logger = configure_logging("BankScrapper_V2")
 # Configuration constants
 EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
 
-FIRECRAWL_API_KEYS = [
-    'fc-55191b48af524d3b83bb261b34431646',
-    'fc-7ca0ba6b1d604fe78d3c318efe38b8cc',
-    'fc-3c8a0a41c0884cc6a3fba51066d6dee4'
-]
-
+FIRECRAWL_API_KEYS = ['fc-7ca0ba6b1d604fe78d3c318efe38b8cc']
 last_key_index = -1
-
 
 class ExtractSchema(BaseModel):
         bank_name: str = "NILL"
@@ -356,7 +350,7 @@ def parse_card_info(bank_name, card_info, excel_path):
                     break  # Stop trying other keys on success
                 except Exception as e:
                     logger.error(f"Failed with fallback key {fallback_key} for {full_card_name}: {e}")
-                    time.sleep(2)  # Small delay before trying next key
+                    time.sleep(0.5)  # Small delay before trying next key
 
         if not scrape_result:
             logger.error(f"All API keys failed for {full_card_name}. Skipping.")
@@ -483,8 +477,8 @@ if __name__ == "__main__":
         logger.info("Running BankScrapper_V2 as standalone script...")
         
         # Default bank names to process when run standalone
-        DEFAULT_BANK_NAMES = ["Induslnd","IDFC","AU","Yes","Amex","ICICI","Kotak","HDFC","SBI","IDBI"]
-        
+        #DEFAULT_BANK_NAMES = ["Induslnd","IDFC","AU","Yes","Amex","ICICI","Kotak","HDFC","SBI","IDBI"]
+        DEFAULT_BANK_NAMES = ['SBI']
         # You can modify this list to process different banks
         # Example: DEFAULT_BANK_NAMES = ["Amex", "Axis", "SBI", "ICICI"]
         

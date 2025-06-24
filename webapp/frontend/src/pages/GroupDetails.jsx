@@ -576,9 +576,9 @@ const GroupDetails = () => {
                   disabled={searching || adding}
                 >
                   {searching || adding
-                    ? "Processing..."
+                    ? "Searching for the Member"
                     : userFound
-                    ? "Add to Group"
+                    ? "Add to Pool"
                     : "Search"}
                 </button>
               </form>

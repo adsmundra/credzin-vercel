@@ -71,7 +71,6 @@ def run_site_scrapers(site_names):
 if __name__ == "__main__":
     try:
         logger.info("Running main function …")
-
         '''
         # List of banks to scrape
         banks_to_scrape = ['axis', 'sbi', 'icici']

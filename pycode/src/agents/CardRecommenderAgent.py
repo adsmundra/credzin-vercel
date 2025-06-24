@@ -35,15 +35,15 @@ from agno.run.response import RunResponse
 from src.DataLoaders.QdrantDB import qdrantdb_client
 from bson import ObjectId
 
-if len(sys.argv) < 2:
-    print("Error: missing user_id argument")
-    sys.exit(1)
-user_id_str = sys.argv[1]
-try:
-    user_object_id = ObjectId(user_id_str)
-except Exception as e:
-    print(f"Error: invalid user_id '{user_id_str}': {e}")
-    sys.exit(1)
+# if len(sys.argv) < 2:
+#     print("Error: missing user_id argument")
+#     sys.exit(1)
+# user_id_str = sys.argv[1]
+# try:
+#     user_object_id = ObjectId(user_id_str)
+# except Exception as e:
+#     print(f"Error: invalid user_id '{user_id_str}': {e}")
+#     sys.exit(1)
 
 # Initialize the local embedder
 # embedder = SentenceTransformerEmbedder(id="all-MiniLM-L6-v2")
@@ -204,13 +204,13 @@ myclient = pymongo.MongoClient("mongodb+srv://Welzin:yYsuyoXrWcxPKmPV@welzin.1ln
 db = myclient["credzin"]       
 users_collection = db["users"]           
 
-#all_users = list(users_collection.find({}))
-all_users = list(users_collection.find({ "_id": user_object_id }))
+all_users = list(users_collection.find({}))
+# all_users = list(users_collection.find({ "_id": user_object_id }))
 
 cards_collection = db["credit_cards"] 
 # users = users_collection.find()
 pipeline = [
-    { "$match": { "_id": user_object_id } },
+    # { "$match": { "_id": user_object_id } },
     {
         "$lookup": {
             "from": "credit_cards",
@@ -245,43 +245,162 @@ pipeline = [
     },
 ]
 
+
+import re
+
 def extract_best_card(resp_obj) -> str:
-    """Return the card name or raise ValueError."""
+    raw = resp_obj.to_string() if hasattr(resp_obj, "to_string") else str(resp_obj)
+    clean = raw.strip()
+    
+    # Check for "no suitable card" response first
+    if "no suitable card found" in clean.lower():
+        return "NO_SUITABLE_CARD"
+    
+    # Pattern 1: Exact format match - **Best Card:** *CardName*
+    pattern1 = re.compile(r"\*\*Best Card:\*\*\s*\*([^*]+Credit Card)\*", re.IGNORECASE)
+    match = pattern1.search(clean)
+    if match:
+        return match.group(1).strip()
+    
+    # Pattern 2: Bold Best Card with any card name in italics
+    pattern2 = re.compile(r"\*\*Best Card:\*\*[^\n]*?\*([^*]+Credit Card)\*", re.IGNORECASE)
+    match = pattern2.search(clean)
+    if match:
+        return match.group(1).strip()
+    
+    # Pattern 3: "Best Card" followed by card name (with or without formatting)
+    pattern3 = re.compile(r"best card[:\-–\s]*\*?([A-Z][A-Za-z0-9 &\-]+Credit Card)\*?", re.IGNORECASE)
+    match = pattern3.search(clean)
+    if match:
+        return match.group(1).strip()
+    
+    # Pattern 4: Any credit card name as fallback
+    pattern4 = re.compile(r"([A-Z][A-Za-z\s&\-]{5,}Credit Card)")
+    match = pattern4.search(clean)
+    if match:
+        card_name = match.group(1).strip()
+        # Validate it's a reasonable card name
+        if len(card_name.split()) >= 2:  # At least 2 words
+            return card_name
+    
+    # If all patterns fail, raise error with more context
+    raise ValueError(f"No 'Best Card' found. Response text:\n{clean[:300]}...")
 
-    # 1  Get raw text out
-    raw = (
-        resp_obj.to_string()            # many agno objects expose this
-        if hasattr(resp_obj, "to_string")
-        else str(resp_obj)
-    ).strip()
-
-    # 2  Strip the Markdown noise so we can run a very plain regex
-    clean = re.sub(r"[*_]", "", raw)   # "**Best Card:**" → "Best Card:"
-
-    # 3  Find 'Best Card:' and capture the rest of that line
-    m = re.search(r"best\s*card\s*[:\--]\s*([^\n\r]+)", clean, flags=re.I)
-    if not m:
-        raise ValueError("No 'Best Card' line found. Sample text:\n" + raw[:200])
-
-    return m.group(1).strip() 
+def extract_key_terms(card_name: str) -> list:
+    """
+    Extract meaningful terms from card name for flexible matching.
+    Removes common prefixes/suffixes and focuses on unique identifiers.
+    """
+    # Remove common words that vary
+    stop_words = {"the", "bank", "credit", "card", "co", "ltd", "limited"}
+    
+    # Split and clean
+    words = re.findall(r'\w+', card_name.lower())
+    key_terms = [word for word in words if word not in stop_words and len(word) > 2]
+    
+    return key_terms
 
 def get_card_id(card_name: str) -> str:
     """
-    Return the card's internal ID stored in the credit_cards collection.
-    Falls back to raising if no exact (case-insensitive) match is found.
+    Return the card's internal ID using flexible matching.
+    First tries exact match, then falls back to key term matching.
     """
+    # Try exact match first (your original approach)
     card_doc = cards_collection.find_one(
         {"card_name": {"$regex": f"^{re.escape(card_name)}$", "$options": "i"}},
-        projection={"_id": 1, "card_id": 1}        # only the fields we need
+        projection={"_id": 1, "card_id": 1, "card_name": 1}
     )
+    
+    if card_doc:
+        return str(card_doc.get("card_id") or card_doc["_id"])
+    
+    # If exact match fails, try flexible matching
+    key_terms = extract_key_terms(card_name)
+    
+    if not key_terms:
+        raise LookupError(f"Card name '{card_name}' has no meaningful terms for matching")
+    
+    # Build regex pattern that matches cards containing the key terms
+    # For "ICICI Emeralde Credit Card" -> looks for cards containing both "icici" and "emeralde"
+    patterns = []
+    for term in key_terms:
+        patterns.append(f"(?=.*{re.escape(term)})")
+    
+    # Combined pattern: must contain ALL key terms (case insensitive)
+    combined_pattern = "".join(patterns) + ".*"
+    
+    # Find cards that match the pattern
+    matching_cards = list(cards_collection.find(
+        {"card_name": {"$regex": combined_pattern, "$options": "i"}},
+        projection={"_id": 1, "card_id": 1, "card_name": 1}
+    ))
+    
+    if not matching_cards:
+        raise LookupError(f"No cards found matching key terms: {key_terms} from '{card_name}'")
+    
+    if len(matching_cards) > 1:
+        # Multiple matches - try to find the best one
+        card_names = [doc["card_name"] for doc in matching_cards]
+        print(f"Multiple matches found for '{card_name}': {card_names}")
+        
+        # Prefer shorter names (less likely to have extra words)
+        best_match = min(matching_cards, key=lambda x: len(x["card_name"]))
+        print(f"Selected best match: {best_match['card_name']}")
+        return str(best_match.get("card_id") or best_match["_id"])
+    
+    # Single match found
+    matched_card = matching_cards[0]
+    print(f"Flexible match: '{card_name}' -> '{matched_card['card_name']}'")
+    return str(matched_card.get("card_id") or matched_card["_id"])
 
-    if not card_doc:
-        raise LookupError(f"Card name '{card_name}' not found in credit_cards")
-
-    # Decide which field you want to store.
-    # • If you made your own numeric/string ID field, keep it.
-    # • Otherwise just use Mongo’s own _id.
-    return str(card_doc.get("card_id") or card_doc["_id"])
+# Alternative simpler approach - just use the most distinctive term
+def get_card_id_simple(card_name: str) -> str:
+    """
+    Simplified version - finds the most distinctive word and searches for it.
+    Good for cases like "Emeralde" which is unique enough.
+    """
+    # Try exact match first
+    card_doc = cards_collection.find_one(
+        {"card_name": {"$regex": f"^{re.escape(card_name)}$", "$options": "i"}},
+        projection={"_id": 1, "card_id": 1, "card_name": 1}
+    )
+    
+    if card_doc:
+        return str(card_doc.get("card_id") or card_doc["_id"])
+    
+    # Extract words and find the most distinctive one
+    words = re.findall(r'\w+', card_name.lower())
+    stop_words = {"the", "bank", "credit", "card", "co", "ltd", "limited", "icici", "hdfc", "sbi", "axis"}
+    
+    # Find the most unique word (longest non-common word)
+    distinctive_words = [w for w in words if w not in stop_words and len(w) > 3]
+    
+    if not distinctive_words:
+        raise LookupError(f"No distinctive terms found in '{card_name}'")
+    
+    # Use the longest distinctive word for matching
+    key_term = max(distinctive_words, key=len)
+    
+    # Search for cards containing this term
+    matching_cards = list(cards_collection.find(
+        {"card_name": {"$regex": key_term, "$options": "i"}},
+        projection={"_id": 1, "card_id": 1, "card_name": 1}
+    ))
+    
+    if not matching_cards:
+        raise LookupError(f"No cards found containing '{key_term}' from '{card_name}'")
+    
+    if len(matching_cards) == 1:
+        matched_card = matching_cards[0]
+        print(f"Match found: '{card_name}' -> '{matched_card['card_name']}'")
+        return str(matched_card.get("card_id") or matched_card["_id"])
+    
+    # Multiple matches - you might want to add more logic here
+    card_names = [doc["card_name"] for doc in matching_cards]
+    print(f"Multiple matches for '{key_term}': {card_names}")
+    
+    # Return the first match or implement more sophisticated selection
+    return str(matching_cards[0].get("card_id") or matching_cards[0]["_id"])
 
 def recommend_card_for_user(
     agent: Agent,
@@ -295,7 +414,7 @@ def recommend_card_for_user(
 
     Returns
     -------
-    (card_name, card_id)
+    (card_name, card_id, response_content)
     Raises
     ------
     RuntimeError if all attempts fail.
@@ -307,15 +426,23 @@ def recommend_card_for_user(
 
         try:
             card_name = extract_fn(resp.content)
-            card_id   = resolve_id_fn(card_name)     # → LookupError if bad
+            card_id = resolve_id_fn(card_name)     # Now uses flexible matching
             return card_name, card_id, resp.content              
-        except Exception as exc:                     # capture both regex or DB failures
+        except Exception as exc:                     
             last_err = exc
             print(f"[Attempt {attempt}] invalid result → {exc}")
             if attempt < max_attempts:
                 print("Retrying …")
+    
     # All tries failed
     raise RuntimeError(f"Recommendation failed after {max_attempts} attempts") from last_err
+
+# Usage examples:
+# Use the comprehensive matching:
+# card_id = get_card_id("ICICI Bank Emeralde Credit Card")
+
+# Or use the simpler distinctive word matching:
+# card_id = get_card_id_simple("The ICICI Emeralde Credit Card")
 
 
 # -------------------------------------------------------------------
@@ -458,45 +585,36 @@ Search query: Give best credit card which provide <missing benefit> benefits
                         )
                         
 
-    missing_benefit = response1.content if hasattr(response1,"content") else str(response1)
+    m = re.search(r"provide\s+(.*?)\s+benefits", response1.content, flags=re.I)
+    missing_benefit = m.group(1).strip() if m else response1.content.strip()
 
-    prompt_final = f"""
-You are a senior Indian credit-card product specialist.
+    example = """**Best Card:** *HDFC Regalia Credit Card*  
+**Why it suits:** Offers lounge access and complimentary stays …""".strip()
 
-========================
-USER NEED
-========================
-The user needs the **single best** credit card that offers **{missing_benefit}** benefits.
+    prompt_final = f"""You are a senior Indian credit-card product specialist.
 
-========================
-ABSOLUTE RULES (MUST FOLLOW)
-========================
-1. Use **only** the supplied knowledge-base documents for facts.  
-   – No external knowledge, no assumptions, no guesses.
-2. Recommend **one — and only one — credit card.**  
-   – Zero alternatives, zero “also consider”, zero comparisons.  
-   – Card name must match the KB entry **exactly** (spelling, spaces, punctuation, capitalisation).
-3. Do **not** mention any card other than the single recommendation.
-4. If the KB contains **no** card that provides the required benefit, output **exactly**:  
-   No suitable card found in available options.  
-   (Return that sentence alone.)
-5. No hidden reasoning. No chain-of-thought. Output must follow the template below verbatim.
+Find the SINGLE best credit card for {missing_benefit} benefits.
 
-========================
-OUTPUT TEMPLATE — USE EXACTLY
-========================
-**Best Card:** *<Exact Card Name>*  
-**Why it suits:** <≤120-word justification focused on the {missing_benefit} benefit>
+CRITICAL: You MUST output EXACTLY this format - nothing else:
 
-(Return only the two lines above — nothing else.)
-""".strip()
+{example}
+
+RULES:
+1. Use ONLY knowledge-base documents
+2. Recommend ONE card only - exact name from KB
+3. Card name must match the KB entry **exactly** (spelling, spaces, punctuation, capitalisation)
+3. If no suitable card exists, output ONLY: "No suitable card found in available options."
+4. NO extra text, NO alternatives, NO explanations beyond the 2-line format
+5. Start with "**Best Card:**" then italicized card name with asterisks
+
+OUTPUT THE 2 LINES ONLY - NOTHING ELSE.""".strip()
 
 
 
     agent3= Agent(
     description="You are a credit card expert and analyser",
     #instructions=["Give customer suggestions based on the credit card features using the knowledge base. Only show 1 card as suggestion and no extra text"],
-    instructions=[prompt_final],
+    instructions=[prompt_final, "CRITICAL: Follow the exact 2-line format shown in the example.", "Do NOT add any text before, after, or between the two required lines."],
     #knowledge=combined_knowledge_base,
     search_knowledge=True,
     model=ollama_model,
@@ -506,7 +624,7 @@ OUTPUT TEMPLATE — USE EXACTLY
     #tools=[ThinkingTools(add_instructions=True), ReasoningTools(add_instructions=True)],
     markdown=True,
     debug_mode=True,
-)
+    )
 
     # response2 = agent3.run(
     #                     missing_benefit,
@@ -524,8 +642,8 @@ OUTPUT TEMPLATE — USE EXACTLY
         )
     except RuntimeError as e:
         print("Giving up for this user: ", e)
-        continue                # optional: skip writing to DB
-    # ------------------------- everything below is unchanged
+        continue               
+
     print("Resolved:", best_card_name, card_id)
 
     mycol = db["recommendations4"]

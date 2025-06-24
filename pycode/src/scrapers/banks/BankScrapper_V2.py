@@ -16,6 +16,15 @@ logger = configure_logging("BankScrapper_V2")
 # Configuration constants
 EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
 
+FIRECRAWL_API_KEYS = [
+    'fc-55191b48af524d3b83bb261b34431646',
+    'fc-7ca0ba6b1d604fe78d3c318efe38b8cc',
+    'fc-3c8a0a41c0884cc6a3fba51066d6dee4'
+]
+
+last_key_index = -1
+
+
 class ExtractSchema(BaseModel):
         bank_name: str = "NILL"
         card_name: str = "NILL"
@@ -158,6 +167,10 @@ def parse_card_info(bank_name, card_info, excel_path):
         int: Number of cards processed.
     """
 
+    # Firecrawl API Key 
+    # app = FirecrawlApp(api_key='fc-55191b48af524d3b83bb261b34431646')
+
+
     app = FirecrawlApp(api_key='fc-b9db21c349214ef69cd49deed5737e1f')
     prompt_template = '''
         • Extract all the data for {card_name}:
@@ -227,23 +240,126 @@ def parse_card_info(bank_name, card_info, excel_path):
         • If information is split across multiple pages, aggregate it and return one value.
     '''
 
+    # all_rows = []
+    
+    # for entry in card_info:
+    #     card_name = entry.get("card_name", "").strip()
+    #     original_image_url = entry.get("card_image_url", "NILL")
+
+    #     if not card_name:
+    #         continue
+
+    #     full_card_name = f"{bank_name} {card_name}"
+    #     prompt = prompt_template.format(card_name=full_card_name)
+        
+    #     # try:
+    #     #     scrape_result = app.extract(
+    #     #         prompt=prompt,
+    #     #         schema=ExtractSchema.model_json_schema()
+    #     #     )
+    #     #     # logger.info(f"\nResult for {full_card_name}:\n", scrape_result)
+    #     #     logger.info(f"\nResult for {full_card_name}:\n")
+    #     #     logger.info(str(scrape_result))
+    #     # except Exception as e:
+    #     #     logger.error(f"Error scraping for {full_card_name}: {e}")
+    #     #     continue
+
+    #     scrape_result = None
+
+    #     for key in FIRECRAWL_API_KEYS:
+    #         try:
+    #             app = FirecrawlApp(api_key=key)
+    #             scrape_result = app.extract(
+    #                 prompt=prompt,
+    #                 schema=ExtractSchema.model_json_schema()
+    #             )
+    #             logger.info(f"Success with key {key} for {full_card_name}")
+    #             logger.info(str(scrape_result))
+    #             break  # Success → stop trying other keys
+    #         except Exception as e:
+    #             logger.error(f"Failed with key {key} for {full_card_name}: {e}")
+    #             time.sleep(2)  # small delay before trying next key
+
+    #     if not scrape_result:
+    #         logger.error(f"All API keys failed for {full_card_name}. Skipping.")
+    #         continue
+
+    #     data_dict = getattr(scrape_result, "data", {}) or {}
+
+    #     # Overwrite card_image_url with the one from Excel if present
+    #     if original_image_url and original_image_url != "NILL":
+    #         data_dict["card_image_url"] = original_image_url
+
+    #     values = [str(data_dict.get(field, "NILL")) for field in ExtractSchema.model_fields]
+    #     all_rows.append(values)
+
+    #     formatted_bank_name = f"{bank_name.title()}bank"
+    #     base_output_dir = Path('KnowledgeBase/banks')
+    #     bank_folder = base_output_dir / formatted_bank_name / 'csv'
+    #     bank_folder.mkdir(parents=True, exist_ok=True)
+
+    #     output_path = bank_folder / "credit_card_details_v2.csv"
+    #     save_to_csv(output_path, [values], mode='a')
+    #     logger.info(f"\nAppended record for {full_card_name} → {output_path}")
+
+    # if not all_rows:
+    #     logger.error(f"No rows processed for bank {bank_name}.")
+
+    global last_key_index  # Use global variable to track key index
+
     all_rows = []
     for entry in card_info:
         card_name = entry.get("card_name", "").strip()
         original_image_url = entry.get("card_image_url", "NILL")
         if not card_name:
+            logger.warning(f"Skipping entry with empty card_name.")
             continue
         full_card_name = f"{bank_name} {card_name}"
         prompt = prompt_template.format(card_name=full_card_name)
+
+        
+        scrape_result = None
+        # Select the next key in round-robin fashion
+        last_key_index = (last_key_index + 1) % len(FIRECRAWL_API_KEYS)
+        selected_key = FIRECRAWL_API_KEYS[last_key_index]
+        
+        # Try the selected key first
+
         try:
+            logger.info(f"Trying round-robin key {selected_key} for {full_card_name}")
+            app = FirecrawlApp(api_key=selected_key)
             scrape_result = app.extract(
                 prompt=prompt,
                 schema=ExtractSchema.model_json_schema()
             )
+
             logger.info(f"\nResult for {full_card_name}:\n")
+
+            logger.info(f"Success with round-robin key {selected_key} for {full_card_name}")
+
             logger.info(str(scrape_result))
         except Exception as e:
-            logger.error(f"Error scraping for {full_card_name}: {e}")
+            logger.error(f"Failed with round-robin key {selected_key} for {full_card_name}: {e}")
+            # Fallback: Try other keys in order
+            for fallback_key in FIRECRAWL_API_KEYS:
+                if fallback_key == selected_key:
+                    continue  # Skip the already tried key
+                try:
+                    logger.info(f"Trying fallback key {fallback_key} for {full_card_name}")
+                    app = FirecrawlApp(api_key=fallback_key)
+                    scrape_result = app.extract(
+                        prompt=prompt,
+                        schema=ExtractSchema.model_json_schema()
+                    )
+                    logger.info(f"Success with fallback key {fallback_key} for {full_card_name}")
+                    logger.info(str(scrape_result))
+                    break  # Stop trying other keys on success
+                except Exception as e:
+                    logger.error(f"Failed with fallback key {fallback_key} for {full_card_name}: {e}")
+                    time.sleep(2)  # Small delay before trying next key
+
+        if not scrape_result:
+            logger.error(f"All API keys failed for {full_card_name}. Skipping.")
             continue
         data_dict = getattr(scrape_result, "data", {}) or {}
         if original_image_url and original_image_url != "NILL":
@@ -257,7 +373,10 @@ def parse_card_info(bank_name, card_info, excel_path):
         bank_folder.mkdir(parents=True, exist_ok=True)
         output_path = bank_folder / "credit_card_details_v2.csv"
         save_to_csv(output_path, [values], mode='a')
+
         logger.info(f"\nAppended record for {full_card_name} → {output_path}")
+        logger.info(f"Appended record for {full_card_name} to {output_path}")
+
     if not all_rows:
         logger.error(f"No rows processed for bank {bank_name}.")
     return len(all_rows)
@@ -364,7 +483,7 @@ if __name__ == "__main__":
         logger.info("Running BankScrapper_V2 as standalone script...")
         
         # Default bank names to process when run standalone
-        DEFAULT_BANK_NAMES = ["Amex"]
+        DEFAULT_BANK_NAMES = ["Induslnd","IDFC","AU","Yes","Amex","ICICI","Kotak","HDFC","SBI","IDBI"]
         
         # You can modify this list to process different banks
         # Example: DEFAULT_BANK_NAMES = ["Amex", "Axis", "SBI", "ICICI"]

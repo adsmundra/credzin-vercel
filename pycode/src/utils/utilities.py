@@ -85,7 +85,7 @@ def setup_env():   # local, colab, server
         creds, _ = default()
         gc = gspread.authorize(creds)
 
-        print("✅ Colab setup complete.")
+        print(" Colab setup complete.")
 
     else:
         print("🖥️ Running locally — no library setup needed.")

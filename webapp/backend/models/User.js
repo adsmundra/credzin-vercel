@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
   CardAdded: [
     {
       type: mongoose.Schema.ObjectId,
-      ref: "credit_cards",
+      ref: 'credit_cards',
     },
   ],
   googleId: {
@@ -39,15 +39,15 @@ const userSchema = new mongoose.Schema({
   },
   ageRange: {
     type: String,
-    enum: ["18-24", "25-34", "35-44", "45-54", "55+"],
+    enum: ['18-24', '25-34', '35-44', '45-54', '55+'],
   },
   salaryRange: {
     type: String,
-    enum: ["0-10000", "10000-25000", "25000-50000", "50000-100000", "100000+"],
+    enum: ['0-10000', '10000-25000', '25000-50000', '50000-100000', '100000+'],
   },
   expenseRange: {
     type: String,
-    enum: ["0-5000", "5000-15000", "15000-30000", "30000+"],
+    enum: ['0-5000', '5000-15000', '15000-30000', '30000+'],
   },
   profession: {
     type: String,
@@ -58,11 +58,15 @@ const userSchema = new mongoose.Schema({
   isfirstLogin: {
     type: Boolean,
     default: true,
-  },  
+  },
+  profilePic: {
+    type: String,
+    default: '',
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

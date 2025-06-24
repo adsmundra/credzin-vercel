@@ -1,80 +1,10 @@
-# from src.Recommender.LangGraphNodes.build_graph import card_graph
+from src.recommender.LangGraphNodes.build_graph import card_graph
 from src.utils.logger import logger
-# from src.Scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
-# from src.Scrapers.sites import CardInsiderScraper
-from src.scrapers.banks.BankScrapper_V2 import firecrawl_scraper
-import os
-import pandas as pd
-import sys
+from src.scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
+from src.scrapers.sites import CardInsiderScraper
+from src.scrapers.banks.BankScrapper_v2 import run_bank_scrapers_v2
+
 from typing import List, Dict
-
-def get_card_info_from_excel(excel_path: str, bank_name: str) -> List[Dict[str, str]]:
-    """
-    Return a list of dicts with card_name and card_image_url (if available).
-
-    Supports both 'card_image_url' and 'image_url' column names.
-
-    Args:
-        excel_path: Path to the workbook that has a sheet per bank.
-        bank_name: Target bank (worksheet name, case-sensitive).
-
-    Returns:
-        A list like [{"card_name": "Magnus", "card_image_url": "https://…"}, …]
-        If image URL column is not found, it will default to an empty string.
-    """
-    logger.info("Reading the Excel workbook to fetch card names & image URLs …")
-
-    try:
-        xl = pd.ExcelFile(excel_path)
-        if bank_name not in xl.sheet_names:
-            logger.warning("No worksheet found for bank: %s", bank_name)
-            return []
-
-        df = pd.read_excel(excel_path, sheet_name=bank_name)
-
-        # Normalize column names to lowercase for easier matching
-        df.columns = [col.strip().lower() for col in df.columns]
-
-        # Determine which image column to use
-        image_col = None
-        if "card_image_url" in df.columns:
-            image_col = "card_image_url"
-        elif "image_url" in df.columns:
-            image_col = "image_url"
-        else:
-            logger.warning("No image URL column found in worksheet: %s", bank_name)
-
-        if "card_name" not in df.columns:
-            logger.warning("Worksheet '%s' is missing 'card_name' column.", bank_name)
-            return []
-
-        # Extract only needed columns
-        selected_cols = ["card_name"] + ([image_col] if image_col else [])
-        card_info_df = df[selected_cols].dropna(subset=["card_name"]).fillna("")
-
-        # Ensure uniform key for image URL
-        if image_col and image_col != "card_image_url":
-            card_info_df.rename(columns={image_col: "card_image_url"}, inplace=True)
-
-        return card_info_df.to_dict("records")
-
-    except Exception as exc:
-        logger.error("Error reading Excel for %s: %s", bank_name, exc)
-        return []
-
-def run_bank_scrapers_new(bank_name, card_info, EXCEL_PATH):
-    '''
-    Func:
-        run final_scrapper for the bank credit_card details
-    
-    Args: 
-        df: read str from the input path
-    '''
-    logger.info("Starting credit card scraping process (NEW) ...")
-    # firecrawl_scraper(df)
-    # Run Firecrawl scraper
-    firecrawl_scraper(bank_name, card_info, EXCEL_PATH)
-
 
 def run_bank_scrapers(bank_names):
     """
@@ -139,46 +69,9 @@ def run_site_scrapers(site_names):
 
 
 if __name__ == "__main__":
-    
     try:
         logger.info("Running main function …")
 
-        EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
-
-        BANK_NAMES = ["Amex"]
-
-        if not BANK_NAMES:
-            logger.error("bank_names must be a non‑empty list")
-            sys.exit(0)
-
-        for bank_name in BANK_NAMES:
-            if not isinstance(bank_name, str) or not bank_name.strip():
-                logger.warning("Skipping invalid bank name: %s", bank_name)
-                continue
-
-            bank_name = bank_name.strip()
-            logger.info("\nProcessing bank: %s", bank_name)
-
-            card_info = get_card_info_from_excel(EXCEL_PATH, bank_name)
-
-            # # For printing card name and image url's
-            # for idx, card in enumerate(card_info, start=1):
-            #     name = card.get("card_name", "[NO NAME]")
-            #     img_url = card.get("card_image_url", "[NO URL]")
-            #     print(f"{idx}. Card: {name}\n   Image URL: {img_url}")
-
-            if not card_info:
-                logger.warning("No card data found for bank %s", bank_name)
-                continue
-
-            card_names = [item["card_name"] for item in card_info]
-            logger.info("Found %d cards for %s: %s", len(card_names), bank_name, card_names)
-
-            run_bank_scrapers_new(bank_name, card_info, EXCEL_PATH)
-
-    except Exception as exc:
-        logger.critical("Critical error in the main process: %s", exc)
-    
         '''
         # List of banks to scrape
         banks_to_scrape = ['axis', 'sbi', 'icici']
@@ -187,8 +80,17 @@ if __name__ == "__main__":
         # List of sites to scrape
         sites_to_scrape = ['cardinsider']
         run_site_scrapers(sites_to_scrape)
-        
+        '''
 
+        # Process banks using the new firecrawl API
+        BANK_NAMES = ["Amex"]
+        results = run_bank_scrapers_v2(BANK_NAMES)
+        
+    except Exception as exc:
+        logger.critical("Critical error in the main process: %s", exc)
+        
+        
+        '''
         graph = card_graph()
         logger.info("Graph created successfully.")
 
@@ -228,4 +130,4 @@ if __name__ == "__main__":
 
             except Exception as e:
                 logger.error(f"Error processing case file {case_file}: {e}")
-         '''
+        '''

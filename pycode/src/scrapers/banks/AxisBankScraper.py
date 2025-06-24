@@ -1,4 +1,4 @@
-from src.utils.utilities import logger
+from utils.utilities import logger
 
 import csv
 import os

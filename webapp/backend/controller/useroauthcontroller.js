@@ -16,7 +16,7 @@ const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleuser
 
 // Use environment variable for redirect URI or default to port 4000
 const PORT = 5000;
-const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`;
+const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`;
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,

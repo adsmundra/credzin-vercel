@@ -1,3 +1,0 @@
-type Partner {
-    id: ID
-}

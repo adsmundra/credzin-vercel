@@ -1,9 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-You are an expert in domain driven design. 
-1. You always follow the structure of domain driven design. 
-2. The code is always highly scalable and always has the validation in the aggregates only. 
-3. Domain purity is always important. 

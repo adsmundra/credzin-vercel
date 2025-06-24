@@ -1,0 +1,20 @@
+2025-06-23 15:53:25,436 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-23 15:53:25,601 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-23 15:53:27,213 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-23 15:53:27,214 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-23 15:53:27,432 - credzin - INFO - Running main function …
+2025-06-23 15:53:27,432 - credzin - INFO - 
+Processing bank: Federal
+2025-06-23 15:53:27,432 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-23 15:53:29,653 - credzin - INFO - Found 9 cards for Federal: ['Visa Imperio', 'Visa Signet', 'Fed StarBiz Visa Credit Card', 'Mastercard Celesta', 'Mastercard Imperio', 'Mastercard Signet', 'Rupay Signet', 'Rupay Wave', 'Fed StarBiz RuPay Credit Card']
+2025-06-23 15:53:29,653 - credzin - INFO - Starting credit card scraping process (NEW) ...
+2025-06-23 16:17:09,740 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-23 16:17:09,889 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-23 16:17:10,958 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-23 16:17:10,959 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-23 16:17:11,161 - credzin - INFO - Running main function …
+2025-06-23 16:17:11,161 - credzin - INFO - 
+Processing bank: Federal
+2025-06-23 16:17:11,162 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-23 16:17:13,288 - credzin - INFO - Found 9 cards for Federal: ['Visa Imperio', 'Visa Signet', 'Fed StarBiz Visa Credit Card', 'Mastercard Celesta', 'Mastercard Imperio', 'Mastercard Signet', 'Rupay Signet', 'Rupay Wave', 'Fed StarBiz RuPay Credit Card']
+2025-06-23 16:17:13,288 - credzin - INFO - Starting credit card scraping process (NEW) ...

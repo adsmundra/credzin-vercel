@@ -1,0 +1,31 @@
+interface Reward {
+    id: ID,
+    name: String
+    rewardType: RewardType,
+}
+
+type RewardPointValue {
+    rewardPoints: [RewardPoint]
+}
+
+type AmountRewardValue {
+    amount: Amount
+}
+
+type VoucherRewardValue {
+    voucher: Voucher
+}
+
+union RewardValue = RewardPointValue | AmountRewardValue | VoucherRewardValue
+
+enum RewardValueType {
+    PERCENTAGE,
+    ABSOLUTE
+}
+
+enum RewardType {
+    SPEND_REWARD,
+    MILESTONE_REWARD,
+    PARTNER_PLATFORM_REWARD
+}
+

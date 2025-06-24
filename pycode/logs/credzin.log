@@ -1,0 +1,45 @@
+2025-06-19 16:12:23,411 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:12:50,250 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:14:33,039 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:15:02,264 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:15:13,090 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:16:35,524 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:17:03,207 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:42:17,166 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:43:01,938 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-19 16:49:07,949 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:55:18,273 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:55:38,918 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 13:55:40,442 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 13:56:28,553 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 13:56:40,642 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 13:56:41,839 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 14:03:05,863 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 14:03:15,936 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 14:03:17,393 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 14:03:35,925 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 14:03:44,772 - credzin - INFO - Connecting to QdrantDB ...
+2025-06-20 14:03:45,678 - credzin - INFO - QdrantDB connection successful.
+2025-06-20 16:52:07,142 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 16:52:07,450 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 16:52:08,465 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 16:52:08,468 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 16:52:08,802 - credzin - INFO - Running main function...
+2025-06-20 16:52:08,802 - credzin - INFO - Reading the excel to get corresponding credit names from a bank....
+2025-06-20 16:52:11,171 - credzin - INFO - Starting credit card scraping process (NEW) ...
+2025-06-20 16:59:28,498 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 16:59:28,653 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 16:59:29,696 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 16:59:29,697 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:23,205 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 17:00:23,414 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 17:00:24,440 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 17:00:24,440 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:31,499 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-20 17:00:31,611 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-20 17:00:32,194 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-20 17:00:32,194 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-20 17:00:32,198 - credzin - INFO - Loading CardInsider credit cards class
+2025-06-20 17:00:32,383 - credzin - INFO - Running main function...
+2025-06-20 17:00:32,383 - credzin - INFO - Reading the excel to get corresponding credit names from a bank....
+2025-06-20 17:00:34,692 - credzin - INFO - Starting credit card scraping process (NEW) ...

@@ -7,6 +7,7 @@ import { FaTrashAlt } from "react-icons/fa";
 
 const CardPool = () => {
   const [groups, setGroups] = useState([]);
+  const [pendingInvitations, setPendingInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -16,23 +17,30 @@ const CardPool = () => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Fetch all groups (pools)
+  // Fetch all groups (pools) and pending invitations
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
+        // Fetch groups
+        const groupsRes = await axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
-        setGroups(res.data.data || []);
+        setGroups(groupsRes.data.data || []);
+
+        // Fetch pending invitations
+        const invitationsRes = await axios.get(`${apiEndpoint}/api/v1/group/invitation/pending`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setPendingInvitations(invitationsRes.data.data || []);
       } catch (err) {
         setGroups([]);
+        setPendingInvitations([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchGroups();
+    fetchData();
   }, [token]);
 
   const handleCreatePool = async (e) => {
@@ -97,6 +105,30 @@ const CardPool = () => {
   return (
     <div className="min-h-screen bg-[#111518] text-white font-sans px-4 py-6 pt-20">
       <h2 className="text-2xl font-bold mb-6 text-center">Card Pools</h2>
+      
+      {/* Pending Invitations Section */}
+      {pendingInvitations.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3 text-yellow-400">Pending Invitations</h3>
+          <div className="space-y-2">
+            {pendingInvitations.map((invitation) => (
+              <div key={invitation._id} className="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-3">
+                <div className="text-sm">
+                  <span className="font-medium text-yellow-300">
+                    {invitation.invitedBy?.firstName} {invitation.invitedBy?.lastName}
+                  </span>
+                  <span className="text-gray-300"> invited you to join </span>
+                  <span className="font-medium text-yellow-300">{invitation.groupId?.name}</span>
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  Check your notifications to accept or reject
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-center mb-6">
         <button
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition"

@@ -7,6 +7,7 @@ import axios from 'axios';
 const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState({});
   const dispatch = useDispatch();
   const { notifications, unreadCount } = useSelector((state) => state.notifications);
   const token = localStorage.getItem('token');
@@ -98,6 +99,50 @@ const NotificationBell = () => {
     }
   };
 
+  // Handle action button clicks
+  const handleAction = async (action, notificationId) => {
+    if (!token) return;
+    
+    setActionLoading(prev => ({ ...prev, [notificationId]: true }));
+    
+    try {
+      let url = '';
+      
+      // Extract invitation ID from the action URL
+      if (action.action === 'accept_invitation' || action.action === 'reject_invitation') {
+        const urlParts = action.url.split('/');
+        const invitationId = urlParts[urlParts.length - 2]; // Get the invitation ID
+        const actionType = action.action === 'accept_invitation' ? 'accept' : 'reject';
+        url = `${apiEndpoint}/api/v1/group/invitation/${invitationId}/${actionType}`;
+      } else {
+        url = `${apiEndpoint}${action.url}`;
+      }
+      
+      const response = await axios.post(url, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      if (response.status === 200) {
+        // Show success message
+        console.log(`Action ${action.action} completed successfully`);
+        
+        // Mark notification as read
+        await markAsRead(notificationId);
+        
+        // Refresh notifications
+        fetchNotifications();
+        fetchUnreadCount();
+      }
+    } catch (error) {
+      console.error(`Error performing action ${action.action}:`, error);
+      // You might want to show an error toast here
+    } finally {
+      setActionLoading(prev => ({ ...prev, [notificationId]: false }));
+    }
+  };
+
   useEffect(() => {
     fetchNotifications();
     fetchUnreadCount();
@@ -127,6 +172,10 @@ const NotificationBell = () => {
         return '💳';
       case 'group_invite':
         return '👥';
+      case 'group_join':
+        return '✅';
+      case 'group_reject':
+        return '❌';
       case 'card_added':
         return '✅';
       case 'system_alert':
@@ -169,7 +218,7 @@ const NotificationBell = () => {
 
       {/* Notification Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 md:right-0 right-0">
+        <div className="absolute right-0 mt-2 w-80 bg-[#111518] rounded-lg shadow-lg border border-gray-200 z-50 md:right-0 right-0">
           <div className="p-4 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
@@ -193,10 +242,9 @@ const NotificationBell = () => {
               notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 ${
                     notification.status === 'read' ? 'opacity-75' : 'bg-blue-50'
                   }`}
-                  onClick={() => markAsRead(notification._id)}
                 >
                   <div className="flex items-start space-x-3">
                     <span className="text-xl">{getNotificationIcon(notification.type)}</span>
@@ -210,11 +258,45 @@ const NotificationBell = () => {
                       <p className="text-xs text-gray-400 mt-2">
                         {formatTime(notification.createdAt)}
                       </p>
+                      
+                      {/* Action Buttons */}
+                      {notification.actions && notification.actions.length > 0 && (
+                        <div className="flex space-x-2 mt-3">
+                          {notification.actions.map((action, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleAction(action, notification._id)}
+                              disabled={actionLoading[notification._id]}
+                              className={`px-3 py-1 text-xs rounded-md font-medium transition-colors ${
+                                action.action === 'accept_invitation'
+                                  ? 'bg-green-500 text-white hover:bg-green-600 disabled:bg-green-300'
+                                  : action.action === 'reject_invitation'
+                                  ? 'bg-red-500 text-white hover:bg-red-600 disabled:bg-red-300'
+                                  : 'bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300'
+                              }`}
+                            >
+                              {actionLoading[notification._id] ? 'Loading...' : action.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {notification.status !== 'read' && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     )}
                   </div>
+                  
+                  {/* Click to mark as read (only if no actions) */}
+                  {(!notification.actions || notification.actions.length === 0) && (
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => markAsRead(notification._id)}
+                    >
+                      <div className="text-xs text-gray-400 mt-2">
+                        Click to mark as read
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             )}

@@ -1,7 +1,4 @@
-import sys
-sys.path.append("pycode")
-
-import os
+import os, sys
 import pandas as pd
 import PyPDF2
 from pathlib import Path
@@ -33,6 +30,14 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
 from src.DataLoaders.QdrantDB import qdrantdb_client
+
+from utils.logger import configure_logging
+from utils.utilities import setup_env
+from DataLoaders.QdrantDB import qdrantdb_client
+
+logger = configure_logging("ChatBotAgent")
+setup_env()
+qdrant_client = qdrantdb_client()
 
 # os.environ["QDRANT_API_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.SsEx9xbs-jY9DjYKrmyGatbRchqs3vQ4lbfF0vS5M4A"
 # os.environ["QDRANT_URL"] = "https://76d501b6-b754-42c1-a4da-9e0bc8cca319.us-east4-0.gcp.cloud.qdrant.io:6333/"
@@ -435,16 +440,17 @@ sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
 qdrant_client = qdrantdb_client()
 
 try:
-    print(f"Collection '{COLLECTION_NAME}' info:")
-    resp1 = qdrant_client.collection_exists('knowledge_base_hybrid')
-    print('resp1: ', resp1)
-    resp2 = qdrant_client.get_collection('knowledge_base_hybrid')
-    print('resp2: ', resp2)
+    logger.info("Collection '%s' info:", COLLECTION_NAME)
+    resp1 = qdrant_client.collection_exists('knowledge_base_hybrid2')
+    logger.info("resp1: %s", resp1)
+    resp2 = qdrant_client.get_collection('knowledge_base_hybrid1')
+    logger.info("resp2: %s", resp2)
 except Exception as e:
-    print(f"Error checking collection: {str(e)}")
-    print(f"Error type: {type(e).__name__}")
+    logger.error("Error checking collection: %s", e)
+    logger.error("Error type: %s", type(e).__name__)
+
 qdrant = QdrantVectorStore(
-    client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
+    client=qdrant_client,
     collection_name=COLLECTION_NAME,
     embedding=embedder,
     sparse_embedding=sparse_embeddings,
@@ -520,7 +526,7 @@ def graded_retriever(
         )
         if grade.binary_score.lower() == "yes":
             # :white_check_mark: convert to a plain dict
-            print("Document passed grading.")
+            logger.debug("Document passed grading")
             passed_for_reranking.append(
                 {
                     "content": doc.page_content,
@@ -528,11 +534,11 @@ def graded_retriever(
                 }
             )
         else:
-            print("Document failed grading.")
+            logger.debug("Document failed grading")
     
     # Fallback – give at least one chunk so AGNO doesn't crash
     if not passed_for_reranking and candidate_docs:
-        print("No documents passed grading, falling back to first candidate document.")
+        logger.info("No docs passed grading – falling back to first candidate")
         d = candidate_docs[0]
         passed_for_reranking = [{"content": d.page_content, "metadata": d.metadata or {}, "original_doc": d}]
     
@@ -564,16 +570,16 @@ def graded_retriever(
                 "metadata": item["doc"]["metadata"]
             })
         
-        print(f"Reranked {len(final_reranked_docs)} documents.")
-        print(f"Reranked docs scores:\n")
-        print("DOC  |  SCORE\n-------------")
+        logger.info("Reranked %s documents", len(final_reranked_docs))
+        logger.debug("Reranked doc scores:")
+        logger.debug("DOC  |  SCORE\n-------------")
         for i in range(len(reranked_docs_with_scores)):
-            print(f"{reranked_docs_with_scores[i]['doc']}   |    {reranked_docs_with_scores[i]['score']}")
+            logger.debug("%s   |    %s", reranked_docs_with_scores[i]["doc"], reranked_docs_with_scores[i]["score"],)
         # You can adjust how many top documents to return after reranking
         # For example, return top 5: final_reranked_docs[:5]
         return final_reranked_docs
     else:
-        print("No documents available for reranking.")
+        logger.warning("No documents available for reranking")
         return [] # Return an empty list if no documents passed grading or fallback
     
 # ----------------- 4)  plug the wrapper into an AGNO agent  -----------------

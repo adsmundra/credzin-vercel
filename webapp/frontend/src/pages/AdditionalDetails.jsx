@@ -3,9 +3,12 @@ import axios from 'axios';
 import { apiEndpoint } from '../api';
 import { useNavigate } from 'react-router-dom';
 import BottomNavBar from '../component/BottomNavBar';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const AdditionalDetails = () => {
-  const [ageRange, setAgeRange] = useState('');
+  // const [ageRange, setAgeRange] = useState('');
+  const [startDate, setStartDate] = useState(new Date());
   const [salaryRange, setSalaryRange] = useState('');
   const [expenseRange, setExpenseRange] = useState('');
   const [profession, setProfession] = useState('');
@@ -14,7 +17,8 @@ const AdditionalDetails = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    const userData = { ageRange, salaryRange, expenseRange, profession, location, contact };
+    console.log("Date selected:", startDate);
+    const userData = { dateOfBirth: startDate, salaryRange, expenseRange, profession, location, contact };
     console.log('Submitted:', userData);
     try {
       const token = localStorage.getItem("token");
@@ -42,7 +46,7 @@ const AdditionalDetails = () => {
   };
 
   const handleOnSkip = () => {
-    navigate('/manage-cards'); 
+    navigate('/manage-cards');
   };
 
   return (
@@ -58,9 +62,9 @@ const AdditionalDetails = () => {
 
           <div className="mb-6">
             <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
-              Age Range
+              Date of Birth
             </label>
-            <select
+            {/* <select
               value={ageRange}
               onChange={(e) => setAgeRange(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
@@ -71,7 +75,8 @@ const AdditionalDetails = () => {
               <option value="35-44">35 - 44</option>
               <option value="45-54">45 - 54</option>
               <option value="55+">55+</option>
-            </select>
+            </select> */}
+            <DatePicker className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors cursor-pointer" selected={startDate} onChange={(date) => setStartDate(date)} />
           </div>
 
           <div className="mb-6">
@@ -85,10 +90,12 @@ const AdditionalDetails = () => {
             >
               <option value="">Select Salary Range</option>
               <option value="0-10000">Below ₹10,000</option>
-              <option value="10000-25000">₹10,000 - ₹25,000</option>
-              <option value="25000-50000">₹25,000 - ₹50,000</option>
-              <option value="50000-100000">₹50,000 - ₹1,00,000</option>
-              <option value="100000+">Above ₹1,00,000</option>
+              <option value="10001-25000">₹10,001 - ₹25,000</option>
+              <option value="25001-50000">₹25,001 - ₹50,000</option>
+              <option value="50001-100000">₹50,001 - ₹1,00,000</option>
+              <option value="100001-150000">₹1,00,001 - ₹1,50,000</option>
+              <option value="150001-200000">₹1,50,001 - ₹2,00,000</option>
+              <option value="200001+">Above ₹2,00,000</option>
             </select>
           </div>
 

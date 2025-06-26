@@ -1,6 +1,6 @@
 from utils.logger import configure_logging
 from utils.utilities import setup_env
-
+import time
 from pathlib import Path
 import pandas as pd
 from pydantic import BaseModel
@@ -16,7 +16,13 @@ logger = configure_logging("BankScrapper_V2")
 # Configuration constants
 EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
 
-FIRECRAWL_API_KEYS = ['fc-7ca0ba6b1d604fe78d3c318efe38b8cc']
+
+FIRECRAWL_API_KEYS = [
+    # 'fc-55191b48af524d3b83bb261b34431646',
+    # 'fc-7ca0ba6b1d604fe78d3c318efe38b8cc',
+    # 'fc-3c8a0a41c0884cc6a3fba51066d6dee4'
+    'fc-c815652927e747a69dbc90f6db2563e2'
+]
 last_key_index = -1
 
 class ExtractSchema(BaseModel):
@@ -414,7 +420,9 @@ def run_bank_scrapers_v2(bank_names: List[str], excel_path: str = None) -> dict:
         
         # Get card info from Excel
         card_info = get_card_info_from_excel(excel_path, bank_name)
-        
+        # card_info = card_info[15:]
+        card_info = card_info[102:]
+
         if not card_info:
             logger.warning(f"No card data found for bank {bank_name}")
             results[bank_name] = {"success": False, "cards_processed": 0, "error": "No card data found"}
@@ -477,8 +485,9 @@ if __name__ == "__main__":
         logger.info("Running BankScrapper_V2 as standalone script...")
         
         # Default bank names to process when run standalone
+        DEFAULT_BANK_NAMES = ["Kotak"]
         #DEFAULT_BANK_NAMES = ["Induslnd","IDFC","AU","Yes","Amex","ICICI","Kotak","HDFC","SBI","IDBI"]
-        DEFAULT_BANK_NAMES = ['SBI']
+        # DEFAULT_BANK_NAMES = ['SBI']
         # You can modify this list to process different banks
         # Example: DEFAULT_BANK_NAMES = ["Amex", "Axis", "SBI", "ICICI"]
         

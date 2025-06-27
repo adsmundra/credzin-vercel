@@ -211,6 +211,10 @@ exports.fetchGmailMessages = async (req, res) => {
             });
         }
 
+        // Calculate 90 days ago in YYYY/MM/DD format
+        const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+        const afterDate = `${ninetyDaysAgo.getFullYear()}/${(ninetyDaysAgo.getMonth() + 1).toString().padStart(2, '0')}/${ninetyDaysAgo.getDate().toString().padStart(2, '0')}`;
+
         // Fetch messages using the access token directly
         console.log('Fetching Gmail messages for user:', userEmail);
         const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
@@ -218,7 +222,8 @@ exports.fetchGmailMessages = async (req, res) => {
                 'Authorization': `Bearer ${oauthDetails.access_token}`
             },
             params: {
-                maxResults: 10
+                q: `after:${afterDate}`,
+               // maxResults: 100 // You can adjust this as needed
             }
         });
         console.log('Gmail messages fetched successfully:', response.data);
@@ -252,8 +257,8 @@ exports.fetchGmailMessages = async (req, res) => {
                 body = Buffer.from(messageData.payload.body.data, 'base64').toString();
             }
 
-            // Limit body to first 200 characters
-            body = body.substring(0, 800) + (body.length > 200 ? '...' : '');
+            // Limit body to first 800 characters
+            body = body.substring(0, 800) + (body.length > 800 ? '...' : '');
 
             // Create message object
             const processedMessage = {

@@ -43,6 +43,7 @@ exports.signup = async (req, res) => {
 // Form Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(email)
   try {
     const user = await User.findOne({ email });
     if (!user || !user.password) {
@@ -80,7 +81,7 @@ exports.googleLoginSuccess = async (req, res) => {
   req.user.token = token;
   await req.user.save();
 
-  res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
+  // res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
 };
 
 exports.getUserData = async (req, res) => {

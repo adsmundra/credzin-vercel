@@ -1,35 +1,83 @@
 const User = require('../models/User');
+const path = require('path');
 
-const editProfileController = async (req, res) => {
+exports.updateProfile = async (req, res) => {
   try {
-    const userData = JSON.parse(req.body.userData);
+    const userId = req.id;
+    console.log("userID" ,userId)
 
-    const { _id, firstName, lastName, email, contact, address } = userData;
-
-    const user = await User.findById(_id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
+    let userData;
+    try {
+      userData = JSON.parse(req.body.userData);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user data format.',
+      });
     }
 
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.email = email || user.email;
-    user.contact = contact || user.contact;
-    user.address = address || user.address;
+    const { firstName, lastName, contact, address } = userData;
+    if (!firstName || !lastName) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name and last name are required.',
+      });
+    }
+
+    if (contact && !/^\+?\d{10,15}$/.test(contact)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid contact number.',
+      });
+    }
+
+    const updateData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      contact: contact?.trim(),
+      address: address?.trim(),
+    };
 
     if (req.file) {
-      user.profilePic = `/uploads/${req.file.filename}`;
+      try {
+        updateData.profilePic = `images/${req.file.filename}`;
+      } catch (error) {
+        console.error('Error processing profile picture:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to process profile picture.',
+        });
+      }
     }
 
-    await user.save();
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select('-password');
 
-    res.json({ message: 'Profile updated successfully.', user });
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    const responseUser = updatedUser.toObject();
+    if (responseUser.profilePic) {
+      responseUser.profilePic = `${req.protocol}://${req.get('host')}/${responseUser.profilePic}`;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      data: responseUser,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: { message: 'Internal Server Error' } }); // This is the error you're seeing
+    console.error('Error updating profile:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again.',
+    });
   }
-};
-
-module.exports = {
-  editProfileController,
 };

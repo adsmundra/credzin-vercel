@@ -383,6 +383,9 @@ const Navbar = () => {
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
 
+  console.log("Redux Auth USER:-==", user);
+  
+
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
 

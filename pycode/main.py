@@ -2,9 +2,8 @@ from src.recommender.LangGraphNodes.build_graph import card_graph
 from src.utils.logger import logger
 from src.scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
 from src.scrapers.sites import CardInsiderScraper
-from src.scrapers.banks.BankScrapper_v2 import run_bank_scrapers_v2
-
-from typing import List, Dict
+from src.scrapers.banks.BankScrapper_V2 import run_bank_scrapers_v2
+from src.processing.CreditCardIngestion import main
 
 def run_bank_scrapers(bank_names):
     """
@@ -82,14 +81,20 @@ if __name__ == "__main__":
         '''
 
         # Process banks using the new firecrawl API
-        BANK_NAMES = ["Amex"]
-        results = run_bank_scrapers_v2(BANK_NAMES)
+    #     BANK_NAMES = ["Amex"]
+    #     results = run_bank_scrapers_v2(BANK_NAMES)
+        
+    # except Exception as exc:
+    #     logger.critical("Critical error in the main process: %s", exc)
+        
+        #  Ingestion process
+        csv_file = "KnowledgeBase/StructuredCardsData/cc_feats_V2.csv"
+        main(csv_file)
         
     except Exception as exc:
-        logger.critical("Critical error in the main process: %s", exc)
+            logger.critical("Critical error in the main process: %s", exc)
         
-        
-        '''
+    '''
         graph = card_graph()
         logger.info("Graph created successfully.")
 

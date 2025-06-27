@@ -64,48 +64,48 @@ function App() {
   }, [location, navigate]);
 
   // Step 2: Fetch user info
-  const getUser = async () => {
-    if (localStorage.getItem("token")) {
-      try {
-        const response = await axios.get(
-          `${apiEndpoint}/api/v1/auth/userdata`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        console.log("User data:", response.data.user);
-        if (response.status === 200) {
-          dispatch(setUser(response.data.user));
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-      }
-    }
-  };
+  // const getUser = async () => {
+  //   if (localStorage.getItem("token")) {
+  //     try {
+  //       const response = await axios.get(
+  //         `${apiEndpoint}/api/v1/auth/userdata`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+  //       console.log("User data:", response.data.user);
+  //       if (response.status === 200) {
+  //         dispatch(setUser(response.data.user));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user:", error);
+  //     }
+  //   }
+  // };
 
   // Step 3: Fetch card info
-  const getCardDetails = async () => {
-    if (localStorage.getItem("token")) {
-      try {
-        const response = await axios.get(
-          `${apiEndpoint}/api/v1/auth/addedcards`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        console.log("Card details:", response.data.cards);
-        if (response.status === 200) {
-          dispatch(setCart(response.data.cards));
-        }
-      } catch (error) {
-        console.error("Error fetching cards:", error);
-      }
-    }
-  };
+  // const getCardDetails = async () => {
+  //   if (localStorage.getItem("token")) {
+  //     try {
+  //       const response = await axios.get(
+  //         `${apiEndpoint}/api/v1/auth/addedcards`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //           },
+  //         }
+  //       );
+  //       console.log("Card details:", response.data.cards);
+  //       if (response.status === 200) {
+  //         dispatch(setCart(response.data.cards));
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching cards:", error);
+  //     }
+  //   }
+  // };
   const get_all_bank = async () => {
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
@@ -139,9 +139,13 @@ function App() {
         const userData = response.data.data;
 
         const { CardAdded, ...userInfo } = userData;
+        console.log("Added cards:", CardAdded);
+
+        console.log("User info:", userInfo);
 
         // Store user info (excluding CardAdded)
         dispatch(setUser(userInfo));
+        // dispatch(setUser(userData));
 
         // Store CardAdded in the cart slice
         if (Array.isArray(CardAdded)) {
@@ -192,8 +196,8 @@ function App() {
   // Step 4: Run once on mount
   useEffect(() => {
     getUserFullDetails();
-    getUser();
-    getCardDetails();
+    // getUser();
+    // getCardDetails();
     get_all_bank();
     getRecommendedCard();
   }, [token]);

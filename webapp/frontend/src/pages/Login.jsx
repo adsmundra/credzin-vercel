@@ -26,7 +26,7 @@ function Login() {
         { withCredentials: true }
       );
       if (response.status !== 200) throw new Error("Login failed");
-      toast.success("Login successful!", { position: "top-center", autoClose: 2000 });
+      toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
       localStorage.setItem("token", response.data.token);
       if (response.data.user.isfirstLogin === true) {
         navigate("/additional-details");

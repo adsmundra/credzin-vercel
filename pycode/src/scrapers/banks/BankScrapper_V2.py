@@ -16,7 +16,7 @@ logger = configure_logging("BankScrapper_V2")
 # Configuration constants
 EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
 
-
+# Add the keys for rotation{round-robin} such that no one key gets exhausted
 FIRECRAWL_API_KEYS = [
     # 'fc-55191b48af524d3b83bb261b34431646',
     # 'fc-7ca0ba6b1d604fe78d3c318efe38b8cc',
@@ -167,11 +167,6 @@ def parse_card_info(bank_name, card_info, excel_path):
         int: Number of cards processed.
     """
 
-    # Firecrawl API Key 
-    # app = FirecrawlApp(api_key='fc-55191b48af524d3b83bb261b34431646')
-
-
-    app = FirecrawlApp(api_key='fc-b9db21c349214ef69cd49deed5737e1f')
     prompt_template = '''
         • Extract all the data for {card_name}:
             1. bank_name: The name of the financial institution that issues the respective credit card.
@@ -239,71 +234,6 @@ def parse_card_info(bank_name, card_info, excel_path):
         • If a particular field is not available, set its value to "NILL".
         • If information is split across multiple pages, aggregate it and return one value.
     '''
-
-    # all_rows = []
-    
-    # for entry in card_info:
-    #     card_name = entry.get("card_name", "").strip()
-    #     original_image_url = entry.get("card_image_url", "NILL")
-
-    #     if not card_name:
-    #         continue
-
-    #     full_card_name = f"{bank_name} {card_name}"
-    #     prompt = prompt_template.format(card_name=full_card_name)
-        
-    #     # try:
-    #     #     scrape_result = app.extract(
-    #     #         prompt=prompt,
-    #     #         schema=ExtractSchema.model_json_schema()
-    #     #     )
-    #     #     # logger.info(f"\nResult for {full_card_name}:\n", scrape_result)
-    #     #     logger.info(f"\nResult for {full_card_name}:\n")
-    #     #     logger.info(str(scrape_result))
-    #     # except Exception as e:
-    #     #     logger.error(f"Error scraping for {full_card_name}: {e}")
-    #     #     continue
-
-    #     scrape_result = None
-
-    #     for key in FIRECRAWL_API_KEYS:
-    #         try:
-    #             app = FirecrawlApp(api_key=key)
-    #             scrape_result = app.extract(
-    #                 prompt=prompt,
-    #                 schema=ExtractSchema.model_json_schema()
-    #             )
-    #             logger.info(f"Success with key {key} for {full_card_name}")
-    #             logger.info(str(scrape_result))
-    #             break  # Success → stop trying other keys
-    #         except Exception as e:
-    #             logger.error(f"Failed with key {key} for {full_card_name}: {e}")
-    #             time.sleep(2)  # small delay before trying next key
-
-    #     if not scrape_result:
-    #         logger.error(f"All API keys failed for {full_card_name}. Skipping.")
-    #         continue
-
-    #     data_dict = getattr(scrape_result, "data", {}) or {}
-
-    #     # Overwrite card_image_url with the one from Excel if present
-    #     if original_image_url and original_image_url != "NILL":
-    #         data_dict["card_image_url"] = original_image_url
-
-    #     values = [str(data_dict.get(field, "NILL")) for field in ExtractSchema.model_fields]
-    #     all_rows.append(values)
-
-    #     formatted_bank_name = f"{bank_name.title()}bank"
-    #     base_output_dir = Path('KnowledgeBase/banks')
-    #     bank_folder = base_output_dir / formatted_bank_name / 'csv'
-    #     bank_folder.mkdir(parents=True, exist_ok=True)
-
-    #     output_path = bank_folder / "credit_card_details_v2.csv"
-    #     save_to_csv(output_path, [values], mode='a')
-    #     logger.info(f"\nAppended record for {full_card_name} → {output_path}")
-
-    # if not all_rows:
-    #     logger.error(f"No rows processed for bank {bank_name}.")
 
     global last_key_index  # Use global variable to track key index
 

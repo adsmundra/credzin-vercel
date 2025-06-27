@@ -37,10 +37,6 @@ const userSchema = new mongoose.Schema({
   googleId: {
     type: String,
   },
-  // ageRange: {
-  //   type: String,
-  //   enum: ['18-24', '25-34', '35-44', '45-54', '55+'],
-  // },
   dateOfBirth: {
     type: Date,
   },
@@ -71,8 +67,8 @@ const userSchema = new mongoose.Schema({
     default: true,
   },
   profilePic: {
-    type: String,
-    default: '',
+    data: Buffer,
+    contentType: String,
   },
   createdAt: {
     type: Date,

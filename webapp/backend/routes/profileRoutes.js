@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const {editProfileController} = require('../controller/profileController.js');
-const uploadMiddleware = require('..//middlewares/uploadMiddleware.js');
+const { updateProfile } = require('../controller/profileController');
+const { verifyToken } = require('../middlewares/verifyToken');
+const { uploadProfilePic } = require('../middlewares/uploadMiddleware');
 
-router.put('/profileEdit', uploadMiddleware, editProfileController);
+// Profile update route
+router.post('/profileEdit', verifyToken, uploadProfilePic, updateProfile);
 
-module.exports = router;
+
+module.exports= router

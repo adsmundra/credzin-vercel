@@ -1,40 +1,37 @@
 const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
+const fs = require('fs');
 
+// Ensure images folder exists
+const imageDir = path.join(__dirname, '../images');
+if (!fs.existsSync(imageDir)) {
+  fs.mkdirSync(imageDir, { recursive: true });
+}
+
+// Configure multer disk storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+  destination: function (req, file, cb) {
+    cb(null, imageDir);
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix);
+  filename: function (req, file, cb) {
+    cb(null, uuidv4() + '-' + Date.now() + path.extname(file.originalname));
   },
 });
+
+// File filter for image types
 const upload = multer({
-  storage: storage,
-  // limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
-
-    if (mimetype && extname) {
-      return cb(null, true);
+    const validMimeTypes = ['image/jpeg', 'image/png'];
+    if (validMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
     } else {
-      cb(new Error('Only images are allowed!'));
+      cb(new Error('Only JPG and PNG files are allowed'), false);
     }
   },
 });
-const uploadMiddleware = (req, res, next) => {
-  upload.single('avatar')(req, res, (err) => {
-    if (err) {
-      return res.status(400).json({ message: err.message });
-    }
 
-    next();
-  });
-};
-
-module.exports = uploadMiddleware;
+// Middleware to handle single image upload with key 'profilePic'
+exports.uploadProfilePic = upload.single('profilePic');

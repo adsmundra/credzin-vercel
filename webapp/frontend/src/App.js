@@ -57,6 +57,9 @@ function App() {
       localStorage.setItem("token",savedUser)
       navigate("/home")
     }
+    else{
+      navigate("/login")
+    }
   }, []);
 
   useEffect(() => {
@@ -67,11 +70,12 @@ function App() {
     if (token) {
       // Store token securely (e.g., in localStorage or state)
       localStorage.setItem("token", token);
-      // console.log("Token saved:", token);
-
-      // Remove token from URL
-      // navigate('/googleAdditionaldetails', { replace: true });
+   
     }
+    Cookies.set('user_Auth', token, {
+            expires: new Date(Date.now() + 45 * 60 * 1000),
+            sameSite: 'Lax', // important!
+          });
   }, [location, navigate]);
 
  

@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema({
     default: true,
   },
   profilePic: {
-    data: Buffer,
+    data: String,
     contentType: String,
   },
   createdAt: {

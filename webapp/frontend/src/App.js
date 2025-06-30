@@ -32,6 +32,7 @@ import Transactions from "./pages/Transactions";
 import NotificationSettings from "./pages/NotificationSettings";
 import GoogleLoginAdditionalDetails from "./pages/GoogleLoginAdditionalDetails";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CardBenifits from "./pages/CardBenifits";
 
 function App() {
   const dispatch = useDispatch();
@@ -241,7 +242,8 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="/privacy-policy" element={PrivacyPolicy}></Route>
+        <Route path="/privacy-policy" element={<PrivacyPolicy/>}></Route>
+        <Route path="/home/card-benifits" element={<CardBenifits/>}></Route>
       </Routes>
       <Footer />
     </div>

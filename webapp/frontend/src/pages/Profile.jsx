@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { User, Phone, MapPin, CreditCard, Upload } from 'lucide-react';
 import BottomNavBar from "../component/BottomNavBar";
+import { useDispatch } from "react-redux";
+import { setUser } from "../app/slices/authSlice"; // adjust path based on your structure
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a2abb3'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7.35 18.5C8.66 17.56 10.27 17 12 17s3.34.56 4.65 1.5c-1.31.94-2.91 1.5-4.65 1.5s-3.34-.56-4.65-1.5zm10.79-1.38C16.45 15.8 14.32 15 12 15s-4.45.8-6.14 2.12A7.96 7.96 0 0 1 4 12c0-4.42 3.58-8 8-8s8 3.58 8 8c0 1.85-.63 3.54-1.86 4.12zM12 6c-1.93 0-3.5 1.57-3.5 3.5S10.07 13 12 13s3.5-1.57 3.5-3.5S13.93 6 12 6zm0 5c-.83 0-1.5-.67-1.5-1.5S11.17 8 12 8s1.5.67 1.5 1.5S12.83 11 12 11z'/%3E%3C/svg%3E";
 
@@ -23,13 +25,32 @@ const UserProfile = () => {
   const token = localStorage.getItem("token"); 
   console.log('token1',token)
 
-  useEffect(() => {
-    if (user?.profilePic) {
-      setAvatarPreview(`${API_BASE_URL}${user.profilePic}`);
-    } else {
-      setAvatarPreview(DEFAULT_AVATAR);
+  // useEffect(() => {
+  //   if (user?.profilePic) {
+  //     setAvatarPreview(`${API_BASE_URL}${user.profilePic}`);
+  //   } else {
+  //     setAvatarPreview(DEFAULT_AVATAR);
+  //   }
+  // }, [user]);
+  // const dispatch = useDispatch();
+useEffect(() => {
+  if (user?.profilePic) {
+    // If it's already a full URL, use it directly
+    if (user.profilePic.startsWith('http://') || user.profilePic.startsWith('https://')) {
+      setAvatarPreview(user.profilePic);
+    } 
+    // Otherwise construct the URL properly
+    else {
+      // Remove any leading slashes to prevent double slashes
+      const cleanPath = user.profilePic.replace(/^\/+/, '');
+      setAvatarPreview(`${API_BASE_URL}/${cleanPath}`);
     }
-  }, [user]);
+  } else {
+    setAvatarPreview(DEFAULT_AVATAR);
+  }
+}, [user]);
+
+
 
   useEffect(() => {
     return () => {
@@ -110,13 +131,14 @@ const UserProfile = () => {
         },
          // Add Authorization header
       });
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log("✅ Profile updated successfully:", response.data);
-      }
-      setEditMode(false);
-      setAvatarFile(null);
-      alert('Profile updated successfully!');
+      const updatedUser = response.data.data;
+      console.log("updated user",updatedUser.profilePic)
+        if (updatedUser.profilePic) {
+          setAvatarPreview(updatedUser.profilePic);
+        }
+        setEditMode(false);
+        setAvatarFile(null);
+        alert('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update profile. Please try again.';
@@ -146,7 +168,7 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#121416] text-white font-['Manrope']">
-      <div className="flex items-center bg-[#121416] p-4 sm:p-6 md:p-8 lg:p-14 pb-6 justify-between sticky top-0 z-10">
+      <div className="flex items-center bg-[#121416] p-4 sm:p-6 md:p-8 lg:p-14 pb-6 justify-between sticky top-0 z-10 mt-12 sm:mt-8">
         <button
           onClick={() => navigate(-1)}
           className="text-white flex size-12 items-center"
@@ -199,7 +221,7 @@ const UserProfile = () => {
               <div
                 className="bg-center bg-no-repeat aspect-square bg-cover rounded-full min-h-[100px] w-[100px] sm:min-h-[120px] sm:w-[120px] md:min-h-[140px] md:w-[140px] ring-2 ring-[#2c3135] ring-offset-2 ring-offset-[#121416]"
                 style={{
-                  backgroundImage: `url(${avatarPreview})`,
+                  backgroundImage: `url("${avatarPreview}")`,
                   backgroundColor: '#2c3135'
                 }}
               />

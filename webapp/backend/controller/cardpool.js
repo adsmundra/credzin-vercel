@@ -42,7 +42,7 @@ exports.getAllCard = async (req, res) => {
         // Find all group memberships for the user and populate user_id
         const docs = await card_group_user
             .find({ user_id: userId })
-            .populate('user_id', 'name email') // Populate user details (adjust fields as needed)
+            .populate('user_id', 'name email profilePic') // Populate user details (adjust fields as needed)
             .lean();
 
         const groupIds = docs.map(doc => doc.group_id);
@@ -52,7 +52,7 @@ exports.getAllCard = async (req, res) => {
         for (const groupId of groupIds) {
             usersByGroup[groupId] = await card_group_user
                 .find({ group_id: groupId })
-                .populate('user_id', 'name email') // Populate user details
+                .populate('user_id', 'name email profilePic') // Populate user details
                 .populate('card_list') // Populate credit card details
                 .lean();
         }
@@ -60,7 +60,7 @@ exports.getAllCard = async (req, res) => {
         // Get group details and populate admin
         const groups = await card_group
             .find({ _id: { $in: groupIds } })
-            .populate('admin', 'name email') // Populate admin details
+            .populate('admin', 'name email profilePic') // Populate admin details
             .lean();
 
         // Combine all the data

@@ -41,6 +41,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
+    exposedHeaders: ['Content-Disposition']
   })
 );
 
@@ -66,8 +67,17 @@ if (!fs.existsSync(imageDir)) {
 }
 
 // === Serve profile images statically ===
-app.use("/images", express.static(imageDir));
 
+
+// Add this CORS middleware BEFORE serving static files
+app.use('/images', express.static(path.join(__dirname, 'images'), {
+  setHeaders: (res) => {
+    res.set({
+      'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
+      'Cross-Origin-Resource-Policy': 'cross-origin'
+    });
+  }
+}));
 // === ROUTES ===
 const authRoutes = require('./routes/user');
 const googleRoutes = require('./routes/googleAuthRoutes');

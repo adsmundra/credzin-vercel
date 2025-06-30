@@ -4,6 +4,8 @@ import BottomNavBar from "../component/BottomNavBar";
 import { apiEndpoint } from "../api";
 import { useNavigate } from "react-router-dom";
 import { FaTrashAlt } from "react-icons/fa";
+import Avatar from '@mui/material/Avatar';
+import AvatarGroup from '@mui/material/AvatarGroup';
 
 const CardPool = () => {
   const [groups, setGroups] = useState([]);
@@ -13,6 +15,7 @@ const CardPool = () => {
   const [groupName, setGroupName] = useState("");
   const [deletingGroup, setDeletingGroup] = useState(null);
   const [isCreating, setIsCreating] = useState(false); // New state to track creation in progress
+  const [groupInfo, setGroupInfo] = useState({});
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -33,6 +36,14 @@ const CardPool = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setPendingInvitations(invitationsRes.data.data || []);
+
+
+        // Fetch group info
+        const groupInfoRes = await axios.get(`${apiEndpoint}/api/v1/card/getAllUserCard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setGroupInfo(groupInfoRes.data.data || {});
+
       } catch (err) {
         setGroups([]);
         setPendingInvitations([]);
@@ -75,7 +86,7 @@ const CardPool = () => {
 
   const handleDeleteGroup = async (groupId) => {
     if (!window.confirm("Are you sure you want to delete this group?")) return;
-    
+
     setDeletingGroup(groupId);
     try {
       const response = await axios.delete(
@@ -100,12 +111,14 @@ const CardPool = () => {
   // When a group is clicked, go to group detail page
   const handleGroupClick = (groupId) => {
     navigate(`/group/${groupId}`);
+    console.log('groupinfo', groupInfo);
+
   };
 
   return (
     <div className="min-h-screen bg-[#111518] text-white font-sans px-4 py-6 pt-20">
       <h2 className="text-2xl font-bold mb-6 text-center">Card Pools</h2>
-      
+
       {/* Pending Invitations Section */}
       {pendingInvitations.length > 0 && (
         <div className="mb-6">
@@ -152,13 +165,29 @@ const CardPool = () => {
                 key={group._id}
                 className="bg-[#23272f] rounded-lg p-4 hover:bg-[#2b3139] transition relative group"
               >
-                <div 
+                <div
                   className="cursor-pointer"
                   onClick={() => handleGroupClick(group._id)}
                 >
-                  <div className="font-semibold text-lg">{group.name}</div>
+                  <div className="flex items-center gap-2">
+                    <div className="font-semibold text-lg">{group.name}</div>
+                    <AvatarGroup
+                      max={4}
+                      sx={{
+                        '& .MuiAvatar-root': {
+                          width: '24px',     // Adjust size as needed
+                          height: '24px',
+                          fontSize: '0.75rem',
+                        },
+                      }}
+                    >
+                      {groupInfo[0]?.members?.map((member) => (
+                        <Avatar key={member.group_id} alt={member.name} src={`http://localhost:5000/${member.user_id.profilePic}`} />
+                      ))}
+                    </AvatarGroup>
+                  </div>
                   <div className="text-xs text-[#6c7a89]">
-                    {/* Members: {group.members?.length || 0} */}
+                    Members: {groupInfo[0].members?.length || 0}
                   </div>
                 </div>
                 <button
@@ -206,7 +235,7 @@ const CardPool = () => {
               onClick={handleCreatePool}
               disabled={!groupName || isCreating} // Disable when creating
             >
-              {isCreating ? "Creating..." : "Create a Pool"} 
+              {isCreating ? "Creating..." : "Create a Pool"}
             </button>
           </div>
         </div>

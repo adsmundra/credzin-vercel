@@ -230,7 +230,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import BottomNavBar from "../component/BottomNavBar";
 import Slider from "react-slick";
-
+import { setSelectedCard } from "../app/slices/cartSlice";
 // Recommended, benefits, and offers data
 const recommended = [
   {
@@ -342,8 +342,12 @@ const Home = () => {
                 <img
                   src={card.image_url || "https://via.placeholder.com/128x80"}
                   alt={card.card_name}
-                  className="object-contain w-full h-full transition-transform duration-200 hover:scale-105"
+                  className="object-contain w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer"
                   draggable={false}
+                  onClick={() => {
+                    dispatch(setSelectedCard(card));
+                    navigate('/home/card-benifits');
+                  }}
                 />
               </div>
               {/* Card Info */}

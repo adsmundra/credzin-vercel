@@ -47,6 +47,13 @@ def load_and_combine_csv(parent_dir, target_filename):
     if all_dfs:
         combined_df = pd.concat(all_dfs, ignore_index=True)
         logger.info(f"Combined DataFrame shape: {combined_df.shape}")
+        # Clean special characters from card_name
+        if 'card_name' in combined_df.columns:
+            combined_df['card_name'] = combined_df['card_name'].astype(str).apply(lambda x: re.sub(r'[^a-zA-Z0-9\s]', '', x))
+            logger.info("Cleaned special characters from card_name")
+        # Remove duplicate rows based on card_name
+        combined_df = combined_df.drop_duplicates(subset=['card_name'])
+        logger.info(f"After removing duplicates by card_name, shape: {combined_df.shape}")
         return combined_df
     else:
         raise ValueError(f"No CSV files named '{target_filename}' found in the 'csv' directories.")
@@ -127,7 +134,7 @@ def save_processed_data(df, output_dir='KnowledgeBase/StructuredCardsData'):
     os.makedirs(output_dir, exist_ok=True)
     
     # Save to CSV
-    csv_path = os.path.join(output_dir, 'cc_feats_V3.csv')
+    csv_path = os.path.join(output_dir, 'cc_feats_V2.csv')
     if os.path.exists(csv_path):
         existing_df = pd.read_csv(csv_path)
         if set(existing_df.columns) == set(df.columns):
@@ -141,21 +148,21 @@ def save_processed_data(df, output_dir='KnowledgeBase/StructuredCardsData'):
         df.to_csv(csv_path, index=False)
         logger.info(f"DataFrame saved to new CSV at {csv_path}")
     
-    # Save to Excel with separate sheets per bank
-    excel_path = os.path.join(output_dir, 'credit_card_details_V2.xlsx')
-    with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
-        for bank in df['bank_name'].unique():
-            bank_df = df[df['bank_name'] == bank]
-            sheet_name = re.sub(r'[\\\/:*?"<>|]', '_', bank)[:31]
-            bank_df.to_excel(writer, sheet_name=sheet_name, index=False)
-    logger.info(f"DataFrame saved to Excel with bank sheets at {excel_path}")
+    # # Save to Excel with separate sheets per bank
+    # excel_path = os.path.join(output_dir, 'credit_card_details_V2.xlsx')
+    # with pd.ExcelWriter(excel_path, engine='xlsxwriter') as writer:
+    #     for bank in df['bank_name'].unique():
+    #         bank_df = df[df['bank_name'] == bank]
+    #         sheet_name = re.sub(r'[\\\/:*?"<>|]', '_', bank)[:31]
+    #         bank_df.to_excel(writer, sheet_name=sheet_name, index=False)
+    # logger.info(f"DataFrame saved to Excel with bank sheets at {excel_path}")
 
 
 def setup_qdrant_collection():
     """Setup or verify Qdrant collection for hybrid search."""
     QDRANT_URL = os.getenv("QDRANT_URL")
     QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-    COLLECTION_NAME = "test_knowledge_base"
+    COLLECTION_NAME = "Credit_card_V2_remake"
     
     client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
     
@@ -320,7 +327,7 @@ def main(csv_input):
     orchestrate_ingestion(csv_input)
 
 if __name__ == "__main__":
-    csv_file = "KnowledgeBase/StructuredCardsData/cc_feats_V3.csv"
+    csv_file = "KnowledgeBase/StructuredCardsData/cc_feats_V2.csv"
     main(csv_file)
 '''  
 
@@ -335,7 +342,7 @@ def ingest_to_qdrant(csv_path, client, collection_name):
     # Read CSV
     try:
         df = pd.read_csv(csv_path)
-        df = df.head(10)  # Limit to first 10 cards
+        # df = df.head(10)  # Limit to first 10 cards
         logger.info(f"Loaded CSV: {csv_path}, shape: {df.shape}")
     except Exception as e:
         logger.error(f"Error reading CSV {csv_path}: {e}")

@@ -12,7 +12,6 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 
 from agno.knowledge.langchain import LangChainKnowledgeBase
-import gradio as gr
 from langchain_qdrant import Qdrant
 from langchain_huggingface import HuggingFaceEmbeddings
 from agno.agent import Agent
@@ -47,15 +46,15 @@ logger = configure_logging("CardRecommenderAgent")
 setup_env()
 qdrant_client = qdrantdb_client()
 
-# if len(sys.argv) < 2:
-#     logger.error("missing user_id argument")
-#     sys.exit(1)
-# user_id_str = sys.argv[1]
-# try:
-#     user_object_id = ObjectId(user_id_str)
-# except Exception as e:
-#     logger.error("invalid user_id '%s': %s", user_id_str, e)
-#     sys.exit(1)
+if len(sys.argv) < 2:
+    logger.error("missing user_id argument")
+    sys.exit(1)
+user_id_str = sys.argv[1]
+try:
+    user_object_id = ObjectId(user_id_str)
+except Exception as e:
+    logger.error("invalid user_id '%s': %s", user_id_str, e)
+    sys.exit(1)
 
 # Initialize the local embedder
 # embedder = SentenceTransformerEmbedder(id="all-MiniLM-L6-v2")
@@ -89,8 +88,8 @@ qdrant = QdrantVectorStore(
 retriever = qdrant.as_retriever(
     search_type="mmr",                
     search_kwargs={
-        "k": 10,                        # final documents returned
-        "fetch_k": 20,                 # candidate pool MMR will re-rank
+        "k": 5,                        # final documents returned
+        "fetch_k": 10,                 # candidate pool MMR will re-rank
         "lambda_mult": 0.5,            # diversity ↔ relevance (0 = max diversity)
     },
 )
@@ -217,13 +216,13 @@ myclient = pymongo.MongoClient("mongodb+srv://Welzin:yYsuyoXrWcxPKmPV@welzin.1ln
 db = myclient["credzin"]       
 users_collection = db["users"]           
 
-all_users = list(users_collection.find({}))
-# all_users = list(users_collection.find({ "_id": user_object_id }))
+# all_users = list(users_collection.find({}))
+all_users = list(users_collection.find({ "_id": user_object_id }))
 
-cards_collection = db["credit_cards"] 
+cards_collection = db["Credit_card_V2"]
 # users = users_collection.find()
 pipeline = [
-    # { "$match": { "_id": user_object_id } },
+    { "$match": { "_id": user_object_id } },
     {
         "$lookup": {
             "from": "credit_cards",
@@ -259,63 +258,96 @@ pipeline = [
 ]
 
 
-# import re
-
-# def extract_best_card(resp_obj) -> str:
-#     raw = resp_obj.to_string() if hasattr(resp_obj, "to_string") else str(resp_obj)
-#     clean = raw.strip()
-    
-#     # Check for "no suitable card" response first
-#     if "no suitable card found" in clean.lower():
-#         return "NO_SUITABLE_CARD"
-    
-#     # Pattern 1: Exact format match - **Best Card:** *CardName*
-#     pattern1 = re.compile(r"\*\*Best Card:\*\*\s*\*([^*]+Credit Card)\*", re.IGNORECASE)
-#     match = pattern1.search(clean)
-#     if match:
-#         return match.group(1).strip()
-    
-#     # Pattern 2: Bold Best Card with any card name in italics
-#     pattern2 = re.compile(r"\*\*Best Card:\*\*[^\n]*?\*([^*]+Credit Card)\*", re.IGNORECASE)
-#     match = pattern2.search(clean)
-#     if match:
-#         return match.group(1).strip()
-    
-#     # Pattern 3: "Best Card" followed by card name (with or without formatting)
-#     pattern3 = re.compile(r"best card[:\-–\s]*\*?([A-Z][A-Za-z0-9 &\-]+Credit Card)\*?", re.IGNORECASE)
-#     match = pattern3.search(clean)
-#     if match:
-#         return match.group(1).strip()
-    
-#     # Pattern 4: Any credit card name as fallback
-#     pattern4 = re.compile(r"([A-Z][A-Za-z\s&\-]{5,}Credit Card)")
-#     match = pattern4.search(clean)
-#     if match:
-#         card_name = match.group(1).strip()
-#         # Validate it's a reasonable card name
-#         if len(card_name.split()) >= 2:  # At least 2 words
-#             return card_name
-    
-#     # If all patterns fail, raise error with more context
-#     raise ValueError(f"No 'Best Card' found. Response text:\n{clean[:300]}...")
 
 def get_card_id(card_name: str) -> str:
     """
-    Return the card's internal ID stored in the credit_cards collection.
-    Falls back to raising if no exact (case-insensitive) match is found.
+    Look up a card’s internal ID, tolerating whitespace / dash / case variations.
+    Raises LookupError if nothing matches.
     """
+    import re
+
+    # --- 1. Strip issuer suffixes and parentheticals ------------------------
+    name = re.sub(r"\s+by\s+.+$", "", card_name, flags=re.I).strip()
+    name = re.sub(r"\s*[-–]\s*.+$", "", name).strip()
+    name = re.sub(r"\s*\([^)]*\)\s*$", "", name).strip()
+
+    # --- 2. Collapse internal whitespace to single spaces -------------------
+    name = re.sub(r"\s+", " ", name)
+
+    # --- 3. Convert the cleaned name into a flexible regex ------------------
+    # e.g. "Axis Bank AURA Credit Card"  →  r"^Axis\s+Bank\s+AURA\s+Credit\s+Card$"
+    tokens   = map(re.escape, name.split(" "))
+    pattern  = r"\s+".join(tokens)
+    regex    = f"^{pattern}$"
+
     card_doc = cards_collection.find_one(
-        {"card_name": {"$regex": f"^{re.escape(card_name)}$", "$options": "i"}},
-        projection={"_id": 1, "card_id": 1}        # only the fields we need
+        {"card_name": {"$regex": regex, "$options": "i"}},
+        projection={"_id": 1, "card_id": 1},
     )
 
     if not card_doc:
         raise LookupError(f"Card name '{card_name}' not found in credit_cards")
 
-    # Decide which field you want to store.
-    # • If you made your own numeric/string ID field, keep it.
-    # • Otherwise just use Mongo’s own _id.
     return str(card_doc.get("card_id") or card_doc["_id"])
+
+# pull evidence chunks for the missing benefit
+
+def get_supporting_docs(query: str, top_k: int = 6) -> str:
+    """Return a single text blob of top-k graded chunks, separated by ---."""
+    docs = graded_retriever(query)
+    return "\n\n---\n\n".join(d["content"] for d in docs[:top_k])
+
+
+# run LLM with structured output and KB context
+
+def ask_llm_for_card(missing_benefit: str) -> CardRecommendation:
+    docs = graded_retriever(missing_benefit)          # ← keep list form
+    logger.debug("=== SUPPORTING CHUNKS for '%s' ===", missing_benefit)
+    for i, d in enumerate(docs[:6], 1):
+        logger.debug("[%d] %s …", i, d["content"][:300].replace(chr(10), " "))
+
+    kb_blob = "\n\n---\n\n".join(d["content"] for d in docs[:6])
+
+    PROMPT = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        "You are a senior Indian credit-card product specialist. "
+        "Use only the supplied knowledge-base documents to answer."
+    ),
+    (
+        "human",
+f"""TASK:
+The user needs **one** credit card that provides **{missing_benefit}** benefits.
+
+KNOWLEDGE BASE DOCUMENTS
+------------------------
+{kb_blob}
+
+STRICT INSTRUCTIONS – **read carefully**:
+• Recommend **exactly one** card.
+• The **card_name** field **must appear verbatim in the documents** –
+  *no issuer prefixes/suffixes (“by …”), no bracketed text, no added or removed spaces,
+  no change in capitalisation, and no other embellishment*.
+  It must be a **byte-for-byte match** to its occurrence in the documents.
+• Output **pure JSON** matching **exactly** this schema (no extra keys, comments, or text):
+  {{
+    "card_name": "<Exact Card Name>",
+    "reason": "<≤120-word justification>"
+  }}
+• If no suitable card exists, output:
+  {{"card_name": "NONE", "reason": "No suitable card found in available options."}}
+""".replace("{", "{{").replace("}", "}}")
+    )
+])
+
+    llm_json = ChatOpenAI(
+        api_key="ollama",
+        model="llama3.2",
+        base_url="http://localhost:11434/v1",
+    ).with_structured_output(CardRecommendation)
+
+    return (PROMPT | llm_json).invoke({})
+
 
 def recommend_card_for_user(agent: Agent, resolve_id_fn, max_attempts: int = 2):
     last_err = None
@@ -342,18 +374,6 @@ def recommend_card_for_user(agent: Agent, resolve_id_fn, max_attempts: int = 2):
 
 
 
-
-# Usage examples:
-# Use the comprehensive matching:
-# card_id = get_card_id("ICICI Bank Emeralde Credit Card")
-
-# Or use the simpler distinctive word matching:
-# card_id = get_card_id_simple("The ICICI Emeralde Credit Card")
-
-
-# -------------------------------------------------------------------
-# 3.  Execute and grab the results
-# -------------------------------------------------------------------
 users_with_cards = list(db.users.aggregate(pipeline, allowDiskUse=True))
 for user in users_with_cards:
     logger.debug("Raw user doc: %s", user)
@@ -383,28 +403,29 @@ You are a senior credit-card product specialist in the Indian market.
 ========================
 STRICT TASK INSTRUCTIONS
 ========================
-You MUST analyze and use **every single one** of the following credit cards that the customer currently holds:
+You MUST analyze and use **every single one** of the following credit cards:
 
 {', '.join(card_names)}
 
-Use ONLY your knowledge base to extract the benefits of these exact cards — do not assume or generalize.
+RULES:
+- DO NOT repeat tool calls for the same card more than once.
+- If you’ve already analyzed a card, move to the next one.
+- You are allowed to use each tool (search/analyze) at most ONCE per card.
+- STOP when all cards are covered.
 
 Your task is to:
-1. Identify the actual, factual benefits offered by **each** card listed.
-2. Group the total benefits into **broad benefit categories** like travel, fuel, dining, lounge access, etc.
-3. Ensure every benefit category in your response is **explicitly supported by at least one of the user's cards**.
-4. Do NOT skip any card. Each must be accounted for in your benefit list.
+1. Identify actual, factual benefits for each card.
+2. Group them into **broad benefit categories** (travel, lounge, fuel, etc.).
+3. Each benefit must come from **at least one card**.
 
-========================
-RESPONSE FORMAT
-========================
-Return a **clean list** of benefit categories the user already has. Do NOT explain the cards. Do NOT include card names.
+RESPONSE FORMAT:
+Output only the **distinct benefit categories**. No card names or explanations.
 
-Output example (bullet points only, nothing else):
-- Travel benefits  
-- Dining offers  
-- Fuel surcharge waiver  
-- Movie discounts  
+Example:
+- Travel benefits
+- Dining offers
+- Fuel surcharge waiver
+- Movie discounts
 - Airport lounge access
 """
 
@@ -424,10 +445,10 @@ Output example (bullet points only, nothing else):
     
     knowledge_tools = KnowledgeTools(
         knowledge=adapted_retriever,
-        think=True,   
+        think=False,   
         search=True,  
         analyze=True,  
-        add_few_shot=True, 
+        add_few_shot=False, 
     )
 
     agent1= Agent(
@@ -498,61 +519,28 @@ Search query: Give best credit card which provide <missing benefit> benefits
     m = re.search(r"provide\s+(.*?)\s+benefits", response1.content, flags=re.I)
     missing_benefit = m.group(1).strip() if m else response1.content.strip()
 
-    prompt_final = f"""
-    You are a senior Indian credit-card product specialist.
 
-    TASK
-    ----
-    Recommend exactly **one** credit card that provides **{missing_benefit}** benefits.
-    Use only the supplied knowledge-base documents for facts.
+    rec: CardRecommendation = ask_llm_for_card(missing_benefit)
 
-    Return your answer as JSON with keys:
-    • card_name  - exact KB entry, case-sensitive  
-    • reason     - ≤ 120 words, why this card meets the missing benefit
+    if rec.card_name.upper() == "NONE":
+        logger.warning("No suitable card for user %s", user_id)
+        continue
 
-    If no suitable card exists output:
-    {{"card_name": "NONE", "reason": "No suitable card found in available options."}}
-    """.strip()
+    # Single retry logic for card_id resolution
+    retries = 1
+    for attempt in range(retries + 1):
+        try:
+            recommended_card_id = get_card_id(rec.card_name)
+            break
+        except LookupError as e:
+            if attempt == retries:
+                logger.error("Final retry failed for recommended_card_id: %s", e)
+                continue  # or: raise e
+            logger.warning("Retry %d failed: %s", attempt + 1, e)     
 
+    logger.info("Resolved: %s  (%s)", rec.card_name, recommended_card_id)
 
-
-
-    agent3 = Agent(
-    description="You are a credit card expert and analyser",
-    #instructions=["Give customer suggestions based on the credit card features using the knowledge base. Only show 1 card as suggestion and no extra text"],
-    instructions     = [
-        prompt_final,
-        "First call the SEARCH tool, then answer strictly from those results."
-    ],
-    knowledge=kb,
-    search_knowledge = False,
-    model=ollama_model,
-    #reasoning_model=Ollama(id="deepseek-r1:1.5b"),
-    #tools=[ThinkingTools(add_instructions=True)],
-    tools=[knowledge_tools, ReasoningTools(add_instructions=True)],
-    #tools=[ThinkingTools(add_instructions=True), ReasoningTools(add_instructions=True)],
-    response_model = CardRecommendation,
-    markdown=False,
-    debug_mode=True,
-    )
-    # response2 = agent3.run(
-    #                     missing_benefit,
-    #                     stream=False,
-    #                     markdown=True,
-    #                     )
-    try:
-        best_card_name, card_id, suggestion_txt = recommend_card_for_user(
-            agent3,
-            get_card_id,        # 2nd arg = resolve_id_fn
-            max_attempts = 2    # 3rd arg = integer
-        )
-    except RuntimeError as e:
-        logger.error("Giving up for this user: %s", e)
-        continue               
-
-    logger.info("Resolved: %s  (%s)", best_card_name, card_id)
-
-    mycol = db["recommendations4"]
+    mycol = db["recommendations"]
     # user_suggestion = { "_id":"682c46b8f4a86be58de43b95", "suggestion": response.to_string() }
     # print(user_suggestion)
     #result = mycol.insert_one({ "_id" : user_collection["_id"], 'suggestion':user_suggestion["suggestion"]})
@@ -560,9 +548,9 @@ Search query: Give best credit card which provide <missing benefit> benefits
     query   = {"user_id": user_id}   # “primary key”
     update  = {
         "$set": {
-            "card_id": card_id,
-            "card_name":  best_card_name,
-            "suggestion": suggestion_txt
+            "card_id": recommended_card_id,
+            "card_name":  rec.card_name,
+            "suggestion": rec.reason
         }
     }
 

@@ -32,10 +32,24 @@ function Login() {
 
       localStorage.setItem("token", response.data.token);
 
-      Cookies.set('user_Auth', response.data.token, {
-        expires: new Date(Date.now() + 45 * 60 * 1000),
-        sameSite: 'Lax', // important!
-      });
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        sessionStorage.setItem("token", response.data.token); // Add session storage
+        Cookies.set('user_Auth', response.data.token, {
+          expires: new Date(Date.now() + 45 * 60 * 1000),
+          sameSite: 'Lax',
+        });
+      }
+      const token = localStorage.getItem("token")
+      
+      if (token && token !== "null" && token !== "undefined") {
+        localStorage.setItem("token", token);
+        Cookies.set('user_Auth', token, {
+          expires: new Date(Date.now() + 45 * 60 * 1000),
+          sameSite: 'Lax',
+        });
+      }
+
 
       if (response.data.user.isfirstLogin === true) {
         navigate("/additional-details");

@@ -25,14 +25,7 @@ const UserProfile = () => {
   const token = localStorage.getItem("token"); 
   console.log('token1',token)
 
-  // useEffect(() => {
-  //   if (user?.profilePic) {
-  //     setAvatarPreview(`${API_BASE_URL}${user.profilePic}`);
-  //   } else {
-  //     setAvatarPreview(DEFAULT_AVATAR);
-  //   }
-  // }, [user]);
-  // const dispatch = useDispatch();
+
 useEffect(() => {
   if (user?.profilePic) {
     // If it's already a full URL, use it directly

@@ -50,15 +50,13 @@ function App() {
     setIsHeaderVisible(visible);
   };
 
-    useEffect(() => {
-    const savedUser = Cookies.get('user_Auth');
-    console.log("this is saved user",savedUser)
+  useEffect(() => {
+    const savedUser = Cookies.get('user_Auth') || sessionStorage.getItem("token") || localStorage.getItem("token");
     if (savedUser) {
-      localStorage.setItem("token",savedUser)
-      navigate("/home")
-    }
-    else{
-      navigate("/login")
+      localStorage.setItem("token", savedUser);
+      navigate("/home");
+    } else {
+      navigate("/login");
     }
   }, []);
 
@@ -70,15 +68,19 @@ function App() {
     if (token) {
       // Store token securely (e.g., in localStorage or state)
       localStorage.setItem("token", token);
-   
+
     }
+   if (token && token !== "null" && token !== "undefined") {
+    localStorage.setItem("token", token);
+    sessionStorage.setItem("token", token);
     Cookies.set('user_Auth', token, {
-            expires: new Date(Date.now() + 45 * 60 * 1000),
-            sameSite: 'Lax', // important!
-          });
+      expires: new Date(Date.now() + 45 * 60 * 1000),
+      sameSite: 'Lax',
+    });
+   }
   }, [location, navigate]);
 
- 
+
   const get_all_bank = async () => {
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
@@ -183,7 +185,7 @@ function App() {
           path="/home"
           element={
             // <PrivateRoute>
-              <Home showHeader={isHeaderVisible} />
+            <Home showHeader={isHeaderVisible} />
             // </PrivateRoute>
           }
         />
@@ -213,8 +215,8 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="/privacy-policy" element={<PrivacyPolicy/>}></Route>
-        <Route path="/home/card-benifits" element={<CardBenifits/>}></Route>
+        <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
+        <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
       </Routes>
       <Footer />
     </div>

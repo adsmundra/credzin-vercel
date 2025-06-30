@@ -4,7 +4,7 @@ const path = require('path');
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.id;
-    console.log("userID" ,userId)
+    // console.log("userID" ,userId)
 
     let userData;
     try {

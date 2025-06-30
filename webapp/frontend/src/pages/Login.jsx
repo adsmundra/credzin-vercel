@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { apiEndpoint } from "../api";
 import { toast } from "react-toastify";
+import Cookies from 'js-cookie';
+
 
 const bgHero =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDo33nlRTTSTVp-UbxEFJZuhaSH-DUwGfiAnsMlfWvB5lfpnP8tZAdhjyMRpwuEK3gGqRbpaOCpyHTz1xwdouQbld6N9RHg7_jXkAM6gDw0qqxy2r5wsq-QcYk0fn4sICC_pt1aQgBa98A2xfxT2FZ_qPV6ryd4zKptDLRfu3iKR5O8_wDgsv4sCVHUUIqZp2wR-BLTZKzgSfk9Whu41EMuc8zMhFRfoJqEu8PrWoqANSSxj5xE5dx2pDdMG1llkwmR3hJsxpjMdnw";
@@ -27,7 +29,14 @@ function Login() {
       );
       if (response.status !== 200) throw new Error("Login failed");
       toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
+
       localStorage.setItem("token", response.data.token);
+
+      Cookies.set('user_Auth', response.data.token, {
+        expires: new Date(Date.now() + 45 * 60 * 1000),
+        sameSite: 'Lax', // important!
+      });
+
       if (response.data.user.isfirstLogin === true) {
         navigate("/additional-details");
       } else if (response.data.user.CardAdded.length === 0) {
@@ -111,8 +120,8 @@ function Login() {
           </p>
           <label
             className={`relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-colors ${remember
-                ? "justify-end bg-[#0c7ff2]"
-                : "justify-start bg-[#283039]"
+              ? "justify-end bg-[#0c7ff2]"
+              : "justify-start bg-[#283039]"
               }`}
           >
             <div

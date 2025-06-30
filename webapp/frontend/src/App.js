@@ -33,6 +33,7 @@ import NotificationSettings from "./pages/NotificationSettings";
 import GoogleLoginAdditionalDetails from "./pages/GoogleLoginAdditionalDetails";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CardBenifits from "./pages/CardBenifits";
+import Cookies from 'js-cookie';
 
 function App() {
   const dispatch = useDispatch();
@@ -49,6 +50,15 @@ function App() {
     setIsHeaderVisible(visible);
   };
 
+    useEffect(() => {
+    const savedUser = Cookies.get('user_Auth');
+    console.log("this is saved user",savedUser)
+    if (savedUser) {
+      localStorage.setItem("token",savedUser)
+      navigate("/home")
+    }
+  }, []);
+
   useEffect(() => {
     // Extract token from URL query parameters
     const queryParams = new URLSearchParams(location.search);
@@ -57,56 +67,14 @@ function App() {
     if (token) {
       // Store token securely (e.g., in localStorage or state)
       localStorage.setItem("token", token);
-      console.log("Token saved:", token);
+      // console.log("Token saved:", token);
 
       // Remove token from URL
       // navigate('/googleAdditionaldetails', { replace: true });
     }
   }, [location, navigate]);
 
-  // Step 2: Fetch user info
-  // const getUser = async () => {
-  //   if (localStorage.getItem("token")) {
-  //     try {
-  //       const response = await axios.get(
-  //         `${apiEndpoint}/api/v1/auth/userdata`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-  //       console.log("User data:", response.data.user);
-  //       if (response.status === 200) {
-  //         dispatch(setUser(response.data.user));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user:", error);
-  //     }
-  //   }
-  // };
-
-  // Step 3: Fetch card info
-  // const getCardDetails = async () => {
-  //   if (localStorage.getItem("token")) {
-  //     try {
-  //       const response = await axios.get(
-  //         `${apiEndpoint}/api/v1/auth/addedcards`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //           },
-  //         }
-  //       );
-  //       console.log("Card details:", response.data.cards);
-  //       if (response.status === 200) {
-  //         dispatch(setCart(response.data.cards));
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching cards:", error);
-  //     }
-  //   }
-  // };
+ 
   const get_all_bank = async () => {
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
@@ -144,7 +112,6 @@ function App() {
 
         console.log("User info:", userInfo);
 
-        // Store user info (excluding CardAdded)
         dispatch(setUser(userInfo));
         // dispatch(setUser(userData));
 

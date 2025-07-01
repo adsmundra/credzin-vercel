@@ -51,22 +51,22 @@ function App() {
   };
 
   const checkAuth = () => {
-    const token = localStorage.getItem("token") || 
-                 sessionStorage.getItem("token") || 
-                 Cookies.get('user_Auth');
+    
+          
+    const token =Cookies.get('user_Auth')
     
     return !!token; // returns true if token exists, false otherwise
   };
 
-  useEffect(() => {
-    const savedUser = Cookies.get('user_Auth') || sessionStorage.getItem("token") || localStorage.getItem("token");
-    if (savedUser) {
-      localStorage.setItem("token", savedUser);
-      navigate("/home");
-    } else {
-      navigate("/login");
-    }
-  }, []);
+  // useEffect(() => {
+  //   const savedUser = Cookies.get('user_Auth');
+  //   if( savedUser && savedUser!=='undefined') {
+  //     localStorage.setItem("token", savedUser);
+  //     navigate("/home");
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // }, []);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -75,7 +75,7 @@ function App() {
     // If token comes from URL (e.g., OAuth redirect)
     if (tokenFromURL && tokenFromURL !== "null" && tokenFromURL !== "undefined") {
       localStorage.setItem("token", tokenFromURL);
-      sessionStorage.setItem("token", tokenFromURL);
+      // sessionStorage.setItem("token", tokenFromURL);
       Cookies.set('user_Auth', tokenFromURL, {
         expires: new Date(Date.now() + 45 * 60 * 1000),
         sameSite: 'Lax',
@@ -90,6 +90,7 @@ function App() {
     if (!isAuthenticated && location.pathname !== '/login' && location.pathname !== '/signup') {
       navigate("/login");
     } else if (isAuthenticated && (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/')) {
+      // token = localStorage.setItem("token",)
       navigate("/home");
     }
   }, [location, navigate]);

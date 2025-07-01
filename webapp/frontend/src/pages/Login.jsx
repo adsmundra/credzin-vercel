@@ -38,7 +38,7 @@ function Login() {
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        sessionStorage.setItem("token", response.data.token); // Add session storage
+        // sessionStorage.setItem("token", response.data.token); // Add session storage
         Cookies.set('user_Auth', response.data.token, {
           expires: new Date(Date.now() + 45 * 60 * 1000),
           sameSite: 'Lax',

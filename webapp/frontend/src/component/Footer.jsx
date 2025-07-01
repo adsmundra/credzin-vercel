@@ -15,9 +15,9 @@ const Footer = () => {
 
         {/* Right Side: Links */}
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-          <a href="/privacy-policy" className="hover:text-gray-400 transition">Privacy Policy</a>
+          <a href="/home" className="hover:text-gray-400 transition">Privacy Policy</a>
           <span className="hidden md:inline">|</span>
-          <a href="/" className="hover:text-gray-400 transition">Terms of Service</a>
+          <a href="/home" className="hover:text-gray-400 transition">Terms of Service</a>
         </div>
         
       </div>

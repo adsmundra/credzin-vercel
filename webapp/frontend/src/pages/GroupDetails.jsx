@@ -129,7 +129,7 @@ const GroupDetails = () => {
     setAdding(true);
     try {
       const response = await axios.post(
-        `${apiEndpoint}/api/v1/card/addUserToPool`,
+        `${apiEndpoint}/api/v1/group/invitation/send`,
         { searchContact: searchResult.contact, groupId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

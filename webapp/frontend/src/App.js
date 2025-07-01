@@ -50,6 +50,14 @@ function App() {
     setIsHeaderVisible(visible);
   };
 
+  const checkAuth = () => {
+    const token = localStorage.getItem("token") || 
+                 sessionStorage.getItem("token") || 
+                 Cookies.get('user_Auth');
+    
+    return !!token; // returns true if token exists, false otherwise
+  };
+
   useEffect(() => {
     const savedUser = Cookies.get('user_Auth') || sessionStorage.getItem("token") || localStorage.getItem("token");
     if (savedUser) {
@@ -61,23 +69,29 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Extract token from URL query parameters
     const queryParams = new URLSearchParams(location.search);
-    const token = queryParams.get("token");
+    const tokenFromURL = queryParams.get("token");
 
-    if (token) {
-      // Store token securely (e.g., in localStorage or state)
-      localStorage.setItem("token", token);
-
+    // If token comes from URL (e.g., OAuth redirect)
+    if (tokenFromURL && tokenFromURL !== "null" && tokenFromURL !== "undefined") {
+      localStorage.setItem("token", tokenFromURL);
+      sessionStorage.setItem("token", tokenFromURL);
+      Cookies.set('user_Auth', tokenFromURL, {
+        expires: new Date(Date.now() + 45 * 60 * 1000),
+        sameSite: 'Lax',
+      });
+      // Clean the URL
+      navigate(location.pathname, { replace: true });
     }
-   if (token && token !== "null" && token !== "undefined") {
-    localStorage.setItem("token", token);
-    sessionStorage.setItem("token", token);
-    Cookies.set('user_Auth', token, {
-      expires: new Date(Date.now() + 45 * 60 * 1000),
-      sameSite: 'Lax',
-    });
-   }
+
+    // Check if user is authenticated
+    const isAuthenticated = checkAuth();
+
+    if (!isAuthenticated && location.pathname !== '/login' && location.pathname !== '/signup') {
+      navigate("/login");
+    } else if (isAuthenticated && (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/')) {
+      navigate("/home");
+    }
   }, [location, navigate]);
 
 
@@ -168,13 +182,15 @@ function App() {
     }
   };
   // Step 4: Run once on mount
-  useEffect(() => {
-    getUserFullDetails();
-    // getUser();
-    // getCardDetails();
-    get_all_bank();
-    getRecommendedCard();
-  }, [token]);
+ useEffect(() => {
+    const isAuthenticated = checkAuth();
+    
+    if (isAuthenticated) {
+      getUserFullDetails();
+      get_all_bank();
+      getRecommendedCard();
+    }
+  }, [location.pathname]);
 
   return (
     <div className="App">

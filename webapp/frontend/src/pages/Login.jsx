@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { apiEndpoint } from "../api";
 import { toast } from "react-toastify";
+import CircularProgress from "@mui/material/CircularProgress";
 import Cookies from 'js-cookie';
 
 
@@ -12,6 +13,8 @@ const bgHero =
 function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,6 +24,7 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await axios.post(
         `${apiEndpoint}/api/v1/auth/login`,
@@ -29,8 +33,8 @@ function Login() {
       );
       if (response.status !== 200) throw new Error("Login failed");
       toast.success("Login successful!", { position: "top-center", autoClose: 1000 });
-
       localStorage.setItem("token", response.data.token);
+
 
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
@@ -60,6 +64,8 @@ function Login() {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -160,9 +166,15 @@ function Login() {
         <div className="flex px-4 py-3">
           <button
             type="submit"
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 flex-1 bg-[#0c7ff2] text-white text-base font-bold leading-normal tracking-[0.015em] transition-colors hover:bg-[#0066cc]"
+            disabled={loading}
+            className={`flex min-w-[84px] max-w-[480px] items-center justify-center rounded-full h-12 px-5 flex-1 text-white text-base font-bold leading-normal tracking-[0.015em] transition-colors ${loading ? "bg-[#0c7ff2]/70 cursor-not-allowed" : "bg-[#0c7ff2] hover:bg-[#0066cc]"
+              }`}
           >
-            <span className="truncate">Log in</span>
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              <span className="truncate">Log in</span>
+            )}
           </button>
         </div>
 

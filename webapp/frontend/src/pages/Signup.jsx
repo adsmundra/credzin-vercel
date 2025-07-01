@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { apiEndpoint } from '../api';
 import { toast } from 'react-toastify';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const Signup = () => {
     contact: '',
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -23,6 +25,7 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
@@ -54,6 +57,8 @@ const Signup = () => {
     } catch (err) {
       setError('Signup failed. Please try again.');
       console.log(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,9 +143,15 @@ const Signup = () => {
           <div className="flex w-full px-4 py-3 justify-center">
             <button
               type="submit"
-              className="w-60 h-12 bg-[#363636] rounded-full text-white font-bold tracking-[0.015em]"
+              disabled={loading}
+              className={`w-60 h-12 rounded-full text-white font-bold tracking-[0.015em] transition-colors ${loading ? 'bg-[#363636]/70 cursor-not-allowed' : 'bg-[#363636]'
+                }`}
             >
-              Sign up
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign up'
+              )}
             </button>
           </div>
         </form>

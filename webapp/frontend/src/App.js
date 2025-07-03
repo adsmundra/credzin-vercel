@@ -233,7 +233,7 @@ function App() {
           element={<NotificationSettings />}
         />
         <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
-        {/* <Route path="/home/card-benifits" element={<CardBenifits />}></Route> */}
+        <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
       </Routes>
       <Footer />
     </div>

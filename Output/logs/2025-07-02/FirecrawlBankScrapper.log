@@ -1,0 +1,132 @@
+2025-07-02 21:33:54,158 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 21:33:54,158 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 21:33:54,158 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 21:34:44,708 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Gold Card
+2025-07-02 21:34:44,734 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Gold Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:35:23,469 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Reserve Credit Card
+2025-07-02 21:35:23,474 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Reserve Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:35:57,561 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Travel Credit Card
+2025-07-02 21:35:57,567 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Travel Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:37:02,480 - FirecrawlBankScrapper - INFO - Scraped Amex Membership Rewards Credit Card
+2025-07-02 21:37:02,493 - FirecrawlBankScrapper - INFO - Appended record for Amex Membership Rewards Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:37:39,093 - FirecrawlBankScrapper - INFO - Scraped Amex SmartEarn Credit Card
+2025-07-02 21:37:39,104 - FirecrawlBankScrapper - INFO - Appended record for Amex SmartEarn Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:38:23,864 - FirecrawlBankScrapper - INFO - Scraped Amex The Platinum Card
+2025-07-02 21:38:23,869 - FirecrawlBankScrapper - INFO - Appended record for Amex The Platinum Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:38:23,869 - FirecrawlBankScrapper - INFO - Amex: 6 cards processed
+2025-07-02 21:38:23,869 - FirecrawlBankScrapper - INFO - Summary: 1 succeeded, 0 failed, 6 cards processed across 1 banks.
+2025-07-02 21:38:23,871 - FirecrawlBankScrapper - INFO - FirecrawlBankScrapper standalone execution completed!
+2025-07-02 21:43:58,503 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 21:43:58,503 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 21:43:58,503 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 21:44:35,050 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Gold Card
+2025-07-02 21:44:35,063 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Gold Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:45:13,359 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Reserve Credit Card
+2025-07-02 21:45:13,368 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Reserve Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:45:42,544 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Travel Credit Card
+2025-07-02 21:45:42,555 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Travel Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:46:18,784 - FirecrawlBankScrapper - INFO - Scraped Amex Membership Rewards Credit Card
+2025-07-02 21:46:18,798 - FirecrawlBankScrapper - INFO - Appended record for Amex Membership Rewards Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:46:58,338 - FirecrawlBankScrapper - INFO - Scraped Amex SmartEarn Credit Card
+2025-07-02 21:46:58,358 - FirecrawlBankScrapper - INFO - Appended record for Amex SmartEarn Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:47:32,539 - FirecrawlBankScrapper - INFO - Scraped Amex The Platinum Card
+2025-07-02 21:47:32,553 - FirecrawlBankScrapper - INFO - Appended record for Amex The Platinum Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:47:32,607 - FirecrawlBankScrapper - INFO - Sorted CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv by ['dt', 'bank_name', 'card_name']
+2025-07-02 21:47:32,608 - FirecrawlBankScrapper - INFO - Amex: 6 cards processed
+2025-07-02 21:47:32,608 - FirecrawlBankScrapper - INFO - Summary: 1 succeeded, 0 failed, 6 cards processed across 1 banks.
+2025-07-02 21:47:32,608 - FirecrawlBankScrapper - INFO - FirecrawlBankScrapper standalone execution completed!
+2025-07-02 21:53:11,537 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 21:53:11,538 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 21:53:11,538 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 21:53:54,922 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Gold Card
+2025-07-02 21:53:54,930 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Gold Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:54:21,773 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Reserve Credit Card
+2025-07-02 21:54:21,780 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Reserve Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:54:38,086 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 21:54:38,086 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 21:54:38,086 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 21:55:12,542 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 21:55:12,542 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 21:55:12,542 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 21:55:43,916 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Gold Card
+2025-07-02 21:55:43,926 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Gold Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:56:15,721 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Reserve Credit Card
+2025-07-02 21:56:15,733 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Reserve Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:56:44,945 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Travel Credit Card
+2025-07-02 21:56:44,958 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Travel Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:57:13,915 - FirecrawlBankScrapper - INFO - Scraped Amex Membership Rewards Credit Card
+2025-07-02 21:57:13,926 - FirecrawlBankScrapper - INFO - Appended record for Amex Membership Rewards Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:57:47,271 - FirecrawlBankScrapper - INFO - Scraped Amex SmartEarn Credit Card
+2025-07-02 21:57:47,282 - FirecrawlBankScrapper - INFO - Appended record for Amex SmartEarn Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:58:22,986 - FirecrawlBankScrapper - INFO - Scraped Amex The Platinum Card
+2025-07-02 21:58:23,009 - FirecrawlBankScrapper - INFO - Appended record for Amex The Platinum Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 21:58:23,044 - FirecrawlBankScrapper - INFO - Sorted CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv by ['bank_name', 'card_name', 'dt']
+2025-07-02 21:58:23,044 - FirecrawlBankScrapper - INFO - Amex: 6 cards processed
+2025-07-02 21:58:23,044 - FirecrawlBankScrapper - INFO - Summary: 1 succeeded, 0 failed, 6 cards processed across 1 banks.
+2025-07-02 21:58:23,044 - FirecrawlBankScrapper - INFO - FirecrawlBankScrapper standalone execution completed!
+2025-07-02 22:52:42,696 - FirecrawlBankScrapper - INFO - Kept only prompt columns in /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv: ['bank_name', 'card_name', 'card_type', 'card_category', 'card_usp', 'card_image_url', 'know_more_link', 'apply_now_link', 'joining_fee', 'annual_fee', 'annual_fee_waiver', 'add_on_card_fee', 'interest_rate_pa', 'card_replacement_fee', 'cash_payment_fee', 'duplicate_statement_fee', 'outstation_cheque_fee', 'hostlisting_charges', 'cash_withdrawal_fee', 'overdue_penalty_fee', 'over_limit_penalty', 'foreign_currency_transaction_fee', 'reward_point_redemption_fee', 'dynamic_currency_conversion_markup', 'education_transaction_fee', 'wallet_load_transaction_fee', 'fuel_transaction_fee', 'utility_transaction_fee', 'rewards_program', 'cashback_with_every_transaction', 'spend_based_reversal', 'flexipay', 'reward_points', 'rewards', 'features', 'returns_rate', 'welcome_benefit', 'welcome_points', 'milestone_benefit', 'bonus_points', 'fuel_benefits', 'dining_benefits', 'culinary_treats', 'travel_benefits', 'movie_benefits', 'OTT_benefits', 'cashback_offers', 'voucher_offers', 'mobile_app_benefits', 'stay_benefits', 'lifestyle_benefits', 'e_commerce', 'lounge_access', 'concierge_service', 'insurance', 'fraud_protection', 'health_and_wellness_benefits', 'security_features', 'international_use', 'full_card_description', 'eligibility_criteria', 'terms_and_conditions']
+2025-07-02 23:07:20,448 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 23:07:20,448 - FirecrawlBankScrapper - INFO - Processing banks: ['Amex']
+2025-07-02 23:07:20,448 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['Amex']
+2025-07-02 23:07:47,186 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Gold Card in 26.72 seconds
+2025-07-02 23:07:47,188 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:07:47,206 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Gold Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:08:25,492 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Reserve Credit Card in 38.29 seconds
+2025-07-02 23:08:25,494 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:08:25,503 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Reserve Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:08:55,270 - FirecrawlBankScrapper - INFO - Scraped Amex American Express Platinum Travel Credit Card in 29.77 seconds
+2025-07-02 23:08:55,272 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:08:55,278 - FirecrawlBankScrapper - INFO - Appended record for Amex American Express Platinum Travel Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:09:26,784 - FirecrawlBankScrapper - INFO - Scraped Amex Membership Rewards Credit Card in 31.51 seconds
+2025-07-02 23:09:26,785 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:09:26,789 - FirecrawlBankScrapper - INFO - Appended record for Amex Membership Rewards Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:10:03,095 - FirecrawlBankScrapper - INFO - Scraped Amex SmartEarn Credit Card in 36.31 seconds
+2025-07-02 23:10:03,097 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:10:03,108 - FirecrawlBankScrapper - INFO - Appended record for Amex SmartEarn Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:10:32,455 - FirecrawlBankScrapper - INFO - Scraped Amex The Platinum Card in 29.35 seconds
+2025-07-02 23:10:32,457 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:10:32,463 - FirecrawlBankScrapper - INFO - Appended record for Amex The Platinum Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:10:32,475 - FirecrawlBankScrapper - ERROR - Failed to sort CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv: Error tokenizing data. C error: Expected 62 fields in line 322, saw 63
+
+2025-07-02 23:10:32,475 - FirecrawlBankScrapper - INFO - Amex: 6 cards processed
+2025-07-02 23:10:32,475 - FirecrawlBankScrapper - INFO - Summary: 1 succeeded, 0 failed, 6 cards processed across 1 banks.
+2025-07-02 23:10:32,477 - FirecrawlBankScrapper - INFO - FirecrawlBankScrapper standalone execution completed!
+2025-07-02 23:20:22,625 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 23:20:22,625 - FirecrawlBankScrapper - INFO - Processing banks: ['AU Small Finance Bank']
+2025-07-02 23:20:22,625 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['AU Small Finance Bank']
+2025-07-02 23:21:52,361 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU LIT Credit Card in 89.72 seconds
+2025-07-02 23:21:52,363 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:21:52,377 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU LIT Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:23:01,522 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU NOMO Credit Card in 69.14 seconds
+2025-07-02 23:23:01,523 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:23:01,535 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU NOMO Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:24:26,786 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU SPONT Credit Card in 85.25 seconds
+2025-07-02 23:24:26,789 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:24:26,806 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU SPONT Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:25:49,765 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU Vetta Credit Card in 82.96 seconds
+2025-07-02 23:25:49,767 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:25:49,774 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU Vetta Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:27:17,414 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank Altura Credit Card in 87.64 seconds
+2025-07-02 23:27:17,417 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:27:17,423 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank Altura Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:28:49,819 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 23:28:49,819 - FirecrawlBankScrapper - INFO - Processing banks: ['AU Small Finance Bank']
+2025-07-02 23:28:49,819 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['AU Small Finance Bank']
+2025-07-02 23:28:49,863 - FirecrawlBankScrapper - INFO - [1/12] Scraping card: AU Small Finance Bank AU LIT Credit Card
+2025-07-02 23:30:24,092 - FirecrawlBankScrapper - INFO - Running FirecrawlBankScrapper as standalone script...
+2025-07-02 23:30:24,092 - FirecrawlBankScrapper - INFO - Processing banks: ['AU Small Finance Bank']
+2025-07-02 23:30:24,092 - FirecrawlBankScrapper - INFO - Starting bank scraper for banks: ['AU Small Finance Bank']
+2025-07-02 23:30:24,105 - FirecrawlBankScrapper - INFO - Cards to be scraped for AU Small Finance Bank: ['AU LIT Credit Card', 'AU NOMO Credit Card', 'AU SPONT Credit Card', 'AU Vetta Credit Card', 'Altura Credit Card', 'Altura Plus Credit Card', 'Zenith Credit Card', 'Zenith Metal Credit Card', 'AU LIT Credit Card', 'AU SPONT Credit Card', 'AU Vetta Credit Card', 'Altura Credit Card']
+2025-07-02 23:30:24,118 - FirecrawlBankScrapper - INFO - [1/12] Scraping card: AU Small Finance Bank AU LIT Credit Card
+2025-07-02 23:31:57,428 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU LIT Credit Card in 93.31 seconds
+2025-07-02 23:31:57,430 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:31:57,453 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU LIT Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:31:57,455 - FirecrawlBankScrapper - INFO - [2/12] Scraping card: AU Small Finance Bank AU NOMO Credit Card
+2025-07-02 23:33:27,801 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU NOMO Credit Card in 90.35 seconds
+2025-07-02 23:33:27,803 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:33:27,812 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU NOMO Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:33:27,813 - FirecrawlBankScrapper - INFO - [3/12] Scraping card: AU Small Finance Bank AU SPONT Credit Card
+2025-07-02 23:36:20,834 - FirecrawlBankScrapper - INFO - Scraped AU Small Finance Bank AU SPONT Credit Card in 173.02 seconds
+2025-07-02 23:36:20,836 - FirecrawlBankScrapper - INFO - Tokens used: N/A, Context size: N/A
+2025-07-02 23:36:20,856 - FirecrawlBankScrapper - INFO - Appended record for AU Small Finance Bank AU SPONT Credit Card to CSV /Users/aman/Welzin/dev/credzin/KnowledgeBase/StructuredCardsData/cc_features.csv
+2025-07-02 23:36:20,856 - FirecrawlBankScrapper - INFO - [4/12] Scraping card: AU Small Finance Bank AU Vetta Credit Card

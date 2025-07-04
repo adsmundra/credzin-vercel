@@ -10,7 +10,7 @@ def mongodb_client():
         myclient = MongoClient(MONGO_URI)
         myclient.admin.command('ping')
         logger.info("MongoDB connection successful.")
-        db_name = "credzin"
+        db_name = "credzin"        
         mydb = myclient[db_name]
         logger.info(f"Connected to MongoDB {mydb} database successfully.")
         return mydb

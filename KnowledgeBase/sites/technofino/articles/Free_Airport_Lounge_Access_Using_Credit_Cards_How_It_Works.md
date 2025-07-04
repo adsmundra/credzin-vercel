@@ -1,0 +1,33 @@
+# Free Airport Lounge Access Using Credit Cards: How It Works
+
+Source: https://www.technofino.in/free-airport-lounge-access-using-credit-cards-how-it-works
+
+Free Airport Lounge Access Using Credit Cards: How It Works and How Much Banks Spend for Your Free Lounge Access.
+
+If you’re a frequent air traveler, you’re probably familiar with the concept of airport lounges. And if you’re a credit card user, you might have heard about the attractive benefit of complimentary airport lounge access that comes with certain credit cards. Many credit cards offer this perk, and the number of free lounge visits depends on the credit card variant. But have you ever wondered how banks manage to offer you this seemingly luxurious benefit? How much does it actually cost the bank? And who arranges these services? Let’s delve into the intricacies and find answers to these intriguing questions.
+
+The Why Behind Banks Offering Free Lounge Access:Banks provide complimentary airport lounge access with many credit cards to attract frequent air travelers. As air traffic continues to increase in India, banks aim to target those who travel by air frequently. It can be assumed that people who travel frequently by air tend to earn more than the average Indian and possess a higher spending power. For banks, attracting such customers translates to higher credit card usage, resulting in increased income.
+
+Do Banks Directly Tie-Up with Lounges?Bank and airport lounge companies operate independently and have no direct contact or connection with each other. Instead, there are aggregator companies that act as intermediaries. Entities like PriorityPass, Dreamfolks, and others establish partnerships with airport lounge companies and credit card issuers. These aggregators bridge the gap between the banks and airport lounges and offer free lounge access benefits to the banks’ credit cardholders.
+
+How It Works:Banks can offer free airport lounge access using two methods:
+
+Via Card Network:When using the “Via Card Network” method, banks purchase bulk free lounge visits from the card network associated with the credit card. For instance, if your credit card network is Visa, the bank would already have a tie-up with Visa for issuing their credit cards. Visa, in turn, partners with various airport lounges worldwide. The bank pays a per-visit fee to Visa and extends free airport lounge access to its customers.​
+
+Via Aggregator Company:In the “Via Aggregator Company” approach, banks directly tie-up with an aggregator such as PriorityPass or Dreamfolks. These aggregators connect the banks with airport lounges across the world. In this case, the bank pays a per-visit fee to the aggregator company, which, in turn, purchases lounge visits in bulk from the actual airport lounge providers, ultimately granting customers free airport lounge access.​
+
+Are They Really Free?In both cases, the bank covers the cost of providing free airport lounge access to its customers. While cardholders enjoy the benefits of complimentary lounge access, the bank bears the expense. The per-visit charges vary based on the bank’s negotiation power and location. For instance, if you were to access airport lounges in India without a credit card offering this benefit, you might pay anywhere from Rs. 800 to Rs. 2500, depending on the location. However, for banks, this rate is significantly cheaper than the regular public rate. Banks usually pay between Rs. 200 to 1000 per visit, depending on the location and their negotiation power. The fact is, banks subsidize the cost to offer this attractive perk to their customers.
+
+The Increasing Burden on Banks:As air traffic continues to rise, offering free lounge access has become a financial challenge for banks. They are spending substantial amounts of money to provide lounge access to their customers. Many customers who don’t spend much using their credit cards still enjoy the free lounge benefit, leading to no income generation for the bank. Consequently, banks now ask customers to meet specific spending criteria within a given time frame before availing free lounge access. For instance, IDFC First Bank lifetime free credit card customers can only avail free airport lounge benefits if they spend Rs. 5000 in the previous month. In response to the increasing costs, some card issuers have been compelled to remove free lounge access benefits from certain credit cards. For instance, SBI Card removed lounge access benefits from their SBI cashback credit card to cut down expenses.
+
+The Impact on Aggregator Companies:One such aggregator company, Dreamfolks, has seen remarkable growth due to increasing air traffic and more banks tying up with them for complimentary lounge access benefits, airport meet and greet, airport spa and airport transfers. In 2021, their total operational revenue was Rs. 105.63 crore, which surged to Rs. 282.49 crore in 2022—an impressive 167% increase. Almost 98% of their operational revenue comes from lounge fees charged to their partner banks. While this indicates that more customers are using free airport lounge access, leading to increased revenue for aggregator companies like Dreamfolks, it also poses a financial challenge for banks due to rising expenses. However, this also indicates that the number of credit card users in india are increasing rapidly, and this is ultimately beneficial for credit card issuers.
+
+In conclusion, while credit card users enjoy the luxury of free airport lounge access, it comes at a cost to the banks. As air travel continues to gain popularity, banks are eager to retain their valued customers by providing attractive benefits like complimentary lounge access. So, next time you find yourself relaxing in an airport lounge, remember that it’s not entirely free—it’s the banks that are footing the bill to enhance your travel experience.
+
+We’d love to keep you updated with our latestarticle & banking news
+
+We don’t spam! Read ourprivacy policyfor more info.
+
+Check your inbox or spam folder to confirm your subscription.
+
+Meet Sumanta Mandal, the founder of Technofino, a renowned platform dedicated to providing valuable insights on credit cards and other banking products. With a profound knowledge of credit cards, Sumanta specializes in analyzing credit card reward systems and airmiles. His passion for the credit card industry drives him to delve deep into the intricacies of various credit card programs and uncover the best strategies to maximize rewards.

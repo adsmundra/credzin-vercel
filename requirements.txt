@@ -60,11 +60,11 @@ jupyter
 requests
 requests-html
 beautifulsoup4
-firecrawl-py
+firecrawl-py 
 
 # Document processing
-bs4
-pypdf
+bs4 
+pypdf    
 openpyxl
 PyPDF2
 

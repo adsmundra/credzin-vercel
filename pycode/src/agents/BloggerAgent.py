@@ -1,6 +1,4 @@
 import os
-import sys
-from pathlib import Path
 import re
 from datetime import datetime
 
@@ -9,39 +7,28 @@ from agno.models.ollama import Ollama
 from agno.team.team import Team
 from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.newspaper4k import Newspaper4kTools
+from langchain_core.documents import Document
 
-from langchain_qdrant import QdrantVectorStore
+from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_qdrant import FastEmbedSparse, QdrantVectorStore, RetrievalMode
 
 from utils.logger import configure_logging
 from utils.utilities import setup_env
 from DataLoaders.QdrantDB import qdrantdb_client
 
+# === Setup ===
 logger = configure_logging("BloggerAgent")
-
-# Decide Run mode
 setup_env()
 
-COLLECTION_NAME = "knowledge_base_hybrid1"
-embedder = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
-sparse_embeddings=FastEmbedSparse(model_name="Qdrant/bm25")
+COLLECTION_NAME = "blogger_KB_hybrid"  # Use your existing collection
 
+# === Qdrant setup ===
 qdrant_client = qdrantdb_client()
+embedder = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
+sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
 
-try:
-    logger.info(f"Collection '{COLLECTION_NAME}' info:")
-    resp1 = qdrant_client.collection_exists('knowledge_base_hybrid2')
-    logger.info(f'resp1: {resp1}')
-    resp2 = qdrant_client.get_collection('knowledge_base_hybrid1')
-    logger.info(f'resp2: {resp2}')
-except Exception as e:
-    logger.error(f"Error checking collection: {str(e)}")
-    logger.error(f"Error type: {type(e).__name__}")
-
-# Correctly use QdrantVectorStore from langchain_qdrant
+# === Initialize VectorStore and Retriever ===
 vectorstore = QdrantVectorStore(
-    #client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
     client=qdrant_client,
     collection_name=COLLECTION_NAME,
     embedding=embedder,
@@ -49,49 +36,16 @@ vectorstore = QdrantVectorStore(
     retrieval_mode=RetrievalMode.HYBRID,
     vector_name="vector",
     sparse_vector_name="sparse-vector",
-    content_payload_key="content"  
+    content_payload_key="content"
 )
-retriever = retriever = vectorstore.as_retriever(
-    search_type="mmr",                 # ← important
+retriever = vectorstore.as_retriever(
+    search_type="mmr",
     search_kwargs={
-        "k": 10,                        # final documents returned
-        "fetch_k": 20,                 # candidate pool MMR will re-rank
-        "lambda_mult": 0.5,            # diversity :left_right_arrow: relevance (0 = max diversity)
+        "k": 10,
+        "fetch_k": 20,
+        "lambda_mult": 0.5,
     },
 )
-
-logger.info("\n--- Direct Retriever Test ---")
-test_query = "tell me about axis bank" # Or another relevant query
-def validate_document(doc):
-    """Validate and clean document content"""
-    if doc is None:
-        return False
-    if getattr(doc, 'page_content', None) is None:
-        return False
-    if not isinstance(doc.page_content, str):
-        return False
-    return True
-try:
-    # Using the retriever directly
-    retrieved_docs = retriever.invoke(test_query)
-    # Using vectorstore directly (might return more raw data, good for debugging)
-    # retrieved_docs = vectorstore.similarity_search(test_query, k=5)
-    valid_docs = [doc for doc in retrieved_docs if validate_document(doc)]
-    if valid_docs:
-    #if retrieved_docs:
-        logger.info(f":white_check_mark: Directly retrieved {len(retrieved_docs)} documents for query: '{test_query}'")
-        for i, doc in enumerate(retrieved_docs):
-            logger.info(f"--- Doc {i+1} ---")
-            logger.info(f"Content: {doc.page_content[:200]}...") # Print first 200 chars
-            if doc.metadata:
-                logger.info(f"Metadata: {doc.metadata}")
-    else:
-        logger.warning(f":x: No documents retrieved by direct retriever for query: '{test_query}'")
-except Exception as e:
-    logger.error(f"Error during retrieval: {str(e)}")
-    logger.error(f"Error type: {type(e).__name__}")
-logger.info("---------------------------\n")
-
 
 
 #MODEL SETUP
@@ -273,10 +227,11 @@ editor = Team(
 # !nohup ollama serve &
 if __name__ == "__main__":
     date_str = datetime.now().strftime('%Y-%m-%d')
-    output_dir = os.path.join("Output", "blogs", date_str)
+    base_dir = r"D:\\Welzin\\credzin"
+    output_dir = os.path.join(base_dir, "Output", "blogs", date_str)
     os.makedirs(output_dir, exist_ok=True)
 
-    topics = ["Credit Card Annual Fees in India 2024"]
+    topics = ["Axis Bank Credit Card Review 2025: Which Card Should You Get?",]
 
     for topic in topics:
         logger.info(f"\nGenerating article for: {topic}")

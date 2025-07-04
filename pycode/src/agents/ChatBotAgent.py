@@ -1,7 +1,4 @@
-import sys
-sys.path.append("pycode")
-
-import os
+import os, sys
 import pandas as pd
 import PyPDF2
 from pathlib import Path
@@ -32,7 +29,14 @@ from langchain_qdrant import FastEmbedSparse
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-from src.DataLoaders.QdrantDB import qdrantdb_client
+
+from utils.logger import configure_logging
+from utils.utilities import setup_env
+from DataLoaders.QdrantDB import qdrantdb_client
+
+logger = configure_logging("ChatBotAgent")
+setup_env()
+qdrant_client = qdrantdb_client()
 
 # os.environ["QDRANT_API_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.SsEx9xbs-jY9DjYKrmyGatbRchqs3vQ4lbfF0vS5M4A"
 # os.environ["QDRANT_URL"] = "https://76d501b6-b754-42c1-a4da-9e0bc8cca319.us-east4-0.gcp.cloud.qdrant.io:6333/"
@@ -427,6 +431,24 @@ COLLECTION_NAME = "knowledge_base_hybrid1"
 # if __name__ == "__main__":
 #     main()
 
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,
+    chunk_overlap=64,
+    separators=["\n\n", "\n", ".", " ", ""],
+)
+def chunk_documents(documents):
+    """Split each doc into smaller overlapping chunks"""
+    chunks = []
+    for doc in documents:
+        for chunk in text_splitter.split_text(doc.page_content):
+            chunks.append(
+                Document(
+                    page_content=chunk,
+                    metadata=doc.metadata
+                )
+            )
+    return chunks
+
 embedder = HuggingFaceEmbeddings(
     model_name="BAAI/bge-large-en-v1.5"
 )
@@ -435,16 +457,17 @@ sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
 qdrant_client = qdrantdb_client()
 
 try:
-    print(f"Collection '{COLLECTION_NAME}' info:")
-    resp1 = qdrant_client.collection_exists('knowledge_base_hybrid')
-    print('resp1: ', resp1)
-    resp2 = qdrant_client.get_collection('knowledge_base_hybrid')
-    print('resp2: ', resp2)
+    logger.info("Collection '%s' info:", COLLECTION_NAME)
+    resp1 = qdrant_client.collection_exists('knowledge_base_hybrid2')
+    logger.info("resp1: %s", resp1)
+    resp2 = qdrant_client.get_collection('knowledge_base_hybrid1')
+    logger.info("resp2: %s", resp2)
 except Exception as e:
-    print(f"Error checking collection: {str(e)}")
-    print(f"Error type: {type(e).__name__}")
+    logger.error("Error checking collection: %s", e)
+    logger.error("Error type: %s", type(e).__name__)
+
 qdrant = QdrantVectorStore(
-    client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
+    client=qdrant_client,
     collection_name=COLLECTION_NAME,
     embedding=embedder,
     sparse_embedding=sparse_embeddings,
@@ -456,8 +479,8 @@ qdrant = QdrantVectorStore(
 retriever = qdrant.as_retriever(
     search_type="mmr",                 # ← important
     search_kwargs={
-        "k": 10,                        # final documents returned
-        "fetch_k": 20,                 # candidate pool MMR will re-rank
+        "k": 8,                        # final documents returned
+        "fetch_k": 12,                 # candidate pool MMR will re-rank
         "lambda_mult": 0.5,            # diversity ↔ relevance (0 = max diversity)
     },
 )
@@ -503,78 +526,39 @@ reranker_tokenizer = AutoTokenizer.from_pretrained(reranker_model_name)
 reranker_model = AutoModelForSequenceClassification.from_pretrained(reranker_model_name)
 
 # ----------------- 2)  the graded retriever wrapper  -----------------
-def graded_retriever(
-    query: str,
-    agent: Optional[Agent] = None,
-    **kwargs,
-):
-    # :one: Pull candidate chunks with your existing LangChain retriever
-    # 1. Pull candidate chunks with your existing LangChain retriever
+def rerank_retriever(query: str, agent: Optional[Agent] = None, **kwargs):
     candidate_docs: List[Document] = retriever.invoke(query)
-    
-    # 2. Grade documents for initial relevance
-    passed_for_reranking: List[dict] = []
+
+    if not candidate_docs:
+        logger.warning("No candidate docs found")
+        return []
+    split_docs = []
     for doc in candidate_docs:
-        grade = retrieval_grader.invoke(
-            {"question": query, "document": doc.page_content}
-        )
-        if grade.binary_score.lower() == "yes":
-            # :white_check_mark: convert to a plain dict
-            print("Document passed grading.")
-            passed_for_reranking.append(
-                {
-                    "content": doc.page_content,
-                    "metadata": doc.metadata or {},
-                }
-            )
-        else:
-            print("Document failed grading.")
-    
-    # Fallback – give at least one chunk so AGNO doesn't crash
-    if not passed_for_reranking and candidate_docs:
-        print("No documents passed grading, falling back to first candidate document.")
-        d = candidate_docs[0]
-        passed_for_reranking = [{"content": d.page_content, "metadata": d.metadata or {}, "original_doc": d}]
-    
-    # 3. Rerank the passed documents
-    if passed_for_reranking:
-        # Prepare pairs for reranker: [query, document_content]
-        sentence_pairs = [[query, item["content"]] for item in passed_for_reranking]
-        
-        # Tokenize and get scores
-        features = reranker_tokenizer(sentence_pairs, padding=True, truncation=True, return_tensors='pt')
-        reranker_model.eval() # Set model to evaluation mode
-        with torch.no_grad():
-            scores = reranker_model(**features).logits.squeeze().tolist()
-        # Combine documents with their scores and sort
-        reranked_docs_with_scores = []
-        for i, item in enumerate(passed_for_reranking):
-            reranked_docs_with_scores.append({
-                "score": scores[i],
-                "doc": item
-            })
-        
-        # Sort by score in descending order
-        reranked_docs_with_scores.sort(key=lambda x: x["score"], reverse=True)
-        # Extract the reranked documents in the desired format
-        final_reranked_docs = []
-        for item in reranked_docs_with_scores:
-            final_reranked_docs.append({
-                "content": item["doc"]["content"],
-                "metadata": item["doc"]["metadata"]
-            })
-        
-        print(f"Reranked {len(final_reranked_docs)} documents.")
-        print(f"Reranked docs scores:\n")
-        print("DOC  |  SCORE\n-------------")
-        for i in range(len(reranked_docs_with_scores)):
-            print(f"{reranked_docs_with_scores[i]['doc']}   |    {reranked_docs_with_scores[i]['score']}")
-        # You can adjust how many top documents to return after reranking
-        # For example, return top 5: final_reranked_docs[:5]
-        return final_reranked_docs
-    else:
-        print("No documents available for reranking.")
-        return [] # Return an empty list if no documents passed grading or fallback
+        splits = text_splitter.split_text(doc.page_content)
+        for i, chunk in enumerate(splits):
+            split_docs.append(Document(page_content=chunk, metadata=doc.metadata | {"chunk": i}))
+    # Directly rerank all retrieved docs
+    sentence_pairs = [[query, doc.page_content] for doc in candidate_docs]
+    features = reranker_tokenizer(sentence_pairs, padding=True, truncation=True, return_tensors='pt')
+
+    reranker_model.eval()
+    with torch.no_grad():
+        scores = reranker_model(**features).logits.squeeze().tolist()
+
+    reranked_docs = sorted(
+        zip(candidate_docs, scores),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    top_docs = [
+        {"content": doc.page_content, "metadata": doc.metadata}
+        for doc, score in reranked_docs # top K
+    ]
+
+    logger.info("Reranked %d docs", len(top_docs))
+    return top_docs
+ # Return an empty list if no documents passed grading or fallback
     
 # ----------------- 4)  plug the wrapper into an AGNO agent  -----------------
 
@@ -599,7 +583,7 @@ Adapt your structure (bullets, short paragraphs, tables, etc.) to fit the user's
 </guidance>
 """
 agent = Agent(
-    retriever=graded_retriever,
+    retriever=rerank_retriever,
     search_knowledge=True,
     instructions=[prompt],
     model=Ollama(
@@ -647,9 +631,6 @@ demo = gr.ChatInterface(
 # Launch app
 if __name__ == "__main__":
     demo.launch(
-    server_name="0.0.0.0",
     server_port=7860,
-    debug=True,
-    share=False,
-    show_api=False,         # ← stops the failing /info route
+    debug=True,         # ← stops the failing /info route
 )

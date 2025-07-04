@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import re
 import numpy as np
+import re
 
 logger = configure_logging("transactions")
 
@@ -80,13 +81,26 @@ def analyse_and_plot(filtered_df):
         else:
             return "Other"
     filtered_df['category'] = filtered_df.apply(categorize_email, axis=1)
+ 
     # Amount extraction
     def extract_amount(text):
+        # Find all matches using the regex pattern
         matches = re.findall(r'(?:rs\.?|inr|₹)\s?([\d,]+\.?\d*)', text, re.IGNORECASE)
+        
         if matches:
-            return float(matches[0].replace(',', ''))
+            # Extract first match and remove commas
+            amount_str = matches[0].replace(',', '')
+            
+            # Check if string is non-empty and numeric
+            if amount_str.replace('.', '', 1).isdigit():
+                return float(amount_str)
+        
+        # Return NaN for all invalid cases
         return np.nan
+    
+    #filtered_df['amount'] = pd.to_numeric(filtered_df['amount'], errors='coerce')
     filtered_df['amount'] = filtered_df['body'].fillna('').apply(extract_amount)
+ 
     spend_df = filtered_df.dropna(subset=['amount']).copy()
     spend_df['date'] = pd.to_datetime(spend_df['received_at'], errors='coerce')
     # Output directory for spends

@@ -1,0 +1,35 @@
+2025-06-24 07:27:46,901 - BankScrapper_V2 - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-24 07:27:48,168 - BankScrapper_V2 - INFO - Starting BankScrapper_V2 for Amex
+2025-06-24 07:45:11,384 - BankScrapper_V2 - INFO - Starting BankScrapper_V2 for multiple banks...
+2025-06-24 07:45:11,385 - BankScrapper_V2 - INFO - 
+==================================================
+2025-06-24 07:45:11,386 - BankScrapper_V2 - INFO - Processing bank: Amex
+2025-06-24 07:45:11,386 - BankScrapper_V2 - INFO - ==================================================
+2025-06-24 07:45:11,386 - BankScrapper_V2 - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-24 07:45:12,622 - BankScrapper_V2 - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - Starting BankScrapper_V2 for multiple banks...
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - Using Excel file: KnowledgeBase/StructuredCardsData/credit_card_details.xlsx
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - 
+==================================================
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - Processing bank: Amex
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - ==================================================
+2025-06-24 07:53:54,704 - BankScrapper_V2 - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-24 07:53:55,958 - BankScrapper_V2 - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Running BankScrapper_V2 as standalone script...
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Processing banks: ['Amex']
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Starting BankScrapper_V2 for multiple banks...
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Using Excel file: KnowledgeBase/StructuredCardsData/credit_card_details.xlsx
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - 
+==================================================
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Processing bank: Amex
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - ==================================================
+2025-06-24 07:57:05,393 - BankScrapper_V2 - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-24 07:57:06,620 - BankScrapper_V2 - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
+2025-06-24 07:57:13,996 - BankScrapper_V2 - INFO - Starting BankScrapper_V2 for multiple banks...
+2025-06-24 07:57:13,997 - BankScrapper_V2 - INFO - Using Excel file: KnowledgeBase/StructuredCardsData/credit_card_details.xlsx
+2025-06-24 07:57:13,997 - BankScrapper_V2 - INFO - 
+==================================================
+2025-06-24 07:57:13,997 - BankScrapper_V2 - INFO - Processing bank: Amex
+2025-06-24 07:57:13,997 - BankScrapper_V2 - INFO - ==================================================
+2025-06-24 07:57:13,997 - BankScrapper_V2 - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-24 07:57:15,303 - BankScrapper_V2 - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']

@@ -4,6 +4,7 @@ pycode/src/DataLoaders/MongoDB.py
 pycode/src/DataLoaders/Neo4j.py
 pycode/src/DataLoaders/QdrantDB.py
 pycode/src/DataLoaders/SqliteDB.py
+pycode/src/Transactions/Txns.py
 pycode/src/agents/BloggerAgent.py
 pycode/src/agents/BloggerAgent_manish.py
 pycode/src/agents/CardRecommenderAgent.py
@@ -13,6 +14,7 @@ pycode/src/credzin.egg-info/SOURCES.txt
 pycode/src/credzin.egg-info/dependency_links.txt
 pycode/src/credzin.egg-info/top_level.txt
 pycode/src/processing/CreditCardEDA.py
+pycode/src/processing/CreditCardIngestion.py
 pycode/src/recommender/CardRecommend.py
 pycode/src/recommender/__init__.py
 pycode/src/recommender/LangGraphNodes/build_graph.py
@@ -20,7 +22,7 @@ pycode/src/recommender/agents/ingest_agent.py
 pycode/src/recommender/agents/rag_agent.py
 pycode/src/scrapers/banks/AgnoBankScraper.py
 pycode/src/scrapers/banks/AxisBankScraper.py
-pycode/src/scrapers/banks/Final_scrapper.py
+pycode/src/scrapers/banks/BankScrapper_v2.py
 pycode/src/scrapers/banks/ICICIBankScraper.py
 pycode/src/scrapers/banks/SBIBankScraper.py
 pycode/src/scrapers/banks/__init__.py

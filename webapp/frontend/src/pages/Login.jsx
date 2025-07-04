@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { apiEndpoint } from "../api";
 import { toast } from "react-toastify";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -45,7 +45,7 @@ function Login() {
         });
       }
       const token = localStorage.getItem("token")
-      
+
       if (token && token !== "null" && token !== "undefined") {
         localStorage.setItem("token", token);
         Cookies.set('user_Auth', token, {
@@ -208,7 +208,7 @@ function Login() {
 
       {/* Forgot Password Link */}
       <div className="flex flex-col items-center gap-2">
-        <p className="text-[#9cabba] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center underline cursor-pointer">
+        <p onClick={() => navigate('/forgot-password')} className="text-[#9cabba] text-sm font-normal leading-normal pb-3 pt-1 px-4 text-center underline cursor-pointer">
           Forgot password?
         </p>
         <p className="text-[#9cabba] text-sm font-normal leading-normal px-4 text-center">
@@ -221,7 +221,6 @@ function Login() {
           </span> */}
         </p>
       </div>
-
       {/* Bottom Illustration */}
       <div>
         <div

@@ -34,7 +34,7 @@ def run_bank_scraper():
         
         # Import and run the bank scraper
         logger.info("Importing BankScrapper_V2 module...")
-        from src.scrapers.banks.BankScrapper_V2 import run_bank_scrapers_v2
+        from pycode.src.scrapers.banks.FirecrawlBankScrapper import run_bank_scrapers_v2
         
         # Run the scraper for Amex bank
         logger.info("Starting BankScrapper_V2 for Amex...")

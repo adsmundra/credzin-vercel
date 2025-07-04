@@ -70,14 +70,16 @@ if (!fs.existsSync(imageDir)) {
 
 
 // Add this CORS middleware BEFORE serving static files
-app.use('/images', express.static(path.join(__dirname, 'images'), {
-  setHeaders: (res) => {
-    res.set({
-      'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
-      'Cross-Origin-Resource-Policy': 'cross-origin'
-    });
-  }
-}));
+// 
+app.use("/images", express.static(imageDir));
+// app.use('/images', express.static(path.join(__dirname, 'images'), {
+//   setHeaders: (res) => {
+//     res.set({
+//       'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
+//       'Cross-Origin-Resource-Policy': 'cross-origin'
+//     });
+//   }
+// }));
 // === ROUTES ===
 const authRoutes = require('./routes/user');
 const googleRoutes = require('./routes/googleAuthRoutes');

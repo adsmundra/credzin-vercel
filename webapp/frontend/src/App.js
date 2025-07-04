@@ -33,7 +33,9 @@ import NotificationSettings from "./pages/NotificationSettings";
 import GoogleLoginAdditionalDetails from "./pages/GoogleLoginAdditionalDetails";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CardBenifits from "./pages/CardBenifits";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,10 +53,8 @@ function App() {
   };
 
   const checkAuth = () => {
-    
-          
-    const token =Cookies.get('user_Auth')
-    
+    const token = Cookies.get("user_Auth");
+
     return !!token; // returns true if token exists, false otherwise
   };
 
@@ -73,12 +73,16 @@ function App() {
     const tokenFromURL = queryParams.get("token");
 
     // If token comes from URL (e.g., OAuth redirect)
-    if (tokenFromURL && tokenFromURL !== "null" && tokenFromURL !== "undefined") {
+    if (
+      tokenFromURL &&
+      tokenFromURL !== "null" &&
+      tokenFromURL !== "undefined"
+    ) {
       localStorage.setItem("token", tokenFromURL);
       // sessionStorage.setItem("token", tokenFromURL);
-      Cookies.set('user_Auth', tokenFromURL, {
+      Cookies.set("user_Auth", tokenFromURL, {
         expires: new Date(Date.now() + 45 * 60 * 1000),
-        sameSite: 'Lax',
+        sameSite: "Lax",
       });
       // Clean the URL
       navigate(location.pathname, { replace: true });
@@ -87,14 +91,23 @@ function App() {
     // Check if user is authenticated
     const isAuthenticated = checkAuth();
 
-    if (!isAuthenticated && location.pathname !== '/login' && location.pathname !== '/signup') {
+    if (
+      !isAuthenticated &&
+      location.pathname !== "/login" &&
+      location.pathname !== "/signup" &&
+      location.pathname !== "/forgot-password"
+    ) {
       navigate("/login");
-    } else if (isAuthenticated && (location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/')) {
+    } else if (
+      isAuthenticated &&
+      (location.pathname === "/login" ||
+        location.pathname === "/signup" ||
+        location.pathname === "/")
+    ) {
       // token = localStorage.setItem("token",)
       navigate("/home");
     }
   }, [location, navigate]);
-
 
   const get_all_bank = async () => {
     try {
@@ -183,9 +196,9 @@ function App() {
     }
   };
   // Step 4: Run once on mount
- useEffect(() => {
+  useEffect(() => {
     const isAuthenticated = checkAuth();
-    
+
     if (isAuthenticated) {
       getUserFullDetails();
       get_all_bank();
@@ -234,6 +247,8 @@ function App() {
         />
         <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
         <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
+        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
+        <Route path="/reset-password" element={<ResetPassword />} />{" "}
       </Routes>
       <Footer />
     </div>

@@ -11,7 +11,7 @@ from typing import List, Dict
 # Decide Run mode
 setup_env()
 
-logger = configure_logging("BankScrapper_V2")
+logger = configure_logging("FirecrawlBankScrapper")
 
 # Configuration constants
 EXCEL_PATH = "KnowledgeBase/StructuredCardsData/credit_card_details.xlsx"
@@ -168,8 +168,8 @@ def parse_card_info(bank_name, card_info, excel_path):
     """
 
     prompt_template = '''
-        • Extract all the data for {card_name}:
-            1. bank_name: The name of the financial institution that issues the respective credit card.
+        • Extract all the data for {bank_name} {card_name}:
+            1. bank_name: The issuer bank or name of the financial institution that issues the respective credit card.
             2. card_name: The official name of the credit card.
             3. card_type: The card's primary classification based on its target user or function (e.g., Retail,Business).
             4. card_category: The main spending focus or benefit area the card is designed for (e.g., Fuel,Shopping).
@@ -231,7 +231,8 @@ def parse_card_info(bank_name, card_info, excel_path):
             60. full_card_description: Comprehensive summary of benefits and features (e.g., This card offers premium travel, shopping, and lifestyle benefits, including lounge access, high rewards, and robust insurance, making it ideal for frequent travelers).
             61. eligibility_criteria: Requirements for applicants  (e.g., age, income, credit score).
             62. terms_and_conditions: Official terms, rules, and conditions governing card usage(e.g., All dues must be paid on time; rewards program subject to change).
-        • If a particular field is not available, set its value to "NILL".
+     
+        • If a particular field is not available, set its value to "null".
         • If information is split across multiple pages, aggregate it and return one value.
     '''
 
@@ -326,7 +327,7 @@ def run_bank_scrapers_v2(bank_names: List[str], excel_path: str = None) -> dict:
     if excel_path is None:
         excel_path = EXCEL_PATH
     
-    logger.info("Starting BankScrapper_V2 for multiple banks...")
+    logger.info("Starting Firecrawl Bank Scrapper for {bank_name} ...")
     logger.info(f"Using Excel file: {excel_path}")
     
     if not bank_names:

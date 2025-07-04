@@ -17,7 +17,7 @@ const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleuser
 // Use environment variable for redirect URI or default to port 4000
 const PORT = 5000;
 const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`
-// const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`
+//const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,
@@ -90,7 +90,7 @@ exports.oauthCallback = async (req, res) => {
                 },
             });
 
-            console.log('Token exchange successful:', tokens.data);
+            //console.log('Token exchange successful:', tokens.data);
             const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
                 headers: {
                     Authorization: `Bearer ${tokens.data.access_token}`,
@@ -129,7 +129,7 @@ exports.oauthCallback = async (req, res) => {
                 req.user = { email: email };
                 await exports.fetchGmailMessages(req, res);
 
-                return res.redirect(`https://app.credzin.com/home?token=${existing_user.token}`);
+                return res.redirect(`https://api.app.credzin.com/home?token=${existing_user.token}`);
 
 
             }
@@ -164,7 +164,7 @@ exports.oauthCallback = async (req, res) => {
             req.user = { email: user_email };
             console.log('user:', user);
             await exports.fetchGmailMessages(req, res);
-            return res.redirect(`https://app.credzin.com/googleAdditionaldetails?token=${user.token}`);
+            return res.redirect(`https://api.app.credzin.com/googleAdditionaldetails?token=${user.token}`);
 
 
 
@@ -199,43 +199,79 @@ exports.oauthCallback = async (req, res) => {
 
 exports.fetchGmailMessages = async (req, res) => {
     try {
-        // Get user email from request
-        const userEmail = req.user.email;
-
-        // Find user's OAuth details
-        const oauthDetails = await userOauthDetails.findOne({ user_email: userEmail });
+        const email = req.body?.email || req.user?.email;
+        if (!email) {
+            return res.status(400).json({ success: false, message: 'Email is required' });
+        }
+        let oauthDetails = await userOauthDetails.findOne({ user_email: email });
         if (!oauthDetails) {
-            return res.status(401).json({
-                success: false,
-                message: 'No OAuth details found for user'
-            });
+            return res.status(401).json({ success: false, message: 'No OAuth details found for user' });
+        }
+        let accessToken = oauthDetails.access_token;
+        const refreshToken = oauthDetails.refresh_token;
+        const expiryDate = oauthDetails.created_at && oauthDetails.expiry_date
+            ? new Date(oauthDetails.created_at).getTime() + (oauthDetails.expiry_date * 1000)
+            : null;
+        const now = Date.now();
+
+        // Check if token is expired (with 1 minute buffer)
+        if (expiryDate && now > expiryDate - 60 * 1000) {
+            try {
+                // Refresh the access token
+                const params = new URLSearchParams();
+                params.append('client_id', client_id);
+                params.append('client_secret', client_secret);
+                params.append('refresh_token', refreshToken);
+                params.append('grant_type', 'refresh_token');
+
+                const tokenResponse = await axios.post('https://oauth2.googleapis.com/token', params, {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+
+                accessToken = tokenResponse.data.access_token;
+                // Update DB with new access token and expiry
+                oauthDetails.access_token = accessToken;
+                oauthDetails.expiry_date = tokenResponse.data.expires_in;
+                oauthDetails.created_at = new Date();
+                await oauthDetails.save();
+                console.log('Access token refreshed and saved.');
+            } catch (refreshError) {
+                console.error('Failed to refresh access token:', refreshError.response?.data || refreshError.message);
+                return res.status(401).json({
+                    success: false,
+                    message: 'Failed to refresh access token',
+                    error: refreshError.response?.data || refreshError.message
+                });
+            }
         }
 
         // Calculate 90 days ago in YYYY/MM/DD format
         const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
-        const afterDate = `${ninetyDaysAgo.getFullYear()}/${(ninetyDaysAgo.getMonth() + 1).toString().padStart(2, '0')}/${ninetyDaysAgo.getDate().toString().padStart(2, '0')}`;
+        const afterDate = Math.floor(ninetyDaysAgo.getTime() / 1000);
+        console.log('afterDate:', afterDate);
 
         // Fetch messages using the access token directly
-        console.log('Fetching Gmail messages for user:', userEmail);
-        const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
-            headers: {
-                'Authorization': `Bearer ${oauthDetails.access_token}`
-            },
-            params: {
-                q: `after:${afterDate}`,
-               // maxResults: 100 // You can adjust this as needed
-            }
-        });
-        console.log('Gmail messages fetched successfully:', response.data);
-        const messages = response.data.messages || [];
+        console.log('Fetching Gmail messages for user:', email);
+        let messages = [];
+        try {
+            const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            messages = response.data.messages || [];
+        } catch (error) {
+            console.error('Error fetching Gmail messages:', error.response?.data || error.message);
+            return res.status(500).json({
+                success: false,
+                message: 'Error fetching Gmail messages',
+                error: error.response?.data || error.message
+            });
+        }
         const processedMessages = [];
 
         // Process each message
         for (const message of messages) {
             const detail = await axios.get(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
-                headers: {
-                    'Authorization': `Bearer ${oauthDetails.access_token}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
 
             const messageData = detail.data;
@@ -257,12 +293,9 @@ exports.fetchGmailMessages = async (req, res) => {
                 body = Buffer.from(messageData.payload.body.data, 'base64').toString();
             }
 
-            // Limit body to first 800 characters
-            body = body.substring(0, 800) + (body.length > 800 ? '...' : '');
-
             // Create message object
             const processedMessage = {
-                user_email: userEmail,
+                user_email: email,
                 message_id: messageData.id,
                 thread_id: messageData.threadId,
                 subject,
@@ -284,10 +317,17 @@ exports.fetchGmailMessages = async (req, res) => {
             processedMessages.push(processedMessage);
         }
 
-        return processedMessages;
+        return res.status(200).json({
+            success: true,
+            messages: processedMessages
+        });
 
     } catch (error) {
         console.error('Error fetching Gmail messages:', error);
-        return error;
+        return res.status(500).json({
+            success: false,
+            message: 'Error fetching Gmail messages',
+            error: error.message
+        });
     }
 }

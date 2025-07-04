@@ -21,12 +21,11 @@ import featuretools as ft
 # ignore warnings from pandas
 import warnings
 
-# Decide Run mode
+# Setup environment and logger
 setup_env()
-
 logger = configure_logging("CreditCardIngestion")
 
-warnings.filterwarnings("ignore", category=UserWarning, message="pkg_resources is deprecated")
+#warnings.filterwarnings("ignore", category=UserWarning, message="pkg_resources is deprecated")
 
 
 def load_and_combine_csv(parent_dir, target_filename):

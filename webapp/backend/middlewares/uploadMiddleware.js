@@ -33,5 +33,18 @@ const upload = multer({
   },
 });
 
-// Middleware to handle single image upload with key 'profilePic'
+// // Middleware to handle single image upload with key 'profilePic'
 exports.uploadProfilePic = upload.single('profilePic');
+
+
+
+
+
+
+// middleware/upload.js
+// const multer = require("multer");
+
+// const storage = multer.memoryStorage(); // Store image as buffer
+// const upload = multer({ storage });
+
+// exports.uploadProfilePic = upload.single('profilePic');

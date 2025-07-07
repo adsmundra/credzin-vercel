@@ -1,0 +1,4 @@
+type Card {
+    id: ID
+    externalCardId: String #this will be mapped to knowledge-base card id
+}

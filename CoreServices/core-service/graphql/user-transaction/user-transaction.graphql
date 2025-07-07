@@ -1,0 +1,34 @@
+#table: user_transaction
+type UserTransaction {
+    id: ID! #1
+    cardId: ID!,
+    dateTime: DateTime!,
+    amount: Amount!,
+    merchantId: ID, #nullable
+    userId: ID!,
+    metadata: UserTransactionMetadata #json
+}
+
+type UserTransactionMetadata {
+    messageId: ID #the message id from which we are making this transaction.
+}
+
+#table : user_transaction_actual_reward
+type UserTransactionActualReward {
+    id: ID!
+    reward: RewardPoint,
+    transactionId: ID! #1
+}
+
+#table: user_transaction_calculated_reward
+type UserTransactionCalculatedReward {
+    id: ID!
+    rewardCalculatorId: ID!, #this is the id of the reward calculator which we'll run.
+    transactionId: ID! #1
+    reward: RewardPoint
+}
+
+type Amount {
+    value: Float,
+    currency: String,
+}

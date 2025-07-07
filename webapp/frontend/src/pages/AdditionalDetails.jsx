@@ -16,6 +16,10 @@ const AdditionalDetails = () => {
   const [contact, setContact] = useState(''); // New contact state
   const navigate = useNavigate();
 
+
+  const loginType = localStorage.getItem("loginType"); // <-- read login type
+
+
   const handleSubmit = async () => {
     console.log("Date selected:", startDate);
     const userData = { dateOfBirth: startDate, salaryRange, expenseRange, profession, location, contact };
@@ -141,20 +145,20 @@ const AdditionalDetails = () => {
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
             />
           </div>
-
-          <div className="mb-6">
-            <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
-              Contact Number
-            </label>
-            <input
-              type="tel"
-              value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              placeholder="Enter your contact number"
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
-            />
-          </div>
-
+          {loginType !== "google" && (
+            <div className="mb-6">
+              <label className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
+                Contact Number
+              </label>
+              <input
+                type="tel"
+                value={contact}
+                onChange={(e) => setContact(e.target.value)}
+                placeholder="Enter your contact number"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-gray-700 placeholder-gray-700"
+              />
+            </div>
+          )}
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <button
               onClick={handleOnSkip}

@@ -57,8 +57,8 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Passport initialization
-app.use(passport.initialize());
-require('./config/passport');
+// app.use(passport.initialize());
+// require('./config/passport');
 
 // === Auto-create /images folder for uploads ===
 const imageDir = path.join(__dirname, 'images');
@@ -70,32 +70,38 @@ if (!fs.existsSync(imageDir)) {
 
 
 // Add this CORS middleware BEFORE serving static files
-app.use('/images', express.static(path.join(__dirname, 'images'), {
-  setHeaders: (res) => {
-    res.set({
-      'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
-      'Cross-Origin-Resource-Policy': 'cross-origin'
-    });
-  }
-}));
+// 
+app.use("/images", express.static(imageDir));
+// app.use('/images', express.static(path.join(__dirname, 'images'), {
+//   setHeaders: (res) => {
+//     res.set({
+//       'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
+//       'Cross-Origin-Resource-Policy': 'cross-origin'
+//     });
+//   }
+// }));
 // === ROUTES ===
 const authRoutes = require('./routes/user');
-const googleRoutes = require('./routes/googleAuthRoutes');
+// const googleRoutes = require('./routes/googleAuthRoutes');
 const cardRoutes = require('./routes/cardroutes');
 const oauthRoutes = require('./routes/oauthRoute');
 const profileRoutes = require('./routes/profileRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const groupInvitationRoutes = require('./routes/groupInvitationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+// const { startCronJob } = require('./controller/cronJobsLogic');
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/auth/google', googleRoutes);
+// app.use('/api/v1/auth/google', googleRoutes);
 app.use('/api/v1/card', cardRoutes);
 app.use('/api/v1/auth/oauth', oauthRoutes);
 app.use('/api/profile', profileRoutes); // <-- profile route for image upload
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/group/invitation', groupInvitationRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+// startCronJob();
+
+
 
 // === Health Check ===
 app.get('/health', (req, res) => {
@@ -122,7 +128,7 @@ app.use((err, _req, res, _next) => {
 
 // === Connect to MongoDB ===
 connectDB();
-
+// startCronJob();
 // === Start Server ===
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

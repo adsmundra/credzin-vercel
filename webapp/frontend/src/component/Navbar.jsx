@@ -29,7 +29,9 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("token");
+    localStorage.removeItem("loginType");
     Cookies.remove('user_Auth');
+    sessionStorage.clear();
     navigate("/login");
   };
 

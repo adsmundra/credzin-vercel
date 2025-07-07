@@ -1,4 +1,3 @@
-
 import pandas as pd
 import numpy as np
 
@@ -18,25 +17,16 @@ import featuretools as ft
 import warnings
 warnings.filterwarnings('ignore')
 
-# Load the Excel file
-file_path = '/Users/aman/Welzin/Dev/credzin/resources/credit_card_details.xlsx'
-xls = pd.ExcelFile(file_path)
-
-# Get all sheet names, excluding 'card_issuers'
-sheet_names = [sheet for sheet in xls.sheet_names if sheet != 'card_issuers']
-
-# Read and concatenate all sheets (assuming identical headers)
-dfs = [xls.parse(sheet) for sheet in sheet_names]
-
-# Concatenate into a single DataFrame
-combined_df = pd.concat(dfs, ignore_index=True)
+# Read the cc_features.csv file
+input_path = 'KnowledgeBase/StructuredCardsData/cc_features.csv'
+df = pd.read_csv(input_path)
 
 # Preview result
-print(combined_df.shape)
-print(combined_df.head())
+print(df.shape)
+print(df.head())
 
 # Group data by bank name and count credit cards
-bank_counts = combined_df.groupby('bank_name')['card_name'].count().reset_index()
+bank_counts = df.groupby('bank_name')['card_name'].count().reset_index()
 
 # Create the bar graph
 plt.figure(figsize=(10, 6))  # Adjust figure size as needed
@@ -55,10 +45,7 @@ for bar in bars:    # Add count labels to the bars
 
 
 # NLP PROCESSING
-
-# Copy the dataframe for processing
-df_features = combined_df
-
+df_features = df.copy()
 # Normalize the features column: remove leading/trailing quotes and parse
 df_features['features_clean'] = df_features['features'].astype(str).str.strip('"')
 
@@ -126,3 +113,9 @@ for tag, keywords in benefit_tags.items():
 print(df_benefits.shape)
 print(df_benefits.sample(3))
 print(df_benefits.columns)
+
+# Write the processed DataFrame to a new CSV file
+output_path = 'KnowledgeBase/StructuredCardsData/cc_features_processed.csv'
+df_benefits.to_csv(output_path, index=False, quoting=1)
+print(f"Processed features written to {output_path}")
+

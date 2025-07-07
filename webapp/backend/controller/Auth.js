@@ -9,6 +9,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const notificationService = require('../services/notificationService');
 const twilio = require("twilio");
+const { Message } = require('twilio/lib/twiml/MessagingResponse');
 
 exports.signup = async (req, res) => {
   // Validate request body
@@ -34,21 +35,32 @@ exports.signup = async (req, res) => {
     user.token = token;
     await user.save();
 
-    res.status(200).json({ user, token });
+    res.status(200).json({ 
+      sucess:true,
+      user,
+      token 
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message});
+    res.status(500).json({
+      sucess:false,
+      message:"something Went wrong"
+    });
   }
 };
 
 // Form Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log(email)
   try {
     const user = await User.findOne({ email });
-    if (!user || !user.password) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    if(!user){
+      return res.status(400)({
+        success:false,
+        message :"user Not Found"
+
+      })
     }
+    
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
@@ -70,19 +82,7 @@ exports.login = async (req, res) => {
   }
 };
 
-exports.googleLoginSuccess = async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: 'Google login failed' });
-  }
-
-  const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
-    expiresIn: '1h',
-  });
-  req.user.token = token;
-  await req.user.save();
-
-  // res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
-};
+ 
 
 exports.getUserData = async (req, res) => {
   try {
@@ -95,7 +95,7 @@ exports.getUserData = async (req, res) => {
 
     const userId = req.id;
 
-    const user = await User.findById(userId).select('-password'); // Exclude password from response
+    const user = await User.findById(userId).select('-password');
 
     if (!user) {
       return res.status(404).json({
@@ -379,7 +379,7 @@ exports.removeCardFromCart = async (req, res) => {
       .json({
         success: true,
         message: 'Card removed successfully.',
-        user: updatedUser,d 
+        user: updatedUser, 
       });
   } catch (error) {
     return res

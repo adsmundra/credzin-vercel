@@ -2,7 +2,7 @@ from src.recommender.LangGraphNodes.build_graph import card_graph
 from src.utils.logger import logger
 from src.scrapers.banks import AxisBankScraper, ICICIBankScraper, SBIBankScraper
 from src.scrapers.sites import CardInsiderScraper
-from src.scrapers.banks.BankScrapper_V2 import run_bank_scrapers_v2
+from pycode.src.scrapers.banks.FirecrawlBankScrapper import run_bank_scrapers_v2
 from src.processing.CreditCardIngestion import main
 
 def run_bank_scrapers(bank_names):

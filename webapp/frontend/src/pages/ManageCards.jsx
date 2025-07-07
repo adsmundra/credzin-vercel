@@ -196,6 +196,301 @@
 
 // export default ManageCards;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import { useSelector, useDispatch } from "react-redux";
+// import { addToCart, removeFromCart } from "../app/slices/cartSlice";
+// import { apiEndpoint } from "../api";
+// import { setBankList } from "../app/slices/bankSlice";
+// import BottomNavBar from "../component/BottomNavBar";
+
+// const ManageCards = () => {
+//   const navigate = useNavigate();
+//   const dispatch = useDispatch();
+//   const [isAddingCard, setIsAddingCard] = useState(false);
+//   const [selectedBank, setSelectedBank] = useState("Select Bank");
+//   const [bankCards, setBankCards] = useState([]);
+//   const [selectedCards, setSelectedCards] = useState({});
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [error, setError] = useState(null);
+  
+//   const token = localStorage.getItem("token");
+//   const cart = useSelector((state) => state.cart.cart);
+//   const bankList = useSelector((state) => state.bank.bankList);
+
+//   const bankOptions = [
+//     { label: "Select Bank", value: "Select Bank" },
+//     ...bankList.map((bank) => ({
+//       label: bank,
+//       value: bank,
+//     })),
+//   ];
+
+//   useEffect(() => {
+//     const fetchBanks = async () => {
+//       try {
+//         setIsLoading(true);
+//         const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
+//         const banks = response.data?.banks || [];
+//         dispatch(setBankList(banks));
+//       } catch (err) {
+//         setError("Failed to fetch banks");
+//         console.error("Error fetching bank list:", err);
+//       } finally {
+//         setIsLoading(false);
+//       }
+//     };
+
+//     fetchBanks();
+//   }, [dispatch]);
+
+//   const fetchBankCards = async (bank) => {
+//     try {
+//       setIsLoading(true);
+//       const {data}  = await axios.post(
+//         `${apiEndpoint}/api/v1/card/your_recomendation`,
+//         { bank_name: bank }
+//       );
+//       setBankCards(data?.cards || []);
+//     } catch (err) {
+//       setError("Failed to fetch cards");
+//       console.error("Error fetching cards:", err);
+//       setBankCards([]);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleRemoveCard = async (cardId) => {
+//     try {
+//       setIsLoading(true);
+//       await axios.post(
+//         `${apiEndpoint}/api/v1/auth/removeCardFromCart`,
+//         { cardId },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+//       dispatch(removeFromCart(cardId));
+//     } catch (error) {
+//       setError("Failed to remove card");
+//       console.error("Error removing card:", error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const handleAddCards = async () => {
+//     const selectedCardIds = Object.keys(selectedCards);
+//     if (selectedCardIds.length === 0) {
+//       setError("Please select at least one card");
+//       return;
+//     }
+
+//     try {
+    
+//       const response = await axios.post(
+//         `${apiEndpoint}/api/v1/auth/addcard`,
+//         { productIds: selectedCardIds },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+
+//       if (response.status === 200) {
+//         dispatch(addToCart(Object.values(selectedCards)));
+//         setSelectedCards({});
+//         setIsAddingCard(false);
+//       }
+//     } catch (error) {
+//       setError("Failed to add cards");
+//       console.error("Error adding cards:", error);
+//     } finally {
+     
+//     }
+//   };
+
+//   return (
+//     <div className="relative flex min-h-screen flex-col bg-[#121416] text-white font-['Manrope']">
+//       {/* Header */}
+//       <div className="flex items-center bg-[#121416] p-14 pb-2 justify-between">
+//         <button 
+//           onClick={() => navigate(-1)}
+//           className="text-white flex size-12 shrink-0 items-center"
+//         >
+//           <svg width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+//             <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z" />
+//           </svg>
+//         </button>
+//         <h2 className="text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">
+//           Manage Cards
+//         </h2>
+//       </div>
+
+//       {/* Error Display */}
+//       {error && (
+//         <div className="bg-red-500 text-white px-4 py-2">
+//           {error}
+//         </div>
+//       )}
+
+//       {/* Card List */}
+//       <div className="flex-1">
+//         <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Your Cards</h2>
+//         {cart.length === 0 ? (
+//           <p className="text-[#a2abb3] px-4">No cards in your wallet</p>
+//         ) : (
+//           <div className="divide-y divide-[#2c3135]">
+//             {cart.map((card) => (
+//               <div
+//                 key={card._id}
+//                 className="flex items-center gap-4 bg-[#121416] px-4 min-h-[72px] py-2 justify-between"
+//               >
+//                 <div className="flex items-center gap-4">
+//                   <div 
+//                     className="bg-center bg-no-repeat aspect-video bg-contain h-6 w-10 shrink-0"
+//                     style={{ backgroundImage: `url(${card.image_url})` }}
+//                   />
+//                   <div className="flex flex-col justify-center">
+//                     <p className="text-base font-medium line-clamp-1">
+//                       {card.card_name}
+//                     </p>
+//                     {/* <p className="text-[#a2abb3] text-sm line-clamp-2">
+//                       Expires {card.expiry || "MM/YYYY"}
+//                     </p> */}
+//                   </div>
+//                 </div>
+//                 <button 
+//                   onClick={() => handleRemoveCard(card._id)}
+//                   className="text-white flex size-7 items-center justify-center"
+//                   disabled={isLoading}
+//                 >
+//                   <svg width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+//                     <path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z" />
+//                   </svg>
+//                 </button>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Bottom Action */}
+//       <div className="sticky bottom-0 bg-[#121416] border-t border-[#2c3135]">
+//         <div className="flex px-4 py-3">
+//           <button
+//             onClick={() => setIsAddingCard(true)}
+//             className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 flex-1 bg-[#2c3135] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+//             disabled={isLoading}
+//           >
+//             <span className="truncate">
+//               {isLoading ? "Processing..." : "Add New Card"}
+//             </span>
+//           </button>
+//         </div>
+//         <div className="h-5 bg-[#121416]" />
+//       </div>
+
+//       {/* Add Card Modal */}
+//       {isAddingCard && (
+//         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+//           <div className="bg-[#121416] rounded-lg p-6 w-full max-w-md mx-4">
+//             <h3 className="text-lg font-bold mb-4">Add New Card</h3>
+            
+//             <select
+//               value={selectedBank}
+//               onChange={(e) => {
+//                 setSelectedBank(e.target.value);
+//                 if (e.target.value !== "Select Bank") {
+//                   fetchBankCards(e.target.value);
+//                 }
+//               }}
+//               className="w-full bg-[#2c3135] text-white rounded-lg p-2 mb-4"
+//               disabled={isLoading}
+//             >
+//               {bankOptions.map((option) => (
+//                 <option key={option.value} value={option.value}>
+//                   {option.label}
+//                 </option>
+//               ))}
+//             </select>
+            
+//             {bankCards.length > 0 && (
+//               <div className="max-h-60 overflow-y-auto">
+//                 {bankCards.map((card) => (
+//                   <label
+//                     key={card._id}
+//                     className="flex items-center p-2 hover:bg-[#2c3135] rounded"
+//                   >
+//                     <input
+//                       type="checkbox"
+//                       checked={!!selectedCards[card._id]}
+//                       onChange={() => {
+//                         setSelectedCards(prev => ({
+//                           ...prev,
+//                           [card._id]: prev[card._id] ? undefined : card
+//                         }));
+//                       }}
+//                       className="mr-3"
+//                       disabled={isLoading}
+//                     />
+//                     <span>{card.card_name}</span>
+//                   </label>
+//                 ))}
+//               </div>
+//             )}
+            
+//             <div className="flex gap-2 mt-4">
+//               <button
+//                 onClick={() => setIsAddingCard(false)}
+//                 className="flex-1 py-2 bg-[#2c3135] rounded-full"
+//                 disabled={isLoading}
+//               >
+//                 Cancel
+//               </button>
+//               <button
+//                 onClick={handleAddCards}
+//                 className="flex-1 py-2 bg-blue-600 rounded-full"
+//                 disabled={isLoading}
+//               >
+//                 {isLoading ? "Adding..." : "Add Cards"}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//       <BottomNavBar/>
+//     </div>
+//   );
+// };
+
+// export default ManageCards;
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -214,10 +509,30 @@ const ManageCards = () => {
   const [selectedCards, setSelectedCards] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const token = localStorage.getItem("token");
   const cart = useSelector((state) => state.cart.cart);
   const bankList = useSelector((state) => state.bank.bankList);
+
+  // Load cached cart on first load
+  useEffect(() => {
+  const cachedCart = sessionStorage.getItem("userCart");
+
+  // Always sync Redux with sessionStorage on load
+  if (cachedCart) {
+    const parsedCart = JSON.parse(cachedCart);
+
+    // Optional: prevent unnecessary updates if already same
+    const reduxCartIds = cart.map((c) => c._id).sort();
+    const cachedCartIds = parsedCart.map((c) => c._id).sort();
+
+    const isSame = JSON.stringify(reduxCartIds) === JSON.stringify(cachedCartIds);
+    if (!isSame) {
+      dispatch(addToCart(parsedCart));
+    }
+  }
+}, [dispatch,cart]);
+
 
   const bankOptions = [
     { label: "Select Bank", value: "Select Bank" },
@@ -227,13 +542,21 @@ const ManageCards = () => {
     })),
   ];
 
+  // Load bank list on mount (with caching)
   useEffect(() => {
     const fetchBanks = async () => {
+      const cachedBanks = sessionStorage.getItem("bankList");
+      if (cachedBanks) {
+        dispatch(setBankList(JSON.parse(cachedBanks)));
+        return;
+      }
+
       try {
         setIsLoading(true);
         const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
         const banks = response.data?.banks || [];
         dispatch(setBankList(banks));
+        sessionStorage.setItem("bankList", JSON.stringify(banks));
       } catch (err) {
         setError("Failed to fetch banks");
         console.error("Error fetching bank list:", err);
@@ -245,14 +568,25 @@ const ManageCards = () => {
     fetchBanks();
   }, [dispatch]);
 
+  // Fetch cards from selected bank (with caching)
   const fetchBankCards = async (bank) => {
+    const cacheKey = `cards_${bank}`;
+    const cachedCards = sessionStorage.getItem(cacheKey);
+
+    if (cachedCards) {
+      setBankCards(JSON.parse(cachedCards));
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const {data}  = await axios.post(
+      const { data } = await axios.post(
         `${apiEndpoint}/api/v1/card/your_recomendation`,
         { bank_name: bank }
       );
-      setBankCards(data?.cards || []);
+      const cards = data?.cards || [];
+      setBankCards(cards);
+      sessionStorage.setItem(cacheKey, JSON.stringify(cards));
     } catch (err) {
       setError("Failed to fetch cards");
       console.error("Error fetching cards:", err);
@@ -262,6 +596,7 @@ const ManageCards = () => {
     }
   };
 
+  // Remove card from cart (update Redux + sessionStorage)
   const handleRemoveCard = async (cardId) => {
     try {
       setIsLoading(true);
@@ -270,7 +605,10 @@ const ManageCards = () => {
         { cardId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
       dispatch(removeFromCart(cardId));
+      const updatedCart = cart.filter((card) => card._id !== cardId);
+      sessionStorage.setItem("userCart", JSON.stringify(updatedCart));
     } catch (error) {
       setError("Failed to remove card");
       console.error("Error removing card:", error);
@@ -279,6 +617,7 @@ const ManageCards = () => {
     }
   };
 
+  // Add cards to cart (update Redux + sessionStorage)
   const handleAddCards = async () => {
     const selectedCardIds = Object.keys(selectedCards);
     if (selectedCardIds.length === 0) {
@@ -287,7 +626,6 @@ const ManageCards = () => {
     }
 
     try {
-    
       const response = await axios.post(
         `${apiEndpoint}/api/v1/auth/addcard`,
         { productIds: selectedCardIds },
@@ -295,15 +633,16 @@ const ManageCards = () => {
       );
 
       if (response.status === 200) {
-        dispatch(addToCart(Object.values(selectedCards)));
+        const newCards = Object.values(selectedCards);
+        const updatedCart = [...cart, ...newCards];
+        dispatch(addToCart(newCards));
+        sessionStorage.setItem("userCart", JSON.stringify(updatedCart));
         setSelectedCards({});
         setIsAddingCard(false);
       }
     } catch (error) {
       setError("Failed to add cards");
       console.error("Error adding cards:", error);
-    } finally {
-     
     }
   };
 
@@ -311,7 +650,7 @@ const ManageCards = () => {
     <div className="relative flex min-h-screen flex-col bg-[#121416] text-white font-['Manrope']">
       {/* Header */}
       <div className="flex items-center bg-[#121416] p-14 pb-2 justify-between">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="text-white flex size-12 shrink-0 items-center"
         >
@@ -324,12 +663,8 @@ const ManageCards = () => {
         </h2>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="bg-red-500 text-white px-4 py-2">
-          {error}
-        </div>
-      )}
+      {/* Error Message */}
+      {error && <div className="bg-red-500 text-white px-4 py-2">{error}</div>}
 
       {/* Card List */}
       <div className="flex-1">
@@ -344,7 +679,7 @@ const ManageCards = () => {
                 className="flex items-center gap-4 bg-[#121416] px-4 min-h-[72px] py-2 justify-between"
               >
                 <div className="flex items-center gap-4">
-                  <div 
+                  <div
                     className="bg-center bg-no-repeat aspect-video bg-contain h-6 w-10 shrink-0"
                     style={{ backgroundImage: `url(${card.image_url})` }}
                   />
@@ -352,12 +687,9 @@ const ManageCards = () => {
                     <p className="text-base font-medium line-clamp-1">
                       {card.card_name}
                     </p>
-                    {/* <p className="text-[#a2abb3] text-sm line-clamp-2">
-                      Expires {card.expiry || "MM/YYYY"}
-                    </p> */}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => handleRemoveCard(card._id)}
                   className="text-white flex size-7 items-center justify-center"
                   disabled={isLoading}
@@ -372,12 +704,12 @@ const ManageCards = () => {
         )}
       </div>
 
-      {/* Bottom Action */}
+      {/* Bottom Add Card Button */}
       <div className="sticky bottom-0 bg-[#121416] border-t border-[#2c3135]">
         <div className="flex px-4 py-3">
           <button
             onClick={() => setIsAddingCard(true)}
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 flex-1 bg-[#2c3135] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 flex-1 bg-[#2c3135] text-white text-sm font-bold"
             disabled={isLoading}
           >
             <span className="truncate">
@@ -388,18 +720,20 @@ const ManageCards = () => {
         <div className="h-5 bg-[#121416]" />
       </div>
 
-      {/* Add Card Modal */}
+      {/* Modal for Adding Cards */}
       {isAddingCard && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
           <div className="bg-[#121416] rounded-lg p-6 w-full max-w-md mx-4">
             <h3 className="text-lg font-bold mb-4">Add New Card</h3>
-            
+
+            {/* Bank Dropdown */}
             <select
               value={selectedBank}
               onChange={(e) => {
-                setSelectedBank(e.target.value);
-                if (e.target.value !== "Select Bank") {
-                  fetchBankCards(e.target.value);
+                const bank = e.target.value;
+                setSelectedBank(bank);
+                if (bank !== "Select Bank") {
+                  fetchBankCards(bank);
                 }
               }}
               className="w-full bg-[#2c3135] text-white rounded-lg p-2 mb-4"
@@ -411,7 +745,8 @@ const ManageCards = () => {
                 </option>
               ))}
             </select>
-            
+
+            {/* Cards from selected bank */}
             {bankCards.length > 0 && (
               <div className="max-h-60 overflow-y-auto">
                 {bankCards.map((card) => (
@@ -422,12 +757,12 @@ const ManageCards = () => {
                     <input
                       type="checkbox"
                       checked={!!selectedCards[card._id]}
-                      onChange={() => {
-                        setSelectedCards(prev => ({
+                      onChange={() =>
+                        setSelectedCards((prev) => ({
                           ...prev,
-                          [card._id]: prev[card._id] ? undefined : card
-                        }));
-                      }}
+                          [card._id]: prev[card._id] ? undefined : card,
+                        }))
+                      }
                       className="mr-3"
                       disabled={isLoading}
                     />
@@ -436,7 +771,8 @@ const ManageCards = () => {
                 ))}
               </div>
             )}
-            
+
+            {/* Modal Buttons */}
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => setIsAddingCard(false)}
@@ -456,7 +792,8 @@ const ManageCards = () => {
           </div>
         </div>
       )}
-      <BottomNavBar/>
+
+      <BottomNavBar />
     </div>
   );
 };

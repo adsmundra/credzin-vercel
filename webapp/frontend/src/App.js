@@ -109,21 +109,94 @@ function App() {
     }
   }, [location, navigate]);
 
+  // const get_all_bank = async () => {
+  //   try {
+  //     const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
+  //     const banks = response.data?.banks || [];
+  //     dispatch(setBankList(banks));
+  //   } catch (err) {
+  //     console.error("Error fetching banks:", err.response?.data || err);
+  //   }
+  // };
+
   const get_all_bank = async () => {
+    const cachedBanks = sessionStorage.getItem("banks");
+
+    if (cachedBanks) {
+      //  Load banks from cache
+      dispatch(setBankList(JSON.parse(cachedBanks)));
+      return;
+    }
+
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
       const banks = response.data?.banks || [];
       dispatch(setBankList(banks));
+
+      // 💾 Cache banks in sessionStorage
+      sessionStorage.setItem("banks", JSON.stringify(banks));
     } catch (err) {
       console.error("Error fetching banks:", err.response?.data || err);
     }
   };
 
+  // const getUserFullDetails = async () => {
+  //   const token = localStorage.getItem("token");
+
+  //   if (!token) {
+  //     console.warn("No token found");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axios.get(
+  //       `${apiEndpoint}/api/v1/auth/userdetail`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (response.status === 200) {
+  //       console.log("User full details:", response.data.data);
+  //       const userData = response.data.data;
+
+  //       const { CardAdded, ...userInfo } = userData;
+  //       console.log("Added cards:", CardAdded);
+
+  //       console.log("User info:", userInfo);
+
+  //       dispatch(setUser(userInfo));
+  //       // dispatch(setUser(userData));
+
+  //       // Store CardAdded in the cart slice
+  //       if (Array.isArray(CardAdded)) {
+  //         dispatch(setCart(CardAdded));
+  //       }
+
+  //       console.log("User and cards set in Redux.");
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "Error fetching user data:",
+  //       error.response?.data || error.message
+  //     );
+  //   }
+  // };
+
   const getUserFullDetails = async () => {
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    if (!token) {
-      console.warn("No token found");
+    const cachedUser = sessionStorage.getItem("userDetails");
+
+    if (cachedUser) {
+      const userData = JSON.parse(cachedUser);
+      const { CardAdded, ...userInfo } = userData;
+
+      dispatch(setUser(userInfo));
+      if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
       return;
     }
 
@@ -131,30 +204,19 @@ function App() {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/auth/userdetail`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (response.status === 200) {
-        console.log("User full details:", response.data.data);
         const userData = response.data.data;
-
         const { CardAdded, ...userInfo } = userData;
-        console.log("Added cards:", CardAdded);
-
-        console.log("User info:", userInfo);
 
         dispatch(setUser(userInfo));
-        // dispatch(setUser(userData));
+        if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
 
-        // Store CardAdded in the cart slice
-        if (Array.isArray(CardAdded)) {
-          dispatch(setCart(CardAdded));
-        }
-
-        console.log("User and cards set in Redux.");
+        //  Cache entire user data
+        sessionStorage.setItem("userDetails", JSON.stringify(userData));
       }
     } catch (error) {
       console.error(
@@ -164,29 +226,64 @@ function App() {
     }
   };
 
+  // const getRecommendedCard = async () => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     console.warn("No token found");
+  //     return;
+  //   }
+  //   try {
+  //     const response = await axios.get(
+  //       `${apiEndpoint}/api/v1/card/recommendedcard`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  //     console.log("Recommended cards:", response.data);
+
+  //     if (response.status === 200) {
+  //       console.log("Recommended cards:", response.data.cards);
+  //       const recommendedCards = response.data.cards;
+  //       dispatch(setRecommendedList(recommendedCards));
+
+  //       // dispatch(setCart(recommendedCards));
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "Error fetching recommended cards:",
+  //       error.response?.data || error.message
+  //     );
+  //   }
+  // };
+
   const getRecommendedCard = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.warn("No token found");
+    if (!token) return;
+
+    const cachedRecommended = sessionStorage.getItem("recommendedCards");
+    if (cachedRecommended) {
+      dispatch(setRecommendedList(JSON.parse(cachedRecommended)));
       return;
     }
+
     try {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/card/recommendedcard`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Recommended cards:", response.data);
 
       if (response.status === 200) {
-        console.log("Recommended cards:", response.data.cards);
         const recommendedCards = response.data.cards;
         dispatch(setRecommendedList(recommendedCards));
 
-        // dispatch(setCart(recommendedCards));
+        sessionStorage.setItem(
+          "recommendedCards",
+          JSON.stringify(recommendedCards)
+        );
       }
     } catch (error) {
       console.error(
@@ -194,7 +291,8 @@ function App() {
         error.response?.data || error.message
       );
     }
-  };
+  };                
+
   // Step 4: Run once on mount
   useEffect(() => {
     const isAuthenticated = checkAuth();

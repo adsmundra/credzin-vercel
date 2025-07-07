@@ -383,7 +383,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { User, Phone, MapPin, CreditCard, Upload } from 'lucide-react';
+import { User, Phone, MapPin, CreditCard, Upload, Mail } from 'lucide-react';
 import BottomNavBar from "../component/BottomNavBar";
 import { setUser } from "../app/slices/authSlice";
 import { Buffer } from 'buffer';
@@ -398,7 +398,7 @@ const UserProfile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const cards = useSelector((state) => state.cart.cart);
-  
+
   const [state, setState] = useState({
     editMode: false,
     editUser: {},
@@ -413,45 +413,45 @@ const UserProfile = () => {
   const { editMode, editUser, saving, avatarPreview, errors, submitError, isLoading } = state;
 
   useEffect(() => {
-  if (user) {
-    let newAvatarPreview = DEFAULT_AVATAR;
-    
-    if (user?.profilePic) {
-      if (typeof user.profilePic === 'string') {
-        // If it's already a URL string
-        newAvatarPreview = user.profilePic;
-      } else if (user.profilePic.data) {
-        // If it's a Base64 string in data field
-        if (typeof user.profilePic.data === 'string') {
-          newAvatarPreview = `data:${user.profilePic.contentType};base64,${user.profilePic.data}`;
-        } 
-        // Handle ArrayBuffer or Uint8Array (common alternative to Buffer)
-        else if (user.profilePic.data.data && Array.isArray(user.profilePic.data.data)) {
-          try {
-            // Convert array to Uint8Array
-            const uint8Array = new Uint8Array(user.profilePic.data.data);
-            // Convert to binary string
-            let binaryString = '';
-            uint8Array.forEach(byte => {
-              binaryString += String.fromCharCode(byte);
-            });
-            // Convert to base64
-            const base64String = btoa(binaryString);
-            newAvatarPreview = `data:${user.profilePic.contentType};base64,${base64String}`;
-          } catch (error) {
-            console.error('Error converting image data:', error);
+    if (user) {
+      let newAvatarPreview = DEFAULT_AVATAR;
+
+      if (user?.profilePic) {
+        if (typeof user.profilePic === 'string') {
+          // If it's already a URL string
+          newAvatarPreview = user.profilePic;
+        } else if (user.profilePic.data) {
+          // If it's a Base64 string in data field
+          if (typeof user.profilePic.data === 'string') {
+            newAvatarPreview = `data:${user.profilePic.contentType};base64,${user.profilePic.data}`;
+          }
+          // Handle ArrayBuffer or Uint8Array (common alternative to Buffer)
+          else if (user.profilePic.data.data && Array.isArray(user.profilePic.data.data)) {
+            try {
+              // Convert array to Uint8Array
+              const uint8Array = new Uint8Array(user.profilePic.data.data);
+              // Convert to binary string
+              let binaryString = '';
+              uint8Array.forEach(byte => {
+                binaryString += String.fromCharCode(byte);
+              });
+              // Convert to base64
+              const base64String = btoa(binaryString);
+              newAvatarPreview = `data:${user.profilePic.contentType};base64,${base64String}`;
+            } catch (error) {
+              console.error('Error converting image data:', error);
+            }
           }
         }
       }
-    }
 
-    setState(prev => ({
-      ...prev,
-      isLoading: false,
-      avatarPreview: newAvatarPreview
-    }));
-  }
-}, [user]);
+      setState(prev => ({
+        ...prev,
+        isLoading: false,
+        avatarPreview: newAvatarPreview
+      }));
+    }
+  }, [user]);
 
   useEffect(() => {
     return () => {
@@ -485,9 +485,9 @@ const UserProfile = () => {
 
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      setState(prev => ({ 
-        ...prev, 
-        errors: { ...prev.errors, avatar: "File size must be less than 5MB" } 
+      setState(prev => ({
+        ...prev,
+        errors: { ...prev.errors, avatar: "File size must be less than 5MB" }
       }));
       return;
     }
@@ -495,9 +495,9 @@ const UserProfile = () => {
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      setState(prev => ({ 
-        ...prev, 
-        errors: { ...prev.errors, avatar: "Only JPG, PNG, and WebP images are allowed" } 
+      setState(prev => ({
+        ...prev,
+        errors: { ...prev.errors, avatar: "Only JPG, PNG, and WebP images are allowed" }
       }));
       return;
     }
@@ -505,10 +505,10 @@ const UserProfile = () => {
     // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
-      setState(prev => ({ 
-        ...prev, 
+      setState(prev => ({
+        ...prev,
         avatarPreview: reader.result,
-        avatarFile: file 
+        avatarFile: file
       }));
     };
     reader.readAsDataURL(file);
@@ -522,7 +522,8 @@ const UserProfile = () => {
         firstName: user?.firstName || "",
         lastName: user?.lastName || "",
         contact: user?.contact || "",
-        address: user?.address || "",
+        // address: user?.address || "",
+         location: user?.location || "",
         email: user?.email || ""
       },
       submitError: null
@@ -576,6 +577,13 @@ const UserProfile = () => {
       const updatedUser = response.data.data;
       dispatch(setUser(updatedUser));
 
+      const previousUserData = sessionStorage.getItem("userDetails");
+      if (previousUserData) {
+        const parsedData = JSON.parse(previousUserData);
+        const updatedSessionUser = { ...parsedData, ...updatedUser };
+        sessionStorage.setItem("userDetails", JSON.stringify(updatedSessionUser));
+      }
+
       let updatedPreview = DEFAULT_AVATAR;
       if (updatedUser.profilePic) {
         if (typeof updatedUser.profilePic === 'string') {
@@ -598,10 +606,10 @@ const UserProfile = () => {
     } catch (error) {
       console.error('Error updating profile:', error);
       const errorMessage = error.response?.data?.message || 'Failed to update profile. Please try again.';
-      setState(prev => ({ 
-        ...prev, 
-        saving: false, 
-        submitError: errorMessage 
+      setState(prev => ({
+        ...prev,
+        saving: false,
+        submitError: errorMessage
       }));
     }
   };
@@ -615,7 +623,7 @@ const UserProfile = () => {
         avatarFile: null,
         errors: {},
         submitError: null,
-        avatarPreview: user?.profilePic?.data 
+        avatarPreview: user?.profilePic?.data
           ? `data:${user.profilePic.contentType};base64,${user.profilePic.data.toString('base64')}`
           : DEFAULT_AVATAR
       }));
@@ -716,9 +724,7 @@ const UserProfile = () => {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-center">
                 {editUser.firstName || user?.firstName || "User"}
               </h1>
-              <p className="text-[#a2abb3] text-sm sm:text-base font-normal text-center">
-                {editUser.email || user?.email || "No email"}
-              </p>
+
             </div>
           </div>
         </div>
@@ -779,6 +785,38 @@ const UserProfile = () => {
           </div>
         </div>
 
+        {/* Email Field */}
+        <div className="flex items-center gap-4 bg-[#121416] px-4 sm:px-6 md:px-8 min-h-[72px] py-2">
+          <div className="text-white flex items-center justify-center rounded-lg bg-[#2c3135] shrink-0 size-12">
+            <Mail size={24} />
+          </div>
+          <div className="flex flex-col justify-center flex-1">
+            <p className="text-base font-medium">Email</p>
+            {editMode ? (
+              <div>
+                <input
+                  name="email"
+                  value={editUser.email || ""}
+                  onChange={handleChange}
+                  className="bg-[#2c3135] rounded px-2 py-1 w-full text-white mt-1 focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter email id"
+                  aria-label="email id"
+                  aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={errors.email ? "email-error" : undefined}
+                  readOnly
+                />
+                {errors.email && (
+                  <p id="email-error" className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-[#a2abb3] text-sm font-normal">
+                {user?.email || "Add email id"}
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Contact Field */}
         <div className="flex items-center gap-4 bg-[#121416] px-4 sm:px-6 md:px-8 min-h-[72px] py-2">
           <div className="text-white flex items-center justify-center rounded-lg bg-[#2c3135] shrink-0 size-12">
@@ -821,16 +859,16 @@ const UserProfile = () => {
             {editMode ? (
               <input
                 id="address"
-                name="address"
-                value={editUser.address || ""}
+                name="location"
+                value={editUser.location || ""}
                 onChange={handleChange}
                 className="bg-[#2c3135] rounded px-2 py-1 w-full text-white mt-1 focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter address"
-                aria-label="Address"
+                aria-label="location"
               />
             ) : (
               <p className="text-[#a2abb3] text-sm font-normal">
-                {user?.address || "Add address"}
+                {user?.location || "Add address"}
               </p>
             )}
           </div>

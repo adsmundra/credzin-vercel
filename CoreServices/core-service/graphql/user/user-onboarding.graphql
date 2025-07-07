@@ -1,0 +1,70 @@
+type UserOnboarding {
+    id: ID!
+    consents: [Consent!]!
+    currentStep: OnboardingStep!
+}
+
+type UserBasicDetails {
+    firstName: String!,
+    lastName: String!
+}
+
+enum OnboardingStep {
+    INIT
+    PHONE_VERIFIED
+    OTP_VERIFIED
+    CONSENT_SMS_GIVEN
+    EMAIL_SUBMITTED
+    CONSENT_EMAIL_GIVEN
+    BASIC_DETAILS_SUBMITTED
+    DATA_LOADED
+    COMPLETED
+}
+
+type Consent {
+  type: ConsentType!
+  status: ConsentStatus!
+}
+
+enum ConsentType {
+    SMS
+    EMAIL
+}
+
+enum ConsentStatus {
+    GRANTED
+    DENIED
+    PENDING
+}
+
+input StartOnboardingInput {
+    userId: ID!
+}
+
+input UpdateOnboardingStepInput {
+    onboardingId: ID!
+    stepId: ID!
+    status: StepStatus!
+    data: JSON
+}
+
+enum StepStatus {
+    PENDING
+    IN_PROGRESS
+    COMPLETED
+    FAILED
+}
+
+extend type Query {
+    userOnboarding(userId: ID!): UserOnboarding
+}
+
+extend type Mutation {
+    startOnboarding(input: StartOnboardingInput!): UserOnboarding
+    updateOnboardingStep(input: UpdateOnboardingStepInput!): UserOnboarding
+}
+
+
+
+
+

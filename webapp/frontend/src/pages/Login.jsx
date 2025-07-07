@@ -25,6 +25,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    localStorage.setItem("loginType", "manual")
+
     try {
       const response = await axios.post(
         `${apiEndpoint}/api/v1/auth/login`,
@@ -70,6 +72,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
+    localStorage.setItem("loginType", "google")
     window.open(`${apiEndpoint}/api/v1/auth/oauth/get_auth_url`, "_self");
   };
 

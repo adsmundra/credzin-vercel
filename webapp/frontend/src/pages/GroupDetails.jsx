@@ -68,19 +68,89 @@ const GroupDetails = () => {
     ],
   };
 
+  // const fetchGroup = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(
+  //       `${apiEndpoint}/api/v1/card/getGroupWithMembersAndCards/${groupId}`,
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+
+  //     const groupData = res.data;
+
+  //     console.log("groupDataaaaaaaa", groupData);
+
+  //     setGroup(groupData);
+
+  //     if (token) {
+  //       const decodedToken = jwtDecode(token);
+  //       const userId = decodedToken.id;
+  //       setCurrentUserId(userId);
+  //       setCurrentUserName(decodedToken.name || "User");
+
+  //       // Set isAdmin only if currentUserId === groupAdminId
+  //       console.log("groupData.groupAdmin", groupData.groupMembers[0].user_id?._id, "userId", userId);
+
+  //       if (groupData.groupMembers[0].user_id?._id === userId) {
+  //         setIsAdmin(true);
+  //       } else {
+  //         setIsAdmin(false);
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching group:", err);
+  //     setGroup(null);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+
+
+
+
+
   const fetchGroup = async () => {
     setLoading(true);
+
     try {
+      //  Check if cached group data exists
+      const cachedData = sessionStorage.getItem(`group_${groupId}`);
+
+      if (cachedData) {
+        const parsedData = JSON.parse(cachedData);
+        setGroup(parsedData);
+
+        //  Set current user data from token
+        if (token) {
+          const decodedToken = jwtDecode(token);
+          const userId = decodedToken.id;
+          setCurrentUserId(userId);
+          setCurrentUserName(decodedToken.name || "User");
+
+          // ✅ Check if the user is the group admin
+          if (parsedData.groupMembers[0].user_id?._id === userId) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
+        }
+
+        setLoading(false);
+        return; // Exit early since we loaded from cache
+      }
+
       const res = await axios.get(
         `${apiEndpoint}/api/v1/card/getGroupWithMembersAndCards/${groupId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       const groupData = res.data;
-
-      console.log("groupDataaaaaaaa", groupData);
-
       setGroup(groupData);
+
+      sessionStorage.setItem(`group_${groupId}`, JSON.stringify(groupData));
 
       if (token) {
         const decodedToken = jwtDecode(token);
@@ -88,9 +158,6 @@ const GroupDetails = () => {
         setCurrentUserId(userId);
         setCurrentUserName(decodedToken.name || "User");
 
-        // ✅ Set isAdmin only if currentUserId === groupAdminId
-        console.log("groupData.groupAdmin", groupData.groupMembers[0].user_id?._id, "userId", userId);
-        
         if (groupData.groupMembers[0].user_id?._id === userId) {
           setIsAdmin(true);
         } else {
@@ -105,11 +172,13 @@ const GroupDetails = () => {
     }
   };
 
-  
+
+
+
   useEffect(() => {
     fetchGroup();
   }, [groupId, token]);
-  
+
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearching(true);
@@ -197,6 +266,8 @@ const GroupDetails = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert("Member removed from group!");
+        sessionStorage.removeItem(`group_${groupId}`);
+        sessionStorage.setItem("cardPoolNeedsRefresh", "true");
         await fetchGroup();
       } catch (error) {
         alert(error.response?.data?.message || "Error removing member from group.");
@@ -212,7 +283,10 @@ const GroupDetails = () => {
           { groupId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        sessionStorage.removeItem(`group_${groupId}`);
+        sessionStorage.setItem("cardPoolNeedsRefresh", "true");
         alert("You have left the group!");
+
         navigate("/card-pool");
       } catch (error) {
         alert(error.response?.data?.message || "Error leaving the group.");

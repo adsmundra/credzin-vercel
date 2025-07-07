@@ -1,0 +1,16 @@
+type RewardTransaction {
+    id: ID,
+    createdDateTime: DateTime,
+    amount: Amount,
+    card: Card
+    user: User,
+    merchant: Merchant,
+    reward: [Reward],
+    location: Location,
+    channel: TransactionChannelType
+}
+
+enum TransactionChannelType {
+    ONLINE,
+    OFFLINE
+}

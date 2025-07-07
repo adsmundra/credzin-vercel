@@ -12,19 +12,19 @@ const { signup } = require('./Auth');
 const { isBuffer } = require('util');
 const { emailTransporter } = require('../services/notificationService');
 
-// const client_secret = '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';
-// const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleusercontent.com';
+const client_secret = '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';
+const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleusercontent.com';
 
 // // Use environment variable for redirect URI or default to port 4000
-// const PORT = 5000;
-// const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`
+const PORT = 5000;
+const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`
 //const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`
 
-const client_secret=process.env.GOOGLE_CLIENT_SECRET
-const client_id = process.env.GOOGLE_CLIENT_ID
+// const client_secret=process.env.GOOGLE_CLIENT_SECRET
+// const client_id = process.env.GOOGLE_CLIENT_ID
 // Use environment variable for redirect URI or default to port 4000
-const PORT = process.env.PORT;
-const redirect_uri = process.env.GOOGLE_CALLBACK_URL
+// const PORT = process.env.PORT;
+// const redirect_uri = process.env.GOOGLE_CALLBACK_URL
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,

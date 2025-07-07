@@ -11,7 +11,7 @@ const NotificationBell = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState({});
-  const notificationRef = useRef(null); 
+  const notificationRef = useRef(null);
   const dispatch = useDispatch();
   const { notifications, unreadCount } = useSelector(
     (state) => state.notifications
@@ -37,7 +37,6 @@ const NotificationBell = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
 
   // Fetch notifications
   const fetchNotifications = async () => {
@@ -163,14 +162,26 @@ const NotificationBell = () => {
       );
 
       if (response.status === 200) {
-        // Show success message
         console.log(`Action ${action.action} completed successfully`);
 
-        // Mark notification as read
-        await markAsRead(notificationId);
+        //  Mark as read in backend
+        await axios.put(
+          `${apiEndpoint}/api/v1/notifications/${notificationId}/read`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        // Refresh notifications
-        fetchNotifications();
+        // ✅ Update notification in Redux to hide buttons & remove blue dot
+        const updatedNotifications = notifications.map((n) =>
+          n._id === notificationId ? { ...n, actions: [], status: "read" } : n
+        );
+        dispatch(setNotifications(updatedNotifications));
+
+        // ✅ Refresh unread count
         fetchUnreadCount();
       }
     } catch (error) {

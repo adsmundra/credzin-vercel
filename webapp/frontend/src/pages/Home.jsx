@@ -566,9 +566,10 @@ const Home = () => {
                 style={{ minHeight: 120, maxHeight: 180 }}
               >
                 <img
-                  src={card.image_url || "https://via.placeholder.com/128x80"}
-                  alt={card.card_name}
-                  className="object-contain w-full h-full cursor-pointer hover:scale-105 transition-transform"
+                  src={card.generic_card.image_url || "https://via.placeholder.com/128x80"}
+                  alt={card.generic_card.card_name}
+                  className="object-contain w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer"
+
                   draggable={false}
                   onClick={() => {
                     dispatch(setSelectedCard(card));
@@ -577,8 +578,9 @@ const Home = () => {
                 />
               </div>
               <div className="text-center mt-1">
-                <p className="text-sm font-semibold text-white">{card.card_name}</p>
-                <p className="text-xs text-[#9cabba]">{card.last4}</p>
+                <p className="text-sm font-semibold text-white leading-snug">{card.generic_card.card_name}</p>
+                <p className="text-xs text-[#9cabba] tracking-wide">{card.last4}</p>
+
               </div>
             </div>
           ))}

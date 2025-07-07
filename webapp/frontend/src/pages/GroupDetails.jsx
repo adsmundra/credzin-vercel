@@ -148,7 +148,21 @@ const GroupDetails = () => {
       );
 
       const groupData = res.data;
-      setGroup(groupData);
+
+      console.log("groupDataaaaaaaa", groupData);
+
+      // Handle the response structure - groupMembers is directly in the response
+      setGroup({
+        groupMembers: groupData.groupMembers || [],
+        groupName: groupData.groupName || "Card Group"
+      });
+
+      // Safety check for group members
+      if (!groupData.groupMembers || groupData.groupMembers.length === 0) {
+        console.warn("No group members found");
+        return;
+      }
+
 
       sessionStorage.setItem(`group_${groupId}`, JSON.stringify(groupData));
 
@@ -158,7 +172,12 @@ const GroupDetails = () => {
         setCurrentUserId(userId);
         setCurrentUserName(decodedToken.name || "User");
 
-        if (groupData.groupMembers[0].user_id?._id === userId) {
+
+        // ✅ Set isAdmin only if currentUserId === groupAdminId
+        console.log("groupData.groupAdmin", groupData.groupMembers[0]?.user_id?._id, "userId", userId);
+        
+        if (groupData.groupMembers[0]?.user_id?._id === userId) {
+
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
@@ -405,14 +424,13 @@ const GroupDetails = () => {
         </div>
       ) : (
         <div className="space-y-12">
-          {group.groupMembers.map((member) => (
+          {(group.groupMembers || []).map((member) => (
             <div key={member._id} className="mb-8">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-2xl font-bold text-blue-400">
                   {member.user_id?.firstName || "Unnamed"}
                 </h3>
-                {member.user_id._id !== currentUserId && (
-
+                {member.user_id?._id && member.user_id._id !== currentUserId && (
                   <button
                     onClick={() => handleRemoveMember(member.user_id._id)}
                     className="text-red-500 hover:text-red-600 transition-colors"
@@ -420,7 +438,6 @@ const GroupDetails = () => {
                   >
                     <FaTrash className="w-5 h-5" />
                   </button>
-
                 )}
               </div>
 
@@ -461,38 +478,42 @@ const GroupDetails = () => {
                     </svg>
                   </button>
                   <Slider ref={sliderRef} {...sliderSettings}>
-                    {member.user_id.CardAdded.map((card) => (
-                      <div key={card._id} className="px-3">
-                        <div className="flex flex-col items-center">
-                          <div className="relative group cursor-pointer">
-                            <div
-                              className="w-64 h-40 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-                              style={{
-                                background:
-                                  "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
-                                aspectRatio: "1.6/1",
-                              }}
-                            >
-                              <img
-                                src={
-                                  card.image_url ||
-                                  card.card_image ||
-                                  "https://via.placeholder.com/256x160"
-                                }
-                                alt={card.card_name}
-                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                                draggable={false}
-                              />
+                    {(member.user_id?.CardAdded || []).map((card) => {
+                      if (!card) return null;
+                      return (
+                        <div key={card?._id || Math.random()} className="px-3">
+                          <div className="flex flex-col items-center">
+                            <div className="relative group cursor-pointer">
+                              <div
+                                className="w-64 h-40 rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+                                style={{
+                                  background:
+                                    "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+                                  aspectRatio: "1.6/1",
+                                }}
+                              >
+                                <img
+                                  src={
+                                    card.generic_card?.image_url ||
+                                    card.image_url ||
+                                    card.card_image ||
+                                    "https://via.placeholder.com/256x160"
+                                  }
+                                  alt={card.generic_card?.card_name || card.card_name}
+                                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                  draggable={false}
+                                />
+                              </div>
+                            </div>
+                            <div className="mt-4 text-center">
+                              <p className="text-white font-medium text-base leading-tight">
+                                {card.generic_card?.card_name || card.card_name}
+                              </p>
                             </div>
                           </div>
-                          <div className="mt-4 text-center">
-                            <p className="text-white font-medium text-base leading-tight">
-                              {card.card_name}
-                            </p>
-                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </Slider>
                 </div>
               )}

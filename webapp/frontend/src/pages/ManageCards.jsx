@@ -1,3 +1,4 @@
+
 // import React, { useState,useEffect  } from "react";
 // import Dropdown from "../component/Drpdown";
 // import axios from "axios";
@@ -481,16 +482,6 @@
 
 // export default ManageCards;
 
-
-
-
-
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -509,7 +500,8 @@ const ManageCards = () => {
   const [selectedCards, setSelectedCards] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [success, setSuccess] = useState(null);
+  const [userExistingCards, setUserExistingCards] = useState([]);
   const token = localStorage.getItem("token");
   const cart = useSelector((state) => state.cart.cart);
   const bankList = useSelector((state) => state.bank.bankList);
@@ -542,7 +534,22 @@ const ManageCards = () => {
     })),
   ];
 
-  // Load bank list on mount (with caching)
+  const fetchUserCards = async () => {
+    try {
+      const response = await axios.get(
+        `${apiEndpoint}/api/v1/auth/addedcards`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (response.status === 200) {
+        const userCards = response.data.cards || [];
+        // Extract generic card IDs from user cards
+        const existingGenericCardIds = userCards.map(card => card.generic_card_id);
+        setUserExistingCards(existingGenericCardIds);
+      }
+    } catch (err) {
+      console.error("Error fetching user cards:", err);
+    }
+  };
   useEffect(() => {
     const fetchBanks = async () => {
       const cachedBanks = sessionStorage.getItem("bankList");
@@ -566,6 +573,7 @@ const ManageCards = () => {
     };
 
     fetchBanks();
+    fetchUserCards();
   }, [dispatch]);
 
   // Fetch cards from selected bank (with caching)
@@ -607,8 +615,9 @@ const ManageCards = () => {
       );
       
       dispatch(removeFromCart(cardId));
-      const updatedCart = cart.filter((card) => card._id !== cardId);
-      sessionStorage.setItem("userCart", JSON.stringify(updatedCart));
+
+      // Refresh user cards since the card is now marked as inactive
+      fetchUserCards();
     } catch (error) {
       setError("Failed to remove card");
       console.error("Error removing card:", error);
@@ -628,7 +637,7 @@ const ManageCards = () => {
     try {
       const response = await axios.post(
         `${apiEndpoint}/api/v1/auth/addcard`,
-        { productIds: selectedCardIds },
+        { generic_card_ids: selectedCardIds },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -639,10 +648,32 @@ const ManageCards = () => {
         sessionStorage.setItem("userCart", JSON.stringify(updatedCart));
         setSelectedCards({});
         setIsAddingCard(false);
+        setError(null); // Clear any previous errors
+        
+        // Show success message based on response
+        const { stats, message } = response.data;
+        if (stats && stats.reactivated > 0) {
+          setSuccess(`${stats.new} new cards added, ${stats.reactivated} cards reactivated successfully!`);
+        } else {
+          setSuccess('Cards added successfully!');
+        }
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(null), 3000);
+        
+        // Refresh user cards to update the "already added" status
+        fetchUserCards();
       }
     } catch (error) {
-      setError("Failed to add cards");
+      if (error.response?.status === 400 && error.response?.data?.duplicateCards) {
+        const duplicateCardNames = error.response.data.duplicateCards.join(', ');
+        setError(`Cannot add cards: ${duplicateCardNames} - already in your collection`);
+      } else {
+        setError("Failed to add cards");
+      }
       console.error("Error adding cards:", error);
+    } finally {
+
     }
   };
 
@@ -662,10 +693,35 @@ const ManageCards = () => {
           Manage Cards
         </h2>
       </div>
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-500 text-white px-4 py-2 flex justify-between items-center">
+          <span>{error}</span>
+          <button 
+            onClick={() => setError(null)}
+            className="text-white hover:text-gray-200"
+          >
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
+            </svg>
+          </button>
+        </div>
+      )}
 
-      {/* Error Message */}
-      {error && <div className="bg-red-500 text-white px-4 py-2">{error}</div>}
-
+      {/* Success Display */}
+      {success && (
+        <div className="bg-green-500 text-white px-4 py-2 flex justify-between items-center">
+          <span>{success}</span>
+          <button 
+            onClick={() => setSuccess(null)}
+            className="text-white hover:text-gray-200"
+          >
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 256 256">
+              <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z" />
+            </svg>
+          </button>
+        </div>
+      )}
       {/* Card List */}
       <div className="flex-1">
         <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Your Cards</h2>
@@ -681,11 +737,11 @@ const ManageCards = () => {
                 <div className="flex items-center gap-4">
                   <div
                     className="bg-center bg-no-repeat aspect-video bg-contain h-6 w-10 shrink-0"
-                    style={{ backgroundImage: `url(${card.image_url})` }}
+                    style={{ backgroundImage: `url(${card.generic_card?.image_url || "https://via.placeholder.com/150"})` }}
                   />
                   <div className="flex flex-col justify-center">
                     <p className="text-base font-medium line-clamp-1">
-                      {card.card_name}
+                      {card.generic_card?.card_name || "Unknown Card"}
                     </p>
                   </div>
                 </div>
@@ -749,26 +805,45 @@ const ManageCards = () => {
             {/* Cards from selected bank */}
             {bankCards.length > 0 && (
               <div className="max-h-60 overflow-y-auto">
-                {bankCards.map((card) => (
-                  <label
-                    key={card._id}
-                    className="flex items-center p-2 hover:bg-[#2c3135] rounded"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={!!selectedCards[card._id]}
-                      onChange={() =>
-                        setSelectedCards((prev) => ({
-                          ...prev,
-                          [card._id]: prev[card._id] ? undefined : card,
-                        }))
-                      }
-                      className="mr-3"
-                      disabled={isLoading}
-                    />
-                    <span>{card.card_name}</span>
-                  </label>
-                ))}
+
+                {bankCards.map((card) => {
+                  const isAlreadyAdded = userExistingCards.includes(card._id);
+                  return (
+                    <label
+                      key={card._id}
+                      className={`flex items-center p-2 rounded ${
+                        isAlreadyAdded 
+                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                          : 'hover:bg-[#2c3135]'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={!!selectedCards[card._id]}
+                        onChange={() => {
+                          if (!isAlreadyAdded) {
+                            setSelectedCards(prev => ({
+                              ...prev,
+                              [card._id]: prev[card._id] ? undefined : card
+                            }));
+                          }
+                        }}
+                        className="mr-3"
+                        disabled={isLoading || isAlreadyAdded}
+                      />
+                      <div className="flex-1">
+                        <span className={isAlreadyAdded ? 'line-through' : ''}>
+                          {card.card_name}
+                        </span>
+                        {isAlreadyAdded && (
+                          <span className="text-xs text-green-400 ml-2">
+                            (Already added)
+                          </span>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
               </div>
             )}
 

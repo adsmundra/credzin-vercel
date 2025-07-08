@@ -18,45 +18,43 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 from typing import Optional, List
 from langchain.schema import Document
+
+from utils.logger import configure_logging
+from utils.utilities import setup_env
+from DataLoaders.QdrantDB import qdrantdb_client
 # Decide run mode
 # run_env('local')  # uncomment this later
 # ENV SETUP 
-os.environ["QDRANT_API_KEY"] = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.SsEx9xbs-jY9DjYKrmyGatbRchqs3vQ4lbfF0vS5M4A"
-os.environ["QDRANT_URL"] = "https://76d501b6-b754-42c1-a4da-9e0bc8cca319.us-east4-0.gcp.cloud.qdrant.io:6333/"
-QDRANT_URL = os.getenv("QDRANT_URL")
-QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-COLLECTION_NAME = "blogger_KB_hybrid"
+
+
+COLLECTION_NAME = "blogger_KB_hybrid"  # Use your existing collection
+
+# === Qdrant setup ===
+qdrant_client = qdrantdb_client()
 embedder = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")
-sparse_embeddings=FastEmbedSparse(model_name="Qdrant/bm25")
-qdrant_client = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
-try:
-    print(f"Collection '{COLLECTION_NAME}' info:")
-    resp1 = qdrant_client.collection_exists('blogger_KB_hybrid')
-    print('resp1: ', resp1)
-    resp2 = qdrant_client.get_collection('blogger_KB_hybrid')
-    print('resp2: ', resp2)
-except Exception as e:
-    print(f"Error checking collection: {str(e)}")
-    print(f"Error type: {type(e).__name__}")
-# Correctly use QdrantVectorStore from langchain_qdrant
+sparse_embeddings = FastEmbedSparse(model_name="Qdrant/bm25")
+
+# === Initialize VectorStore and Retriever ===
 vectorstore = QdrantVectorStore(
-    client=QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY),
+    client=qdrant_client,
     collection_name=COLLECTION_NAME,
     embedding=embedder,
     sparse_embedding=sparse_embeddings,
     retrieval_mode=RetrievalMode.HYBRID,
     vector_name="vector",
     sparse_vector_name="sparse-vector",
-    content_payload_key="content"  
+    content_payload_key="content"
 )
-retriever = retriever = vectorstore.as_retriever(
-    search_type="mmr",                 # ← important
+retriever = vectorstore.as_retriever(
+    search_type="mmr",
     search_kwargs={
-        "k": 20,                        # final documents returned
-        "fetch_k": 30,                 # candidate pool MMR will re-rank
-        "lambda_mult": 0.5,            # diversity :left_right_arrow: relevance (0 = max diversity)
+        "k": 10,
+        "fetch_k": 20,
+        "lambda_mult": 0.5,
     },
 )
+
+
 reranker_model_name = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 reranker_tokenizer = AutoTokenizer.from_pretrained(reranker_model_name)
 reranker_model = AutoModelForSequenceClassification.from_pretrained(reranker_model_name)
@@ -149,35 +147,49 @@ main_agent = Agent(
     add_datetime_to_instructions=True,
     debug_mode=True,
     markdown=True,
-    # instructions=[
-    #     " You are a highly meticulous editorial quality evaluator for fintech content. Your primary function is to ensure the utmost factual accuracy and adherence to provided data.",
-    #     " Step 1: Evaluate the provided article **EXCLUSIVELY** against the content retrieved from the Qdrant database (via `retriever`). Score the article rigorously on these 6 metrics, **using ONLY the retrieved information as your source of truth**:",
-    #     "-  **Factual Accuracy (Critical):** Does every numerical value, specific feature, condition, and policy in the article precisely match the data in the retrieved documents? Are there any discrepancies, generalizations, or missing details compared to the source? This is the highest priority. **Absolutely no external knowledge is to be used here.**",
-    #     "-  Writing Quality",
-    #     "-  Informational Value (Does it fully utilize **ONLY** the retrieved data?)",
-    #     "-  SEO Readiness",
-    #     "-  Readability",
-    #     "-  Plagiarism Risk (Check for close paraphrasing or verbatim copying beyond exact numerical data/specific terms, referencing the original source structures within the retrieved content).",
-    #     " Step 2: Assign a grade based on the evaluation:",
-    #     "- A+: Top-tier quality, factually impeccable **as per retrieved data**, ready to publish.",
-    #     "- A: Strong work, minor edits needed for clarity or formatting, but factually sound **as per retrieved data**.",
-    #     "- B: Informative but requires SEO/structure fixes or minor factual adjustments (e.g., missed a specific condition) **based on retrieved data**.",
-    #     "- C: Needs substantial editing and factual corrections/additions **from the retrieved data**.",
-    #     "- D: Not suitable in current form; significant factual errors or omissions **compared to retrieved data**.",
-    #     " Step 3: If the article receives **B, C, or D**, return a concise, constructive critique detailing the specific issues (especially factual discrepancies). Then, **immediately rewrite the entire article**.",
-    #     " This rewrite **MUST strictly adhere to the following rules**: \n    - **Exclusively use information found WITHIN the retrieved Qdrant data.** DO NOT introduce any external knowledge, assumptions, or information not present in the `retriever`'s output. **Your general knowledge is not to be used.**\n    - **Correct all identified factual inaccuracies, generalizations, or omissions** by precisely incorporating the exact numbers, conditions, and specifications from the retrieved data.\n    - Maintain all same section headings as the original article.\n    - Improve clarity, tone, flow, and formatting to meet **A+ standards**.\n    - Ensure proper and explicit attribution of all factual data points to their original sources as found in the retrieved content (e.g., 'As per SBI's official website retrieved on [Date]...').",
-    #     " **Absolute Constraint:** Do NOT include interest rates, APR, or finance charges in your evaluation or any rewrite.",
-    #     " Your mission is to ensure the article meets publishing standards **solely by refining it using the provided factual database**, improving rather than rejecting or adding external content. **Under no circumstances should any information not present in the retrieved data be introduced.**"
-    # ]
     instructions=[
-        "You are a meticulous fintech editorial agent. Your sole knowledge source is the content retrieved from the Qdrant database (via `retriever`).",
-        "Step 1: Write a detailed, well-structured article on the given topic, using ONLY facts, figures, and statements found in the retrieved Qdrant data. Do NOT use any external knowledge, assumptions, or generalizations.",
-        "Step 2: Organize the article with clear sections, mirroring the structure and headings found in the retrieved data where possible. Attribute all factual data points to their original sources as found in the Qdrant content.",
-        "Step 3: Ensure the article is factually precise—every number, feature, and policy must match the retrieved data exactly. If a detail is not present in the Qdrant data, do NOT include it.",
-        "Step 4: Enhance readability with tables, bullet points, and clear formatting, but do not add or infer any information not present in the retrieved content.",
-        "Step 5: Do NOT include interest rates, APR, or finance charges under any circumstances.",
-        "Your mission: Produce a publishable, data-driven article that strictly reflects only the information in the Qdrant knowledge base, article should be more than 2000 characters. Never introduce outside content or your own knowledge."
+        "Task Instructions:",
+
+        "Step 1: Write the Article"
+        "Create a detailed, engaging, and informative article on the given topic. Use only the content from the retrieved Qdrant data. ", 
+        "- Do NOT include any facts, figures, features, or descriptions that are not explicitly stated in the data.",  
+        "- The article must be more than 2000 characters in length.",
+
+        "Step 2: Structure Clearly",  
+        "Organize your content using headings and subheadings that reflect the structure and flow of the original retrieved data.",  
+        "- Maintain logical order and readability.",  
+        "- If the source data includes sections like “Features,” “Benefits,” or “Eligibility,” replicate those sections accordingly.",
+
+        "Step 3: Attribute Precisely",  
+        "Ensure every fact, feature, number, or quote is matched exactly as it appears in the source.",  
+        "- Attribute data points to their original context or source text as presented in Qdrant.",  
+        "- Avoid any rounding, paraphrasing, or altering of facts.",
+
+        "Step 4: Improve Readability",  
+        "Use formatting tools like:",  
+        "- Bullet points for features or benefits",  
+        "- Tables for structured comparisons",  
+        "- Bold text for key highlights",  
+        "Keep the tone professional, clear, and objective.",
+
+        "Step 5: Important Constraints",  
+        "mention or include interest rates, APRs, or finance charges.",  
+        "Never use your own knowledge or publicly known information.",  
+        "Never infer or guess missing details—if it's not in the retrieved content, leave it out.",
+
+        "Goal:",  
+        "Deliver a data-backed, publishable fintech article that reflects only what is present in the Qdrant database. The content should be trustworthy, verifiable, and strictly source-based—nothing more, nothing less.",
+
     ]
+    # instructions=[
+    #     "You are a meticulous fintech editorial agent. Your sole knowledge source is the content retrieved from the Qdrant database (via `retriever`).",
+    #     "Step 1: Write a detailed, well-structured article on the given topic, using ONLY facts, figures, and statements found in the retrieved Qdrant data. Do NOT use any external knowledge, assumptions, or generalizations.",
+    #     "Step 2: Organize the article with clear sections, mirroring the structure and headings found in the retrieved data where possible. Attribute all factual data points to their original sources as found in the Qdrant content.",
+    #     "Step 3: Ensure the article is factually precise—every number, feature, and policy must match the retrieved data exactly. If a detail is not present in the Qdrant data, do NOT include it.",
+    #     "Step 4: Enhance readability with tables, bullet points, and clear formatting, but do not add or infer any information not present in the retrieved content.",
+    #     "Step 5: Do NOT include interest rates, APR, or finance charges under any circumstances.",
+    #     "Your mission: Produce a publishable, data-driven article that strictly reflects only the information in the Qdrant knowledge base, article should be more than 2000 characters. Never introduce outside content or your own knowledge."
+    # ]
 )
 # EXECUTION
 # !nohup ollama serve &
@@ -186,7 +198,7 @@ if __name__ == "__main__":
         "Axis Bank Credit Card Review: Which Card Should You Get?",
         
     ]
-    output_dir = r"D:\\Welzin\\credzin\\Output\\blogs\\2025-07-07" # Change this to your desired output directory
+    output_dir = r"D:\\Welzin\\credzin\\Output\\blogs\\2025-07-08" # Change this to your desired output directory
     os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
     for topic in topics:
         print(f"\nGenerating article for: {topic}")

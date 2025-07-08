@@ -11,6 +11,31 @@ This project, "credzin," appears to be a complex system with several components:
 - A Java/Kotlin-based set of core services (in `CoreServices`).
 - A web application with a Node.js backend and a React frontend (in `webapp`).
 
+### User Transaction Analysis
+
+The `pycode/src/Transactions/Txns.py` script is responsible for analyzing user email data to extract and visualize financial transaction information. It performs the following:
+
+- Fetches email data from a MongoDB collection (`gmailmessages`).
+- Filters relevant emails based on keywords related to transactions, banking, and shopping.
+- Extracts transaction amounts, types (Debit/Credit), and merchant names from email bodies.
+- Generates and saves various charts (pie charts for categories and transaction types, bar charts for top merchants, and time-series plots for weekly/monthly spend) for each user.
+- Logs analysis summaries to a CSV file (`Output/logs/<date>/spend_analysis_log.csv`).
+- Generates a comprehensive HTML dashboard (`Output/dash/<date>/spend_dashboard.html`) displaying all charts for all users.
+- Transforms extracted transaction data into a structured format (`UserTransaction` schema) and inserts it into a MongoDB collection (`user_transactions`).
+
+**UserTransaction Schema:**
+```typescript
+type UserTransaction {
+    id: ID! # Unique transaction ID
+    cardId: ID!, # Associated card ID (placeholder for now)
+    dateTime: DateTime!,
+    amount: Amount!,
+    merchantId: ID, # Nullable, generated if merchant is known
+    userId: ID!,
+    metadata: UserTransactionMetadata # JSON object containing original email details
+}
+```
+
 ## Key Technologies
 
 - **Python:** Poetry for dependency management, FastAPI for APIs, and a wide range of libraries for data science, machine learning, and web scraping.

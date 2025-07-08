@@ -1,152 +1,173 @@
-# Credzin
-A comprehensive fintech application for optimizing credit card spends and maximizing reward points earning through intelligent recommendations and spend analysis.
-Category: Fintech, Personal Finance, Credit lending, Cibil scores
+# Credzin: Financial Intelligence Platform
 
-# 🚀 Features
-## MVP Features
-- Card Wallet: Add cards in your wallet to get reward suggestions and offers
-- Credit Card Recommendation System: Intelligent card suggestions based on user preferences and spending patterns
-- Reward Maximizer: Shows all cards ranked by potential rewards
-- Spend Analysis: Gmail integration for automatic spend categorization and analysis
-- Personalized Recommendations: Based on user's existing cards in the wallet and spending habits
-- Card Pool: Make groups of friends and have a card pool for shared spending
+## Table of Contents
 
-## Additional Features
-- Chatbot Integration: RAG-powered chatbot for user-card queries
-- Content Generation: Auto blogs and biweekly newsletters
-- User Engagement: Email nudges and notifications for optimal spending
-- Knowledge Base: Comprehensive KB of card details with benefits and features
+*   [About The Project](#about-the-project)
+    *   [Key Features](#key-features)
+*   [Getting Started](#getting-started)
+    *   [Prerequisites](#prerequisites)
+    *   [Installation](#installation)
+*   [Usage](#usage)
+    *   [Python Backend (`pycode`)](#python-backend-pycode)
+    *   [Web Application Backend (`webapp/backend`)](#web-application-backend-webappbackend)
+    *   [Web Application Frontend (`webapp/frontend`)](#web-application-frontend-webappfrontend)
+*   [Project Structure](#project-structure)
+*   [Technologies Used](#technologies-used)
+*   [License](#license)
+*   [Contact](#contact)
 
-## More strategic features to enhance Credzin for Indian users
-- UPI Integration with Credit Cards
-    Enable UPI payments via linked credit cards (NPCI's recent RBI-approved feature)
-    Auto-suggest optimal card for UPI transactions based on reward rates
+---
 
-- Sachet EMI Recommendations
-    Auto-convert large spends into No-Cost EMIs using card features
-    Compare EMI plans across banks in real-time
+## About The Project
 
-- FASTag/Utility Wallet
-    Link FASTag, electricity/gas accounts to track & pay via optimal reward cards
-    Auto-categorize fuel spends for fuel-specific card benefits
+`Credzin` is a comprehensive financial intelligence platform designed to process, analyze, and visualize financial data. It comprises a robust Python backend for data processing and machine learning, Java/Kotlin-based core services, and a modern web application with a Node.js backend and React frontend.
 
-- Joint Family Finance Mode
-    Multi-generational wallet with spending limits for elders/children
-    Inheritance planning for card points/liabilities
+### Key Features
 
-- Technical Enhancements
-    Bharat BillPay API Integration
-    NPCI's Credit Line on UPI Support
-    Aadhaar eSign for Card Applications
+*   **Email-based Transaction Analysis:** Automatically fetches and analyzes user emails from MongoDB to extract financial transaction details (amount, merchant, type).
+*   **Automated Data Extraction:** Utilizes advanced regex patterns and natural language processing techniques for accurate extraction of transaction data.
+*   **Interactive Spend Dashboards:** Generates dynamic HTML dashboards with various charts (pie charts for categories, transaction types, bar charts for top merchants, and time-series plots for spend trends) for each user.
+*   **Structured Transaction Data:** Transforms raw email data into a clean, structured `UserTransaction` schema and inserts it into MongoDB for further use.
+*   **Scalable Architecture:** Built with modular components (Python, Java/Kotlin, Node.js/React) to ensure scalability and maintainability.
 
-## Current Architecture
-The system is built using a modular architecture with the following components:
+## Getting Started
 
-## WebApp
+To get a local copy up and running, follow these simple steps.
 
-## User Flow
-- login → personal/salary details → add cards → show recommendations
-- gmail consent required for spend analysis, start populating credit card data
-- reward maximizer [MVP], can show all the cards based on rank
+### Prerequisites
 
-## Login-Page
-Toast for an existing user if the emails is already found during signup
+*   **Python 3.12** (or compatible version)
+*   **Node.js & npm** (for web application)
+*   **Java Development Kit (JDK)** (for CoreServices)
+*   **MongoDB Instance:** A running MongoDB instance accessible from your environment.
+*   **Poetry** (recommended for Python dependency management)
 
-## Home Page
-- Make it responsive and mobile friendly
+### Installation
 
-## Profile page
-- profile page for a new user
-- What's your monthly salary
-- How much are your estimated monthly spends
-- Skip button
-- show all the user details in profile page
-- Add home button on profile page and manage cards
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/welzin-com/credzin.git
+    cd credzin
+    ```
 
-## Manage cards page
-- Rename the page and routes to wallet
-- Add user messages as toast on button clicks
-- Add card images in the card list
+2.  **Python Backend Setup:**
+    ```bash
+    # Install Poetry (if not already installed)
+    curl -sSL https://install.python-poetry.org | python3 -
 
-## Steps to run the web app
-Install nodejs in our system
-    -BACKEND
-        move to WebAPP folder
-        then in terminal  cd backend
-        run command npm i
-        run npm run dev
-    -FRONTEND
-        Move to WebApp folder
-        then in terminal run- cd frontend
-        run command npm i
-        run command npm run start
+    # Install Python dependencies
+    poetry install
+    ```
 
+3.  **Web Application Backend Setup:**
+    ```bash
+    cd webapp/backend
+    npm install
+    cd ../..
+    ```
 
-## Card Engine 
+4.  **Web Application Frontend Setup:**
+    ```bash
+    cd webapp/frontend
+    npm install
+    cd ../..
+    ```
 
-## Credzin PyCode
-create a new log file with date_time for every run and write logs to /output/logs dir
-separate log file for each process/module: scraper, data loader, rag & llm  
-use relative path everywhere and make sure it runs in all the systems by auto-detection
-
-## Knowledge base
-Scrape all the banks
-Scrape similar sites
-File reader for pdf, md
-create a qdrant loader for embeddings
-build metadata for all the banks
-Scheduler for weekly, monthly data pull
-Pull offers data and card eligibilty data 
-
-## Recommendor
-Agentify the recommendor
-Complete the RAG pipeline for card recommendation
-build a chatbot on the KB for user-card random queries
-Post generator using KB
-
-
-# Steps to run the scrapers
-# Steps to run the RAG and Agents
-
-
-## Setup and run code
-
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-2. Set up environment variables:
-```bash
-# Neo4j settings
-_URI=bolt://localhost:7687
-_USER=neo4j
-_PASSWORD=your_password
-
-# LLM settings
-LLM_BASE_URL=http://localhost:11434
-LLM_MODEL=llama3.2
-```
-
-3. Run tests:
-```bash
-pytest tests/
-```
+5.  **Core Services Setup:**
+    Refer to the `CoreServices/README.md` for detailed setup instructions.
 
 ## Usage
 
+### Python Backend (`pycode`)
 
-## Testing
-The system includes comprehensive tests for each component:
+The main entry point for the transaction analysis is `pycode/src/Transactions/Txns.py`.
 
+To run the spend analysis script:
 
-## Contributing
+```bash
+python3.12 pycode/src/Transactions/Txns.py
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+This script will:
+*   Connect to your MongoDB instance (ensure `DataLoaders/MongoDB.py` is configured correctly).
+*   Fetch emails from the `gmailmessages` collection.
+*   Process and analyze transaction data.
+*   Generate charts and a comprehensive HTML dashboard in `Output/dash/<current_date>/spend_dashboard.html`.
+*   Insert structured transaction data into the `user_transactions` collection in MongoDB.
+
+### Web Application Backend (`webapp/backend`)
+
+To start the backend server:
+
+```bash
+cd webapp/backend
+npm run dev # For development
+npm start   # For production
+```
+
+### Web Application Frontend (`webapp/frontend`)
+
+To start the frontend development server:
+
+```bash
+cd webapp/frontend
+npm start
+```
+
+To build the frontend for production:
+
+```bash
+cd webapp/frontend
+npm run build
+```
+
+## Project Structure
+
+```
+.
+├── CoreServices/             # Java/Kotlin microservices
+├── KnowledgeBase/            # Data storage (banks, credit cards, sites)
+├── Notebooks/                # Jupyter notebooks for R&D and data analysis
+├── Output/                   # Generated files, logs, reports, and dashboards
+│   ├── dash/                 # HTML dashboards
+│   ├── logs/                 # Analysis logs (e.g., spend_analysis_log.csv)
+│   └── spends/               # Generated chart images
+├── pycode/                   # Main Python application code
+│   ├── main.py
+│   ├── airflow/              # Airflow DAGs
+│   ├── DBinfo/               # Database information/configuration
+│   ├── logs/
+│   ├── src/                  # Python source code
+│   │   ├── agents/
+│   │   ├── dashboard/
+│   │   ├── DataLoaders/      # MongoDB connection, etc.
+│   │   ├── processing/
+│   │   ├── recommender/
+│   │   ├── scrapers/
+│   │   ├── Transactions/     # Email transaction analysis (Txns.py)
+│   │   └── utils/            # Utility functions (e.g., logger)
+│   └── test/                 # Python tests
+├── resources/                # Supporting resources (databases, config)
+├── scripts/                  # Shell scripts (e.g., vercel_sync.sh)
+└── webapp/                   # Web application
+    ├── backend/              # Node.js/Express backend
+    └── frontend/             # React frontend
+```
+
+## Technologies Used
+
+*   **Python:** Pandas, NumPy, Matplotlib, FastAPI, LangChain, PyMongo, SpaCy, Sentence-Transformers, Hugging Face Transformers.
+*   **Java/Kotlin:** (Details in `CoreServices/README.md`)
+*   **JavaScript/TypeScript:** React, Node.js, Express.js.
+*   **Databases:** MongoDB, Neo4j, Qdrant, ChromaDB.
+*   **Orchestration:** Apache Airflow.
+*   **Containerization:** Docker.
 
 ## License
-MIT License 
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Aman Mundra - [aman@thewelzin.com](mailto:aman@thewelzin.com)
+Credzin Team - [team@credzin.com](mailto:team@credzin.com)

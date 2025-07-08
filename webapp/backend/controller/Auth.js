@@ -459,7 +459,7 @@ exports.updateAdditionalDetails = async (req, res) => {
     const { dateOfBirth, salaryRange, expenseRange, profession, location } = req.body;
     // Basic validation
     // const validAgeRanges = ["18-24", "25-34", "35-44", "45-54", "55+"];
-    const validSalaryRanges = ["0-10000", "10001-25000", "25001-50000", "50001-100000", "100001-150000","150001-200000","200001+"];
+    const validSalaryRanges = ["0-10000", "10000-25000", "25000-50000", "50000-100000", "100000-150000","150000-200000","200000+"];
     const validExpenseRanges = ["0-5000", "5000-15000", "15000-30000", "30000+"];
 
     if (

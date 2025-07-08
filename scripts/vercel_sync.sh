@@ -3,6 +3,12 @@
 SOURCE_DIR="/Users/aman/Welzin/Dev/credzin"
 TARGET_DIR="/Users/aman/Welzin/Dev/credzin-vercel"
 
+# credzin git push
+git add .
+COMMIT_MESSAGE="Aman:Code Edits & Features: $(date '+%Y-%m-%d %H:%M:%S')"
+git commit -m "$COMMIT_MESSAGE"
+git push
+
 # Sync the directories
 echo "Syncing $SOURCE_DIR to $TARGET_DIR..."
 rsync -av --delete --exclude='.git/' "$SOURCE_DIR/" "$TARGET_DIR/"

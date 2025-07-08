@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const userOauthDetails = require("../models/user_oauth_details")
@@ -11,13 +12,14 @@ const path = require('path');
 const { signup } = require('./Auth');
 const { isBuffer } = require('util');
 const { emailTransporter } = require('../services/notificationService');
+dotenv.config();
 
-const client_secret = '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';
-const client_id = '1002163645342-4u905a3838nhgl0rh8l85e2u78o5quao.apps.googleusercontent.com';
+const client_secret =process.env.GOOGLE_CLIENT_SECRET 
+const client_id = process.env.GOOGLE_CLIENT_ID
 
 // // Use environment variable for redirect URI or default to port 4000
-const PORT = 5000;
-const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`
+const PORT = process.env.PORT 
+const redirect_uri = process.env.GOOGLE_CALLBACK_URL
 //const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`
 
 // const client_secret=process.env.GOOGLE_CLIENT_SECRET
@@ -136,8 +138,8 @@ exports.oauthCallback = async (req, res) => {
                 req.user = { email: email };
                 await exports.fetchGmailMessages(email);
 
-                return res.redirect(`https://app.credzin.com/home?token=${existing_user.token}`);
-
+                // return res.redirect(`https://app.credzin.com/home?token=${existing_user.token}`);
+                return res.redirect(`${process.env.CLIENT_URL}?token=${existing_user.token}`)
                 // return res.redirect(`http://localhost:3000/home?token=${existing_user.token}`);
 
 
@@ -173,8 +175,8 @@ exports.oauthCallback = async (req, res) => {
             req.user = { email: user_email };
             console.log('user:', user);
             await exports.fetchGmailMessages(user_email);
-            return res.redirect(`https://app.credzin.com/googleAdditionaldetails?token=${user.token}`);
-            // return res.redirect(`http://localhost:3000/googleAdditionaldetails?token=${user.token}`);
+            // return res.redirect(`https://app.credzin.com/googleAdditionaldetails?token=${user.token}`);
+            return res.redirect(`${process.env.CLIENT_URL}/googleAdditionaldetails?token=${user.token}`);
 
 
 

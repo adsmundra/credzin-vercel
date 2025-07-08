@@ -1,6 +1,5 @@
 package com.credzin.reward.spendreward.standard.application
 
-import com.credzin.adapter.featurestore.merchant.MerchantFeatureStoreAdapter
 import com.credzin.adapter.featurestore.spendbased.standard.SpendBasedFeatureStore
 import com.credzin.reward.RewardTransactionCreateInput
 import com.credzin.reward.spendreward.standard.domain.StandardSpendBasedRewardAggregate
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Component
 class StandardSpendBasedRewardCalculator(
     private val standardSpendBasedRewardRepository: StandardSpendBasedRewardRepository,
     private val spendBasedFeatureStore: SpendBasedFeatureStore,
-    private val merchantFeatureStoreAdapter: MerchantFeatureStoreAdapter,
 ) {
     private companion object {
         private val logger = LoggerFactory.getLogger(StandardSpendBasedRewardCalculator::class.java)
@@ -25,7 +23,6 @@ class StandardSpendBasedRewardCalculator(
             input = input,
             spendBasedFeatureStore = spendBasedFeatureStore,
             standardSpendBasedRewardRepository = standardSpendBasedRewardRepository,
-            merchantFeatureStoreAdapter = merchantFeatureStoreAdapter,
         )
     }
 }

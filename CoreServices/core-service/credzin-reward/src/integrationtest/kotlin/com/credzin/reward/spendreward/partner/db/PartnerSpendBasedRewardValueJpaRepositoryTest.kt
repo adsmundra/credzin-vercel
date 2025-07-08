@@ -6,8 +6,8 @@ import com.credzin.reward.AmountRewardValue
 import com.credzin.reward.RewardPoint
 import com.credzin.reward.RewardPointType
 import com.credzin.reward.RewardPointValue
-import com.credzin.reward.RewardType
 import com.credzin.reward.RewardValueType
+import com.credzin.reward.RewardChargeType
 import com.credzin.reward.Voucher
 import com.credzin.reward.VoucherRewardValue
 import com.credzin.reward.config.JpaTestApplication
@@ -45,7 +45,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 100.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -53,7 +53,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
             JpaPartnerSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                 partnerSpendBasedRewardId = parentId,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
             )
 
         // When
@@ -71,7 +71,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
         val rewardPoint = (domainRewardValue as RewardPointValue).rewardPoint
         assertEquals(RewardPointType.STANDARD, rewardPoint.type)
         assertEquals(100.0f, rewardPoint.value)
-        assertEquals(RewardValueType.ABSOLUTE, rewardPoint.valueType)
+        assertEquals(RewardChargeType.ABSOLUTE, rewardPoint.valueType)
     }
 
     @Test
@@ -91,7 +91,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
             JpaPartnerSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                 partnerSpendBasedRewardId = parentId,
-                rewardType = RewardType.AMOUNT,
+                rewardValueType = RewardValueType.AMOUNT,
             )
 
         // When
@@ -131,7 +131,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
             JpaPartnerSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(voucherRewardValue),
                 partnerSpendBasedRewardId = parentId,
-                rewardType = RewardType.VOUCHER,
+                rewardValueType = RewardValueType.VOUCHER,
             )
 
         // When
@@ -164,7 +164,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.BONUS,
                         value = 500.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -193,17 +193,17 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 ),
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.AMOUNT,
+                    rewardValueType = RewardValueType.AMOUNT,
                 ),
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(voucherRewardValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.VOUCHER,
+                    rewardValueType = RewardValueType.VOUCHER,
                 ),
             )
 
@@ -244,14 +244,14 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                             RewardPoint(
                                 type = type,
                                 value = 100.0f,
-                                valueType = RewardValueType.PERCENTAGE,
+                                valueType = RewardChargeType.PERCENTAGE,
                             ),
                     )
 
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 )
             }
 
@@ -296,7 +296,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(voucherRewardValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.VOUCHER,
+                    rewardValueType = RewardValueType.VOUCHER,
                 )
             }
 
@@ -324,7 +324,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 200.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -334,7 +334,7 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.CASHBACK,
                         value = 5.0f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
@@ -343,12 +343,12 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(absoluteValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 ),
                 JpaPartnerSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(percentageValue),
                     partnerSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 ),
             )
 
@@ -362,6 +362,6 @@ class PartnerSpendBasedRewardValueJpaRepositoryTest {
         val domainValues = savedEntities.map { it.toDomainRewardValue() }
         val valueTypes = domainValues.map { (it as RewardPointValue).rewardPoint.valueType }.toSet()
 
-        assertEquals(setOf(RewardValueType.ABSOLUTE, RewardValueType.PERCENTAGE), valueTypes)
+        assertEquals(setOf(RewardChargeType.ABSOLUTE, RewardChargeType.PERCENTAGE), valueTypes)
     }
 }

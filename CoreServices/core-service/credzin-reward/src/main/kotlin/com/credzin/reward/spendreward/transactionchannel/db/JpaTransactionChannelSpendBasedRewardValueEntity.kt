@@ -1,7 +1,7 @@
 package com.credzin.reward.spendreward.transactionchannel.db
 
-import com.credzin.reward.RewardType
-import com.credzin.reward.RewardTypeConverter
+import com.credzin.reward.RewardValueType
+import com.credzin.reward.RewardValueTypeConverter
 import com.credzin.reward.RewardValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.persistence.*
@@ -20,9 +20,9 @@ data class JpaTransactionChannelSpendBasedRewardValueEntity(
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", columnDefinition = "UUID")
     val id: UUID? = null,
-    @Convert(converter = RewardTypeConverter::class)
-    @Column(name = "reward_type", nullable = false)
-    val rewardType: RewardType,
+    @Convert(converter = RewardValueTypeConverter::class)
+    @Column(name = "reward_value_type", nullable = false)
+    val rewardValueType: RewardValueType,
     @Column(name = "reward_value", nullable = false, columnDefinition = "text")
     val rewardValue: String,
     @Column(name = "transaction_channel_spend_based_reward_id", nullable = false, columnDefinition = "UUID")
@@ -46,14 +46,14 @@ data class JpaTransactionChannelSpendBasedRewardValueEntity(
             rewardValue: RewardValue,
             transactionChannelSpendBasedRewardId: UUID,
         ): JpaTransactionChannelSpendBasedRewardValueEntity {
-            val rewardType =
+            val rewardValueType =
                 when (rewardValue) {
-                    is com.credzin.reward.RewardPointValue -> RewardType.REWARD_POINT
-                    is com.credzin.reward.AmountRewardValue -> RewardType.AMOUNT
-                    is com.credzin.reward.VoucherRewardValue -> RewardType.VOUCHER
+                    is com.credzin.reward.RewardPointValue -> RewardValueType.REWARD_POINT
+                    is com.credzin.reward.AmountRewardValue -> RewardValueType.AMOUNT
+                    is com.credzin.reward.VoucherRewardValue -> RewardValueType.VOUCHER
                 }
             return JpaTransactionChannelSpendBasedRewardValueEntity(
-                rewardType = rewardType,
+                rewardValueType = rewardValueType,
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardValue),
                 transactionChannelSpendBasedRewardId = transactionChannelSpendBasedRewardId,
             )

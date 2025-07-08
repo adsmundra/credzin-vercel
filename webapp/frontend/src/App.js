@@ -36,6 +36,7 @@ import CardBenifits from "./pages/CardBenifits";
 import Cookies from "js-cookie";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import BillPay from "./pages/BillPay";
 
 function App() {
   const dispatch = useDispatch();
@@ -343,12 +344,13 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
+        <Route path="#" element={<PrivacyPolicy />}></Route>
         <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />}></Route>
         <Route path="/reset-password" element={<ResetPassword />} />{" "}
+        <Route path="/bill-pay" element={<BillPay />} />{" "}
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

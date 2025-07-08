@@ -5,22 +5,22 @@ package com.credzin.reward
  */
 data class Reward(
     val reward: RewardValue,
-    val type: RewardType,
+    val type: RewardValueType,
 ) {
     companion object {
         /**
          * Creates a Reward with the type automatically derived from the reward value.
          */
         fun create(rewardValue: RewardValue): Reward {
-            val rewardType =
+            val rewardValueType =
                 when (rewardValue) {
-                    is RewardPointValue -> RewardType.REWARD_POINT
-                    is AmountRewardValue -> RewardType.AMOUNT
-                    is VoucherRewardValue -> RewardType.VOUCHER
+                    is RewardPointValue -> RewardValueType.REWARD_POINT
+                    is AmountRewardValue -> RewardValueType.AMOUNT
+                    is VoucherRewardValue -> RewardValueType.VOUCHER
                 }
             return Reward(
                 reward = rewardValue,
-                type = rewardType,
+                type = rewardValueType,
             )
         }
     }

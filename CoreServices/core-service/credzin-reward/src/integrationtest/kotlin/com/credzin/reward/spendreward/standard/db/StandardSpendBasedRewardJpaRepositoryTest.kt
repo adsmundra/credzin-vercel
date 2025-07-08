@@ -36,14 +36,14 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 100.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
         val entity =
             JpaStandardSpendBasedRewardEntity(
                 transactionId = transactionId,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
             )
 
@@ -55,14 +55,14 @@ class StandardSpendBasedRewardJpaRepositoryTest {
         // Then
         assertNotNull(savedEntity.id)
         assertEquals(transactionId, savedEntity.transactionId)
-        assertEquals(RewardType.REWARD_POINT, savedEntity.rewardType)
+        assertEquals(RewardValueType.REWARD_POINT, savedEntity.rewardValueType)
 
         // Verify JSON conversion works
         val domainEntity = savedEntity.toDomainEntity()
         assertEquals(transactionId, domainEntity.transactionId)
         assertEquals(RewardPointType.STANDARD, (domainEntity.reward.reward as RewardPointValue).rewardPoint.type)
         assertEquals(100.0f, (domainEntity.reward.reward as RewardPointValue).rewardPoint.value)
-        assertEquals(RewardValueType.ABSOLUTE, (domainEntity.reward.reward as RewardPointValue).rewardPoint.valueType)
+        assertEquals(RewardChargeType.ABSOLUTE, (domainEntity.reward.reward as RewardPointValue).rewardPoint.valueType)
     }
 
     @Test
@@ -75,14 +75,14 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.CASHBACK,
                         value = 50.0f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
         val entity =
             JpaStandardSpendBasedRewardEntity(
                 transactionId = transactionId,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
             )
 
@@ -100,7 +100,7 @@ class StandardSpendBasedRewardJpaRepositoryTest {
         val domainEntity = foundEntities[0].toDomainEntity()
         assertEquals(RewardPointType.CASHBACK, (domainEntity.reward.reward as RewardPointValue).rewardPoint.type)
         assertEquals(50.0f, (domainEntity.reward.reward as RewardPointValue).rewardPoint.value)
-        assertEquals(RewardValueType.PERCENTAGE, (domainEntity.reward.reward as RewardPointValue).rewardPoint.valueType)
+        assertEquals(RewardChargeType.PERCENTAGE, (domainEntity.reward.reward as RewardPointValue).rewardPoint.valueType)
     }
 
     @Test
@@ -114,7 +114,7 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 100.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -124,7 +124,7 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.CASHBACK,
                         value = 5.0f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
@@ -134,7 +134,7 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.BONUS,
                         value = 200.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -142,17 +142,17 @@ class StandardSpendBasedRewardJpaRepositoryTest {
             listOf(
                 JpaStandardSpendBasedRewardEntity(
                     transactionId = transactionId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                     rewardValue = jacksonObjectMapper().writeValueAsString(standardRewardValue),
                 ),
                 JpaStandardSpendBasedRewardEntity(
                     transactionId = transactionId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                     rewardValue = jacksonObjectMapper().writeValueAsString(cashbackRewardValue),
                 ),
                 JpaStandardSpendBasedRewardEntity(
                     transactionId = transactionId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                     rewardValue = jacksonObjectMapper().writeValueAsString(bonusRewardValue),
                 ),
             )
@@ -184,7 +184,7 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 150.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -194,21 +194,21 @@ class StandardSpendBasedRewardJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 2.5f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
         val absoluteEntity =
             JpaStandardSpendBasedRewardEntity(
                 transactionId = transactionId1,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
                 rewardValue = jacksonObjectMapper().writeValueAsString(absoluteRewardValue),
             )
 
         val percentageEntity =
             JpaStandardSpendBasedRewardEntity(
                 transactionId = transactionId2,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
                 rewardValue = jacksonObjectMapper().writeValueAsString(percentageRewardValue),
             )
 
@@ -220,10 +220,10 @@ class StandardSpendBasedRewardJpaRepositoryTest {
         val absoluteResult = repository.findByTransactionId(transactionId1)[0].toDomainEntity()
         val percentageResult = repository.findByTransactionId(transactionId2)[0].toDomainEntity()
 
-        assertEquals(RewardValueType.ABSOLUTE, (absoluteResult.reward.reward as RewardPointValue).rewardPoint.valueType)
+        assertEquals(RewardChargeType.ABSOLUTE, (absoluteResult.reward.reward as RewardPointValue).rewardPoint.valueType)
         assertEquals(150.0f, (absoluteResult.reward.reward as RewardPointValue).rewardPoint.value)
 
-        assertEquals(RewardValueType.PERCENTAGE, (percentageResult.reward.reward as RewardPointValue).rewardPoint.valueType)
+        assertEquals(RewardChargeType.PERCENTAGE, (percentageResult.reward.reward as RewardPointValue).rewardPoint.valueType)
         assertEquals(2.5f, (percentageResult.reward.reward as RewardPointValue).rewardPoint.value)
     }
 }

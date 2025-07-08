@@ -11,13 +11,13 @@ class StandardSpendBasedRewardAggregate(
         input: RewardTransactionCreateInput,
         spendBasedFeatureStore: SpendBasedFeatureStore,
         standardSpendBasedRewardRepository: StandardSpendBasedRewardRepository,
-        merchantFeatureStoreAdapter: MerchantFeatureStoreAdapter,
     ): StandardSpendBasedRewardAggregate {
 
         // get the standard reward.
         val reward =
             spendBasedFeatureStore.getSpendBasedRewardValue(
                 cardID = input.cardInput.id,
+                merchantId = input.merchantInput.id,
             )
 
         this.standardSpendBasedRewardEntity =

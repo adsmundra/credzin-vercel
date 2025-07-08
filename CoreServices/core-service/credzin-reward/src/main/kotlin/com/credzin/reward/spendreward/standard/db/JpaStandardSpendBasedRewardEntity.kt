@@ -1,8 +1,8 @@
 package com.credzin.reward.spendreward.standard.db
 
 import com.credzin.reward.Reward
-import com.credzin.reward.RewardType
-import com.credzin.reward.RewardTypeConverter
+import com.credzin.reward.RewardValueType
+import com.credzin.reward.RewardValueTypeConverter
 import com.credzin.reward.RewardValue
 import com.credzin.reward.spendreward.standard.domain.StandardSpendBasedRewardEntity
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -25,9 +25,9 @@ data class JpaStandardSpendBasedRewardEntity(
     val id: UUID? = null,
     @Column(name = "transaction_id", nullable = false, columnDefinition = "UUID")
     val transactionId: UUID,
-    @Convert(converter = RewardTypeConverter::class)
-    @Column(name = "reward_type", nullable = false)
-    val rewardType: RewardType,
+    @Convert(converter = RewardValueTypeConverter::class)
+    @Column(name = "reward_value_type", nullable = false)
+    val rewardValueType: RewardValueType,
     @Column(name = "reward_value", nullable = false, columnDefinition = "text")
     val rewardValue: String,
     @CreationTimestamp
@@ -42,7 +42,7 @@ data class JpaStandardSpendBasedRewardEntity(
         val reward =
             Reward(
                 reward = rewardValueObj,
-                type = this.rewardType,
+                type = this.rewardValueType,
             )
         return StandardSpendBasedRewardEntity(
             id = this.id,
@@ -59,7 +59,7 @@ data class JpaStandardSpendBasedRewardEntity(
             return JpaStandardSpendBasedRewardEntity(
                 id = domainEntity.id,
                 transactionId = domainEntity.transactionId,
-                rewardType = domainEntity.reward.type,
+                rewardValueType = domainEntity.reward.type,
                 rewardValue = jacksonObjectMapper().writeValueAsString(domainEntity.reward.reward),
             )
         }

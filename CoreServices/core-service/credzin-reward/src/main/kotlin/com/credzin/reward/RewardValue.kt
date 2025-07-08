@@ -51,7 +51,7 @@ data class VoucherRewardValue(
 data class RewardPoint(
     val type: RewardPointType,
     val value: Float,
-    val valueType: RewardValueType,
+    val valueType: RewardChargeType,
 )
 
 /**

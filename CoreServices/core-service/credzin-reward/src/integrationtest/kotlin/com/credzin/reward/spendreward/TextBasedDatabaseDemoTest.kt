@@ -55,14 +55,14 @@ class TextBasedDatabaseDemoTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 150.5f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
         val standardReward =
             JpaStandardSpendBasedRewardEntity(
                 transactionId = transactionId,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
             )
         standardRepository.save(standardReward)
@@ -83,7 +83,7 @@ class TextBasedDatabaseDemoTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 25.0f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
@@ -111,19 +111,19 @@ class TextBasedDatabaseDemoTest {
             listOf(
                 // RewardPointValue using simplified JsonUtils
                 JpaTransactionChannelSpendBasedRewardValueEntity(
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                     rewardValue = jacksonObjectMapper().writeValueAsString(percentageRewardValue),
                     transactionChannelSpendBasedRewardId = transactionChannelRewardId,
                 ),
                 // AmountRewardValue using simplified JsonUtils
                 JpaTransactionChannelSpendBasedRewardValueEntity(
-                    rewardType = RewardType.AMOUNT,
+                    rewardValueType = RewardValueType.AMOUNT,
                     rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                     transactionChannelSpendBasedRewardId = transactionChannelRewardId,
                 ),
                 // VoucherRewardValue using simplified JsonUtils
                 JpaTransactionChannelSpendBasedRewardValueEntity(
-                    rewardType = RewardType.VOUCHER,
+                    rewardValueType = RewardValueType.VOUCHER,
                     rewardValue = jacksonObjectMapper().writeValueAsString(voucherRewardValue),
                     transactionChannelSpendBasedRewardId = transactionChannelRewardId,
                 ),

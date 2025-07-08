@@ -21,7 +21,7 @@ const Navbar = () => {
   const user = useSelector((state) => state.auth.user);
 
   console.log("Redux Auth USER:-==", user);
-  
+
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
@@ -171,6 +171,22 @@ const Navbar = () => {
               >
                 Articles
               </button>
+            </li>
+            <li>
+              {/* <button
+                onClick={() => navigate("/bill-pay")}
+                className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
+              >
+                Bill Pay
+              </button> */}
+
+              <button
+                onClick={() => navigate("/bill-pay")}
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
+              >
+                Bill Pay
+              </button>
+
             </li>
             <li>
               <NotificationBell />

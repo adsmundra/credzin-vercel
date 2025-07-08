@@ -6,8 +6,8 @@ import com.credzin.reward.AmountRewardValue
 import com.credzin.reward.RewardPoint
 import com.credzin.reward.RewardPointType
 import com.credzin.reward.RewardPointValue
-import com.credzin.reward.RewardType
 import com.credzin.reward.RewardValueType
+import com.credzin.reward.RewardChargeType
 import com.credzin.reward.Voucher
 import com.credzin.reward.VoucherRewardValue
 import com.credzin.reward.config.JpaTestApplication
@@ -45,7 +45,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.STANDARD,
                         value = 100.0f,
-                        valueType = RewardValueType.ABSOLUTE,
+                        valueType = RewardChargeType.ABSOLUTE,
                     ),
             )
 
@@ -53,7 +53,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
             JpaTransactionChannelSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                 transactionChannelSpendBasedRewardId = parentId,
-                rewardType = RewardType.REWARD_POINT,
+                rewardValueType = RewardValueType.REWARD_POINT,
             )
 
         // When
@@ -71,7 +71,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
         val rewardPoint = (domainRewardValue as RewardPointValue).rewardPoint
         assertEquals(RewardPointType.STANDARD, rewardPoint.type)
         assertEquals(100.0f, rewardPoint.value)
-        assertEquals(RewardValueType.ABSOLUTE, rewardPoint.valueType)
+        assertEquals(RewardChargeType.ABSOLUTE, rewardPoint.valueType)
     }
 
     @Test
@@ -91,7 +91,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
             JpaTransactionChannelSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                 transactionChannelSpendBasedRewardId = parentId,
-                rewardType = RewardType.AMOUNT,
+                rewardValueType = RewardValueType.AMOUNT,
             )
 
         // When
@@ -131,7 +131,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
             JpaTransactionChannelSpendBasedRewardValueEntity(
                 rewardValue = jacksonObjectMapper().writeValueAsString(voucherRewardValue),
                 transactionChannelSpendBasedRewardId = parentId,
-                rewardType = RewardType.VOUCHER,
+                rewardValueType = RewardValueType.VOUCHER,
             )
 
         // When
@@ -164,7 +164,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
                     RewardPoint(
                         type = RewardPointType.CASHBACK,
                         value = 25.0f,
-                        valueType = RewardValueType.PERCENTAGE,
+                        valueType = RewardChargeType.PERCENTAGE,
                     ),
             )
 
@@ -182,12 +182,12 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
                 JpaTransactionChannelSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                     transactionChannelSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 ),
                 JpaTransactionChannelSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                     transactionChannelSpendBasedRewardId = parentId,
-                    rewardType = RewardType.AMOUNT,
+                    rewardValueType = RewardValueType.AMOUNT,
                 ),
             )
 
@@ -227,14 +227,14 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
                             RewardPoint(
                                 type = type,
                                 value = 50.0f,
-                                valueType = RewardValueType.ABSOLUTE,
+                                valueType = RewardChargeType.ABSOLUTE,
                             ),
                     )
 
                 JpaTransactionChannelSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(rewardPointValue),
                     transactionChannelSpendBasedRewardId = parentId,
-                    rewardType = RewardType.REWARD_POINT,
+                    rewardValueType = RewardValueType.REWARD_POINT,
                 )
             }
 
@@ -272,7 +272,7 @@ class TransactionChannelSpendBasedRewardValueJpaRepositoryTest {
                 JpaTransactionChannelSpendBasedRewardValueEntity(
                     rewardValue = jacksonObjectMapper().writeValueAsString(amountRewardValue),
                     transactionChannelSpendBasedRewardId = parentId,
-                    rewardType = RewardType.AMOUNT,
+                    rewardValueType = RewardValueType.AMOUNT,
                 )
             }
 

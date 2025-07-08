@@ -25,7 +25,7 @@ class StandardSpendBasedRewardRepositoryImpl(
                 else -> throw IllegalArgumentException("Standard spend rewards must be RewardPointValue, got: ${reward::class.simpleName}")
             }
 
-        // Create Reward object with RewardValue and auto-derived RewardType
+        // Create Reward object with RewardValue and auto-derived RewardValueType
         val rewardObj = Reward.create(rewardPointValue)
 
         // Create domain entity

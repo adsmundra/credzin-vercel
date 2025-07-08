@@ -5,7 +5,7 @@ TARGET_DIR="/Users/aman/Welzin/Dev/credzin-vercel"
 
 # credzin git push
 git add .
-COMMIT_MESSAGE="Aman: Auto pushed the Code Edits & Features: $(date '+%Y-%m-%d %H:%M:%S')"
+COMMIT_MESSAGE="Aman:Code Edits & Features: $(date '+%Y-%m-%d %H:%M:%S')"
 git commit -m "$COMMIT_MESSAGE"
 git push
 

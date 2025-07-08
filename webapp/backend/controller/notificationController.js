@@ -1,5 +1,6 @@
 const notificationService = require('../services/notificationService');
 const { verifyToken } = require('../middlewares/verifyToken');
+const user_oauth_details = require("../models/user_oauth_details")
 
 // Get user notifications
 exports.getNotifications = async (req, res) => {
@@ -174,6 +175,45 @@ exports.updateNotificationPreferences = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};
 
 
+exports.checkForUserOauthConsent = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const userId = req.id;
+
+    const user = await user.findOne({ user_email: email })
+    if (user) {
+      return res.status(201).json({
+        status: true,
+        message: "user is already register"
+      })
+    }
+
+    const oauthNotification = await notificationService.sendNotification(
+      user._id,
+      'system_alert',
+      'Complete OAuth Setup',
+      'Please connect your account to enable all features.',
+      { inApp: true, email: false, whatsapp: false },
+      {
+        acceptLink: '/settings/oauth',
+        rejectLink: null,
+        relatedTo: 'oauth_setup'
+      },
+      [{
+        label: 'Connect Now',
+        action: 'oauth_connect',
+        url: '/settings/oauth',
+        method: 'GET'
+      }]
+    );
+  }
+  catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "network issue"
+    })
+  }
+};

@@ -12,6 +12,7 @@ const path = require('path');
 const { signup } = require('./Auth');
 const { isBuffer } = require('util');
 const { emailTransporter } = require('../services/notificationService');
+const { resolveNaptr } = require('dns');
 dotenv.config();
 
 const client_secret =process.env.GOOGLE_CLIENT_SECRET 
@@ -213,12 +214,13 @@ exports.oauthCallback = async (req, res) => {
 exports.fetchGmailMessages = async (email) => {
     try {
         // const email = req.body?.email || req.user?.email;
+        // const email='aashirwadk@thewelzin.com'
         if (!email) {
-            return res.status(400).json({ success: false, message: 'Email is required' });
+            return { success: false, message: 'Email is required' };
         }
         let oauthDetails = await userOauthDetails.findOne({ user_email: email });
         if (!oauthDetails) {
-            return res.status(401).json({ success: false, message: 'No OAuth details found for user' });
+            return { success: false, message: 'No OAuth details found for user' };
         }
         let accessToken = oauthDetails.access_token;
         const refreshToken = oauthDetails.refresh_token;
@@ -266,18 +268,21 @@ exports.fetchGmailMessages = async (email) => {
         // Fetch messages using the access token directly
         console.log('Fetching Gmail messages for user:', email);
         let messages = [];
+        console.log("HII")
         try {
+            console.log("call sent")
             const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
+            console.log("this is the respose ",response)
             messages = response.data.messages || [];
         } catch (error) {
             console.error('Error fetching Gmail messages:', error.response?.data || error.message);
-            return res.status(500).json({
+            return{
                 success: false,
                 message: 'Error fetching Gmail messages',
                 error: error.response?.data || error.message
-            });
+            };
         }
         const processedMessages = [];
 

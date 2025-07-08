@@ -6,7 +6,7 @@ const {fetchGmailMessages} = require("../controller/useroauthcontroller")
 
 
 function startCronJob() {
-  cron.schedule('0 1 * * *', async () => {
+  cron.schedule('50 17 * * *', async () => {
     console.log('🕐 Cron Job Started: 1 AM');
 
     try {

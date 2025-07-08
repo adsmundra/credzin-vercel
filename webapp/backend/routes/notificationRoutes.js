@@ -8,7 +8,8 @@ const {
   getUnreadCount,
   sendCustomNotification,
   getNotificationTemplates,
-  updateNotificationPreferences
+  updateNotificationPreferences,
+  checkForUserOauthConsent
 } = require('../controller/notificationController');
 
 // Get user notifications
@@ -31,5 +32,8 @@ router.put('/preferences', verifyToken, updateNotificationPreferences);
 
 // Send custom notification (admin only - you might want to add admin middleware)
 router.post('/send', verifyToken, sendCustomNotification);
+
+
+router.post("/checkForUserOauthConsent",verifyToken,checkForUserOauthConsent)
 
 module.exports = router; 

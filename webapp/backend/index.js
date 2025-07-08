@@ -66,7 +66,7 @@ const profileRoutes = require('./routes/profileRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const groupInvitationRoutes = require('./routes/groupInvitationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
-// const { startCronJob } = require('./controller/cronJobsLogic');
+const { startCronJob } = require('./controller/cronJobsLogic');
 
 app.use('/api/v1/auth', authRoutes);
 // app.use('/api/v1/auth/google', googleRoutes);
@@ -76,7 +76,7 @@ app.use('/api/profile', profileRoutes); // <-- profile route for image upload
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/group/invitation', groupInvitationRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
-// startCronJob();
+startCronJob();
 
 
 

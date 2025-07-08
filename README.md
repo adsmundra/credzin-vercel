@@ -93,7 +93,7 @@ This script will:
 *   Fetch emails from the `gmailmessages` collection.
 *   Process and analyze transaction data.
 *   Generate charts and a comprehensive HTML dashboard in `Output/dash/<current_date>/spend_dashboard.html`.
-*   Insert structured transaction data into the `user_transactions` collection in MongoDB.
+*   Insert structured transaction data into the `usertransactions` collection in MongoDB.
 
 ### Web Application Backend (`webapp/backend`)
 
@@ -153,6 +153,51 @@ npm run build
     ├── backend/              # Node.js/Express backend
     └── frontend/             # React frontend
 ```
+
+## Architecture
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+skinparam Linetype ortho
+
+Container_Boundary(credzin_system, "Credzin System") {
+    Container(webapp_frontend, "Web Application Frontend", "React", "User interface for interacting with the Credzin platform.")
+    Container(webapp_backend, "Web Application Backend", "Node.js, Express.js", "Provides APIs for the frontend and interacts with other services.")
+    Container(python_backend, "Python Backend", "Python (FastAPI, Pandas, ML Libraries)", "Core data processing, machine learning, and email analysis.")
+    Container(core_services, "Core Services", "Java/Kotlin, Gradle", "Microservices for core business logic (e.g., user management, rewards).")
+    Container(airflow, "Apache Airflow", "Python", "Orchestrates data pipelines and scheduled tasks.")
+
+    Boundary(databases, "Databases") {
+        SystemDb(mongodb, "MongoDB", "Stores raw email data, user transactions, and other application data.")
+        SystemDb(neo4j, "Neo4j", "Graph database for knowledge representation and relationships.")
+        SystemDb(qdrant, "Qdrant", "Vector database for similarity search (e.g., RAG).")
+        SystemDb(chromadb, "ChromaDB", "Vector database for embeddings.")
+    }
+
+    Rel(webapp_frontend, webapp_backend, "Uses", "HTTPS/REST")
+    Rel(webapp_backend, python_backend, "Uses", "HTTPS/REST")
+    Rel(webapp_backend, core_services, "Uses", "HTTPS/REST")
+    Rel(python_backend, mongodb, "Reads/Writes", "PyMongo")
+    Rel(python_backend, neo4j, "Reads/Writes", "Neo4j Driver")
+    Rel(python_backend, qdrant, "Reads/Writes", "Qdrant Client")
+    Rel(python_backend, chromadb, "Reads/Writes", "ChromaDB Client")
+    Rel(airflow, python_backend, "Triggers/Manages", "DAGs")
+    Rel(core_services, mongodb, "Reads/Writes")
+    Rel(core_services, neo4j, "Reads/Writes")
+}
+
+System_Ext(user, "User", "A Credzin platform user.")
+System_Ext(email_provider, "Email Provider", "Sends emails to users.")
+
+Rel(user, webapp_frontend, "Interacts with")
+Rel(email_provider, mongodb, "Sends emails to", "via Gmail API/IMAP (fetched by Python Backend)")
+
+@enduml
+```
+
+
 
 ## Technologies Used
 

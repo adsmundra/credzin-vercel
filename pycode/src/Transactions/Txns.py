@@ -78,31 +78,6 @@ def detect_transaction_type(text):
         return "Credit"
     return "Unknown"
 
-def extract_merchant(text):
-    text = text.lower()
-    # Patterns for common merchant indicators
-    patterns = [
-        r"(?:payment to|purchase from|at|for)\s+([a-zA-Z0-9\s&'-]+)",
-        r"from\s+([a-zA-Z0-9\s&'-]+)\s+on",
-        r"paid to\s+([a-zA-Z0-9\s&'-]+)",
-        r"your order from\s+([a-zA-Z0-9\s&'-]+)",
-        r"bill from\s+([a-zA-Z0-9\s&'-]+)",
-        r"transaction at\s+([a-zA-Z0-9\s&'-]+)",
-        r"merchant:\s*([a-zA-Z0-9\s&'-]+)",
-        r"store:\s*([a-zA-Z0-9\s&'-]+)",
-        r"([a-zA-Z0-9\s&'-]+)\s+has charged you"
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, text)
-        if match:
-            merchant = match.group(1).strip()
-            # Basic cleaning: remove common trailing words or excessive spaces
-            merchant = re.sub(r'\s*(?:pvt|ltd|inc|co|corp|store|shop|online|india)\\.?','', merchant, flags=re.IGNORECASE).strip()
-            merchant = re.sub(r'\s+', ' ', merchant).strip()
-            if len(merchant) > 2: # Ensure it's not just a very short word
-                return merchant.title() # Capitalize first letter of each word
-    return "Unknown Merchant"
-
 def categorize_email(row):
     text = f"{row.get('subject','')} {row.get('body','')} {row.get('from','')}".lower()
     if any(k in text for k in TRANSACTION_KEYWORDS):
@@ -208,43 +183,20 @@ def generate_transactions_df(filtered_df):
             }
             transactions_data.append(transaction)
     return pd.DataFrame(transactions_data)
-    date_str = pd.Timestamp.now().strftime('%Y-%m-%d')
-    log_dir = os.path.join('Output', 'logs', date_str)
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, 'spend_analysis_log.csv')
-
-    # Create a DataFrame for the new log data
-    log_df = pd.DataFrame({
-        'user': [user],
-        'date': [date_str],
-        'total_emails': [category_counts.sum()],
-        'transaction_emails': [category_counts.get('Transaction', 0)],
-        'bank_emails': [category_counts.get('Bank', 0)],
-        'shopping_emails': [category_counts.get('Shopping', 0)],
-        'ecommerce_emails': [category_counts.get('Ecommerce', 0)],
-        'other_emails': [category_counts.get('Other', 0)],
-        'emails_per_day': [emails_per_day.to_dict()]
-    })
-
-    # Append to the CSV file
-    if os.path.exists(log_file):
-        log_df.to_csv(log_file, mode='a', header=False, index=False)
-    else:
-        log_df.to_csv(log_file, mode='w', header=True, index=False)
 
 def insert_transactions_to_mongodb(transactions_df):
-    logger.info("Inserting transactions into MongoDB 'user_transactions' collection...")
+    logger.info("Inserting transactions into MongoDB 'usertransactions' collection...")
     db = mongodb_client()
     if db is None:
         logger.error("Failed to connect to MongoDB. Cannot insert transactions.")
         return
     try:
-        collection = db["user_transactions"]
+        collection = db["usertransactions"]
         # Convert DataFrame to a list of dictionaries (JSON documents)
         records = transactions_df.to_dict(orient='records')
         if records:
             collection.insert_many(records)
-            logger.info(f"Successfully inserted {len(records)} transactions into 'user_transactions' collection.")
+            logger.info(f"Successfully inserted {len(records)} transactions into 'usertransactions' collection.")
         else:
             logger.info("No transactions to insert into MongoDB.")
     except Exception as e:

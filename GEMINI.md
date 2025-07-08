@@ -21,7 +21,7 @@ The `pycode/src/Transactions/Txns.py` script is responsible for analyzing user e
 - Generates and saves various charts (pie charts for categories and transaction types, bar charts for top merchants, and time-series plots for weekly/monthly spend) for each user.
 - Logs analysis summaries to a CSV file (`Output/logs/<date>/spend_analysis_log.csv`).
 - Generates a comprehensive HTML dashboard (`Output/dash/<date>/spend_dashboard.html`) displaying all charts for all users.
-- Transforms extracted transaction data into a structured format (`UserTransaction` schema) and inserts it into a MongoDB collection (`user_transactions`).
+- Transforms extracted transaction data into a structured format (`UserTransaction` schema) and inserts it into a MongoDB collection (`usertransactions`).
 
 **UserTransaction Schema:**
 ```typescript

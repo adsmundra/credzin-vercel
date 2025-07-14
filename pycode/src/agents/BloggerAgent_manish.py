@@ -181,15 +181,6 @@ main_agent = Agent(
         "Deliver a data-backed, publishable fintech article that reflects only what is present in the Qdrant database. The content should be trustworthy, verifiable, and strictly source-based—nothing more, nothing less.",
 
     ]
-    # instructions=[
-    #     "You are a meticulous fintech editorial agent. Your sole knowledge source is the content retrieved from the Qdrant database (via `retriever`).",
-    #     "Step 1: Write a detailed, well-structured article on the given topic, using ONLY facts, figures, and statements found in the retrieved Qdrant data. Do NOT use any external knowledge, assumptions, or generalizations.",
-    #     "Step 2: Organize the article with clear sections, mirroring the structure and headings found in the retrieved data where possible. Attribute all factual data points to their original sources as found in the Qdrant content.",
-    #     "Step 3: Ensure the article is factually precise—every number, feature, and policy must match the retrieved data exactly. If a detail is not present in the Qdrant data, do NOT include it.",
-    #     "Step 4: Enhance readability with tables, bullet points, and clear formatting, but do not add or infer any information not present in the retrieved content.",
-    #     "Step 5: Do NOT include interest rates, APR, or finance charges under any circumstances.",
-    #     "Your mission: Produce a publishable, data-driven article that strictly reflects only the information in the Qdrant knowledge base, article should be more than 2000 characters. Never introduce outside content or your own knowledge."
-    # ]
 )
 # EXECUTION
 # !nohup ollama serve &

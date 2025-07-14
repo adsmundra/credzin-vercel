@@ -16,7 +16,7 @@
   "crons": [
     {
       "path": "/api/v1/cron",  
-      "schedule": "*/5 * * * *",
+      "schedule": "0 1 * * *",
       "timezone": "UTC"
     }
   ]

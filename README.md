@@ -198,7 +198,6 @@ Rel(email_provider, mongodb, "Sends emails to", "via Gmail API/IMAP (fetched by 
 ```
 
 
-
 ## Technologies Used
 
 *   **Python:** Pandas, NumPy, Matplotlib, FastAPI, LangChain, PyMongo, SpaCy, Sentence-Transformers, Hugging Face Transformers.
@@ -207,6 +206,7 @@ Rel(email_provider, mongodb, "Sends emails to", "via Gmail API/IMAP (fetched by 
 *   **Databases:** MongoDB, Neo4j, Qdrant, ChromaDB.
 *   **Orchestration:** Apache Airflow.
 *   **Containerization:** Docker.
+
 
 ## License
 

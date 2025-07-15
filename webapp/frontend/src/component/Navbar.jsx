@@ -132,6 +132,7 @@ const Navbar = () => {
               <Search size={24} />
             </button>
           )}
+
           {!isAuthPage && (
             <div className="text-white">
               <NotificationBell />
@@ -156,38 +157,22 @@ const Navbar = () => {
                 Home
               </button>
             </li>
-            <li>
+            {/* <li>
               <button
                 onClick={handleWebsiteClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Website
               </button>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <button
                 onClick={handleBlogClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Articles
               </button>
-            </li>
-            <li>
-              {/* <button
-                onClick={() => navigate("/bill-pay")}
-                className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
-              >
-                Bill Pay
-              </button> */}
-
-              <button
-                onClick={() => navigate("/bill-pay")}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 flex items-center"
-              >
-                Bill Pay
-              </button>
-
-            </li>
+            </li> */}
             <li>
               <NotificationBell />
             </li>

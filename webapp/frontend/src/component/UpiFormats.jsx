@@ -7,7 +7,7 @@ const upiFormats = [
 	{
 		status: "working",
 		bank: "ICICI",
-		format: "ccpay[16 digit card number]@icici",
+		format: "[10 digit mobile number]@icici",
 	},
 	{
 		status: "working",
@@ -23,7 +23,7 @@ const upiFormats = [
 	{
 		status: "working",
 		bank: "SBI",
-		format: "Sbicard[16 digit card number]@SBI (Not working for me)",
+		format: "[10 digit mobile number]@sbi",
 	},
 ];
 

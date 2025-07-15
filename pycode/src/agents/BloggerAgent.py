@@ -14,9 +14,9 @@ from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 # Opik imports
-os.environ["OPIK_API_KEY"] = "OoELaezFSqRJFAzN5VyQx2ODc"
+import opik
 from opik import Opik, track
-from opik.evaluation import evaluate
+from opik.evaluation import evaluate_prompt, evaluate
 from opik.evaluation.metrics import Hallucination, AnswerRelevance, Moderation
 
 from utils.logger import configure_logging
@@ -27,8 +27,9 @@ from DataLoaders.QdrantDB import qdrantdb_client
 logger = configure_logging("BloggerAgent")
 setup_env()
 
-# Initialize Opik client
-opik_client = Opik()
+# === Opik Configuration ===
+os.environ["OPIK_API_KEY"] = "V26aYJ5ji7OScGEifvpnhRIe5" 
+os.environ["OPIK_WORKSPACE"] = "vikram-kumawat"
 
 # === Qdrant setup for both collections ===
 qdrant_client = qdrantdb_client()
@@ -258,7 +259,7 @@ def create_editor_team():
         name="Editor",
         mode="parallel",
         model=ollama_model,
-        members=[searcher, writer, grader, evaluator],
+        members=[searcher, grader, writer, evaluator],
         show_tool_calls=True,
         markdown=True,
         debug_mode=True,
@@ -303,7 +304,7 @@ def evaluate_article_with_opik(article: str, topic: str, sources: List[str], con
     # Only use task argument, no metrics argument
     evaluation_results = evaluate(
         dataset=evaluation_data,
-        task=lambda x: x["output"]
+        task="text-generation for financial article",
     )
     quality_score = article_quality_metric.score(article, topic, sources)
     results = {
@@ -395,6 +396,3 @@ if __name__ == "__main__":
 
 
         
-
-
-

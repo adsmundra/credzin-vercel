@@ -37,11 +37,14 @@ import Cookies from "js-cookie";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import BillPay from "./pages/BillPay";
+import flagsmith from "flagsmith";
 
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isBillFeatureEnabled, setIsBillFeatureEnabled] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -68,6 +71,17 @@ function App() {
   //     navigate("/login");
   //   }
   // }, []);
+
+  useEffect(() => {
+    flagsmith.init({
+      environmentID: "cpYZqHctFvRMwFAXoN4eHd", // Paste your key here
+      onChange: () => {
+        const flagValue = flagsmith.hasFeature("bill_pay");
+        setIsBillFeatureEnabled(flagValue);
+        localStorage.setItem("billFeatureEnabled", JSON.stringify(flagValue));
+      },
+    });
+  }, []);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -292,7 +306,7 @@ function App() {
         error.response?.data || error.message
       );
     }
-  };                
+  };
 
   // Step 4: Run once on mount
   useEffect(() => {
@@ -344,13 +358,15 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="#" element={<PrivacyPolicy />}></Route>
+        <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
         <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />}></Route>
         <Route path="/reset-password" element={<ResetPassword />} />{" "}
-        <Route path="/bill-pay" element={<BillPay />} />{" "}
+        {isBillFeatureEnabled && (
+          <Route path="/bill-pay" element={<BillPay />} />
+        )}
       </Routes>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

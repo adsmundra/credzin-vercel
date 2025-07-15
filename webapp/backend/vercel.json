@@ -4,7 +4,11 @@
     {
       "src": "index.js",
       "use": "@vercel/node",
-      "config": { "includeFiles": ["dist/**"] }
+      "config": {
+        "includeFiles": [
+          "dist/**"
+        ]
+      }
     }
   ],
   "routes": [
@@ -15,9 +19,8 @@
   ],
   "crons": [
     {
-      "path": "/api/v1/cron",  
-      "schedule": "0 1 * * *",
-      "timezone": "UTC"
+      "path": "/api/v1/cron",
+      "schedule": "0 1 * * *"
     }
   ]
 }

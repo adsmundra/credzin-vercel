@@ -6,7 +6,6 @@ import com.credzin.reward.RewardValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 import java.util.*
 
@@ -15,7 +14,7 @@ import java.util.*
  * Maps to the partner_spend_based_reward_value table in the database.
  */
 @Entity
-@Table(name = "partner_spend_based_reward_value")
+@Table(schema = "reward", name = "partner_spend_based_reward_value")
 data class JpaPartnerSpendBasedRewardValueEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,9 +30,6 @@ data class JpaPartnerSpendBasedRewardValueEntity(
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime? = null,
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    val updatedAt: LocalDateTime? = null,
 ) {
     /**
      * Converts this JPA entity to a domain RewardValue.

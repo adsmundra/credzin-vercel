@@ -36,11 +36,14 @@ import CardBenifits from "./pages/CardBenifits";
 import Cookies from "js-cookie";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-
+import BillPay from "./pages/BillPay";
+import flagsmith from 'flagsmith';
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isBillFeatureEnabled, setIsBillFeatureEnabled] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -57,7 +60,7 @@ function App() {
 
     return !!token; // returns true if token exists, false otherwise
   };
-
+//added comn
   // useEffect(() => {
   //   const savedUser = Cookies.get('user_Auth');
   //   if( savedUser && savedUser!=='undefined') {
@@ -67,6 +70,17 @@ function App() {
   //     navigate("/login");
   //   }
   // }, []);
+
+  useEffect(() => {
+    flagsmith.init({
+      environmentID: "cpYZqHctFvRMwFAXoN4eHd", // Paste your key here
+      onChange: () => {
+        const flagValue = flagsmith.hasFeature("bill_pay");
+        setIsBillFeatureEnabled(flagValue);
+        localStorage.setItem("billFeatureEnabled", JSON.stringify(flagValue));
+      },
+    });
+  }, []);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -81,7 +95,7 @@ function App() {
       localStorage.setItem("token", tokenFromURL);
       // sessionStorage.setItem("token", tokenFromURL);
       Cookies.set("user_Auth", tokenFromURL, {
-        expires: new Date(Date.now() + 45 * 60 * 1000),
+        expires: 10,
         sameSite: "Lax",
       });
       // Clean the URL
@@ -110,20 +124,39 @@ function App() {
   }, [location, navigate]);
 
   const get_all_bank = async () => {
+    const cachedBanks = sessionStorage.getItem("banks");
+
+    if (cachedBanks) {
+      //  Load banks from cache
+      dispatch(setBankList(JSON.parse(cachedBanks)));
+      return;
+    }
+
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
       const banks = response.data?.banks || [];
       dispatch(setBankList(banks));
+
+      // 💾 Cache banks in sessionStorage
+      sessionStorage.setItem("banks", JSON.stringify(banks));
     } catch (err) {
       console.error("Error fetching banks:", err.response?.data || err);
     }
   };
 
+
   const getUserFullDetails = async () => {
     const token = localStorage.getItem("token");
+    if (!token) return;
 
-    if (!token) {
-      console.warn("No token found");
+    const cachedUser = sessionStorage.getItem("userDetails");
+
+    if (cachedUser) {
+      const userData = JSON.parse(cachedUser);
+      const { CardAdded, ...userInfo } = userData;
+
+      dispatch(setUser(userInfo));
+      if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
       return;
     }
 
@@ -131,30 +164,19 @@ function App() {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/auth/userdetail`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (response.status === 200) {
-        console.log("User full details:", response.data.data);
         const userData = response.data.data;
-
         const { CardAdded, ...userInfo } = userData;
-        console.log("Added cards:", CardAdded);
-
-        console.log("User info:", userInfo);
 
         dispatch(setUser(userInfo));
-        // dispatch(setUser(userData));
+        if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
 
-        // Store CardAdded in the cart slice
-        if (Array.isArray(CardAdded)) {
-          dispatch(setCart(CardAdded));
-        }
-
-        console.log("User and cards set in Redux.");
+        //  Cache entire user data
+        sessionStorage.setItem("userDetails", JSON.stringify(userData));
       }
     } catch (error) {
       console.error(
@@ -164,29 +186,33 @@ function App() {
     }
   };
 
+  
   const getRecommendedCard = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.warn("No token found");
+    if (!token) return;
+
+    const cachedRecommended = sessionStorage.getItem("recommendedCards");
+    if (cachedRecommended) {
+      dispatch(setRecommendedList(JSON.parse(cachedRecommended)));
       return;
     }
+
     try {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/card/recommendedcard`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Recommended cards:", response.data);
 
       if (response.status === 200) {
-        console.log("Recommended cards:", response.data.cards);
         const recommendedCards = response.data.cards;
         dispatch(setRecommendedList(recommendedCards));
 
-        // dispatch(setCart(recommendedCards));
+        sessionStorage.setItem(
+          "recommendedCards",
+          JSON.stringify(recommendedCards)
+        );
       }
     } catch (error) {
       console.error(
@@ -195,6 +221,7 @@ function App() {
       );
     }
   };
+
   // Step 4: Run once on mount
   useEffect(() => {
     const isAuthenticated = checkAuth();
@@ -245,10 +272,13 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="/privacy-policy" element={<PrivacyPolicy />}></Route>
+        <Route path="#" element={<PrivacyPolicy />}></Route>
         <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
         <Route path="/forgot-password" element={<ForgotPassword />}></Route>
         <Route path="/reset-password" element={<ResetPassword />} />{" "}
+        {isBillFeatureEnabled && (
+          <Route path="/bill-pay" element={<BillPay />} />
+        )}
       </Routes>
       <Footer />
     </div>

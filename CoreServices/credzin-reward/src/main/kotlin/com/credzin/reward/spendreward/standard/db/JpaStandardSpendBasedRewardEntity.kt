@@ -8,7 +8,6 @@ import com.credzin.reward.spendreward.standard.domain.StandardSpendBasedRewardEn
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import jakarta.persistence.*
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.time.LocalDateTime
 import java.util.*
 
@@ -17,7 +16,7 @@ import java.util.*
  * Maps to the standard_spend_based_reward table in the database.
  */
 @Entity
-@Table(name = "standard_spend_based_reward")
+@Table(schema = "reward", name = "standard_spend_based_reward")
 @Suppress("JpaDataSourceORMInspection") // Kotlin JPA plugin generates no-arg constructor at compile-time
 data class JpaStandardSpendBasedRewardEntity(
     @Id
@@ -34,9 +33,6 @@ data class JpaStandardSpendBasedRewardEntity(
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: LocalDateTime? = null,
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    val updatedAt: LocalDateTime? = null,
 ) {
     /**
      * Converts this JPA entity to the domain entity.

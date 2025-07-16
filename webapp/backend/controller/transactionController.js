@@ -4,6 +4,7 @@ const UserTransactionCalculatedReward = require('../models/transaction/userTrans
 const Category = require('../models/transaction/category');
 const User = require('../models/User');
 const Card = require('../models/card');
+const UserCard = require('../models/user_Card');
 
 // Helper to find or create a category by name
 async function getOrCreateCategory(name) {
@@ -21,10 +22,14 @@ async function getOrCreateMerchant(name) {
   if (!m) m = await Merchant.create({ name });
   return m;
 }
-// Helper to find a card by name
-async function getCardByName(name) {
-  if (!name) return null;
-  return await Card.findOne({ card_name: name });
+// Helper to find an active user card by generic card and user
+async function getUserCard(userId, genericCardId) {
+  if (!userId || !genericCardId) return null;
+  return await UserCard.findOne({ 
+    user_id: userId, 
+    generic_card_id: genericCardId,
+    user_card_status: 'ACTIVE'
+  });
 }
 // Helper to find a user by email
 async function getUserByEmail(email) {
@@ -42,11 +47,15 @@ exports.saveTransaction = async (req, res) => {
       if (!user) return res.status(404).json({ success: false, message: 'User not found' });
       userId = user._id;
     }
-    let cardId = null;
+    let user_card_id = null;
     if (cardName) {
-      const card = await getCardByName(cardName);
+      // Find the generic card first
+      const card = await Card.findOne({ card_name: cardName });
       if (!card) return res.status(404).json({ success: false, message: 'Card not found' });
-      cardId = card._id;
+      // Now find the user's card
+      const userCard = await getUserCard(userId, card._id);
+      if (!userCard) return res.status(404).json({ success: false, message: 'User card not found' });
+      user_card_id = userCard._id;
     }
     let merchantId = null;
     if (merchantName && Merchant) {
@@ -61,7 +70,7 @@ exports.saveTransaction = async (req, res) => {
     // Create transaction
     const transaction = await UserTransaction.create({
       userId,
-      cardId,
+      user_card_id,
       dateTime,
       amount,
       merchantId: merchantId || null,
@@ -117,7 +126,7 @@ exports.getUserTransactions = async (req, res) => {
     const transactions = await UserTransaction.find({ userId })
       .sort({ dateTime: -1 })
       .populate('categoryId', 'name description')
-      .populate('cardId', 'card_name image_url bank')
+      .populate('user_card_id')
       .lean();
 
     // Fetch rewards for each transaction

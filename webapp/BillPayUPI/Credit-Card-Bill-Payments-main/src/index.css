@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply antialiased; /* Smoother font rendering */
+}
+
+.pattern-background {
+  /* Subtle gradient background */
+  background: linear-gradient(135deg, #f5f7fa 0%, #e0e7ff 100%); 
+  /* Optional: Keep a subtle pattern if desired, adjust opacity */
+  /* background-image: radial-gradient(rgba(12, 12, 12, 0.05) 1px, transparent 0); */
+  /* background-size: 30px 30px; */
+  /* background-position: -5px -5px; */
+  z-index: -10;
+}
+
+/* Hide number input spinners - already applied via Tailwind classes */
+/* input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield; 
+} */
+
+/* Custom focus ring color if needed */
+/* @layer utilities {
+  .focus-ring-indigo {
+    @apply focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+  }
+} */

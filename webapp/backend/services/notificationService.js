@@ -283,6 +283,11 @@ class NotificationService {
         message: 'Your card has been added to your collection.',
         channels: { inApp: true, email: false, whatsapp: false }
       },
+      card_removed: {
+        title: 'Card Removed Successfully!',
+        message: 'Your card has been removed from your collection.',
+        channels: { inApp: true, email: false, whatsapp: false }
+      },
       system_alert: {
         title: 'System Alert',
         message: 'Important system update or maintenance notification.',

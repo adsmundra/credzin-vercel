@@ -1,0 +1,93 @@
+{
+  "configVersion": 1,
+  "timestamp": 1726496312860,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/chunk-AYCKF5VV.js",
+        "/disclaimer.component-RMWCZHY7.js",
+        "/favicon.ico",
+        "/index.html",
+        "/main-7YEBVICV.js",
+        "/manifest.webmanifest",
+        "/polyfills-SCHOHYNV.js",
+        "/styles-2SES6NZV.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/icons/icon-144x144.png",
+        "/icons/icon-192x192.png",
+        "/icons/icon-512x512.png",
+        "/icons/icon-72x72.png",
+        "/icons/icon-96x96.png",
+        "/media/fa-brands-400-CNBICIQT.ttf",
+        "/media/fa-brands-400-MDS4TU4L.woff2",
+        "/media/fa-regular-400-2FI4ICQD.ttf",
+        "/media/fa-regular-400-N56QV3DR.woff2",
+        "/media/fa-solid-900-XVWCCN5V.ttf",
+        "/media/fa-solid-900-Z3HFQTXF.woff2",
+        "/media/fa-v4compatibility-4Q6RMATN.woff2",
+        "/media/fa-v4compatibility-TNIB7AHA.ttf"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/chunk-AYCKF5VV.js": "7484dec36295a68a2cab74094a58ece6b851a74f",
+    "/disclaimer.component-RMWCZHY7.js": "461360b46e4d6ea57fb800e9e6ece098435182f0",
+    "/favicon.ico": "dbd18439720fd9b2e03a3d3d84a4957b842c3e9a",
+    "/icons/icon-144x144.png": "5f2a14fefca8d41d3c94e696d01ca040b926c211",
+    "/icons/icon-192x192.png": "0257a5465bc0f8373b1b608d85538ae5365bde0b",
+    "/icons/icon-512x512.png": "d4b1e9a8a1a585ed9bf63798c320c1df4d3be421",
+    "/icons/icon-72x72.png": "147b34e68dcf8300ee1e739de3b9951986e2733b",
+    "/icons/icon-96x96.png": "b6ebb8bcb0d4bddc4995e3019ab87cb04bbe1caa",
+    "/index.html": "7168f5c6b85640a7ddd63aa07674e90b6825e8b3",
+    "/main-7YEBVICV.js": "469c12f649ee364ff2f3dc32a31dd7de9d0c5ee7",
+    "/manifest.webmanifest": "b2ea5a82aa3b91092e0c6576dab6154ff1632781",
+    "/media/fa-brands-400-CNBICIQT.ttf": "7ce89c71d5a51ac65b159c71422783dd86529c66",
+    "/media/fa-brands-400-MDS4TU4L.woff2": "e948290773216dc1b50c2121314a8cf918c22b54",
+    "/media/fa-regular-400-2FI4ICQD.ttf": "775e2ecfc18d22b177274453d4c014ca6be63208",
+    "/media/fa-regular-400-N56QV3DR.woff2": "46e272db3db1072791628679bc469112c8e41017",
+    "/media/fa-solid-900-XVWCCN5V.ttf": "2b8e11389d98122399667cf64941eb58497dc128",
+    "/media/fa-solid-900-Z3HFQTXF.woff2": "69335cd6a6ac82253ea5545899cccde35af39131",
+    "/media/fa-v4compatibility-4Q6RMATN.woff2": "87d0bbc38baa356297521c41ed8ca7d78e8d16e2",
+    "/media/fa-v4compatibility-TNIB7AHA.ttf": "bd27e43f3d1e5019faaabc9ec6c5d3d7c5f100ef",
+    "/polyfills-SCHOHYNV.js": "d45c76c5960bab3ace7fd6d211b9579456241f8a",
+    "/styles-2SES6NZV.css": "acc27ab1298f227050b5fbda5c3bfe37d3ae6f41"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}

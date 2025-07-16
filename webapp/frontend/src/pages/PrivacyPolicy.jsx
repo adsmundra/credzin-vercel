@@ -5,7 +5,7 @@ const PrivacyPolicy = () => {
     return (
         <>
             <Navbar />
-            <div>PrivacyPolicy</div>
+            <div style={{marginTop:"10%"}}>PrivacyPolicy</div>
 
         </>
     )

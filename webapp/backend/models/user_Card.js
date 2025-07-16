@@ -1,117 +1,58 @@
-const mongoose = require('mongoose')
-const { Schema } = mongoose;
+const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
-const userCardSchema = new Schema({
-    cardId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'credit_cards',
-        required: false,
-    },
-    card_name: {
-        type: String,
-    },
-    dateTime: {
-        type: Date,
-        required: true,
-    },
-    amount: {
-        value: {
-            type: Number,
-            required: true,
-        },
-        currency: {
-            type: String,
-            default: 'INR',
-        },
-    },
-    merchantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Merchant',
-        required: false,
-    },
-    merchant_name: {
-        type: String,
-
-    },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: false,
-    },
-    user_email: {
-        type: String,
-
-    },
-    categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: false,
-    },
-    category_name: {
-        type: String,
-
-    },
-    metadata: {
-        messageId: {
-            type: String,
-            required: true,
-        },
-        categorySource: {
-            type: String,
-            //   required: true,
-            enum: ['gmail', 'sms', 'manual', 'api'],
-        },
-    },
-    actualReward: {
-        value: {
-            type: Number,
-            required: true,
-        },
-        unit: {
-            type: String,
-            required: true,
-            default: "points"
-        },
-    },
-    calculatedRewards: [
-        {
-            actualRewardCalculatorId: {
-                type: String,
-                required: true,
-            },
-            reward: {
-                value: {
-                    type: Number,
-                    required: true,
-                },
-                unit: {
-                    type: String,
-                    required: true,
-                    default:'points',
-                },
-            },
-        },
-        {
-            potentialRewardCalculatorId: {
-                type: String,
-                required: true,
-            },
-            reward: {
-                value: {
-                    type: Number,
-                    required: true,
-                },
-                unit: {
-                    type: String,
-                    required: true,
-                    default:'points',
-                },
-            },
-        },
-
-    ],
-}, {
-    timestamps: true,
+// Enum for user card status
+const UserCardStatus = Object.freeze({
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
 });
 
-module.exports = mongoose.model('user_card', userCardSchema);
+const userCardSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: uuidv4,
+  },
+  user_id: {
+    type: String,
+    required: true,
+  },
+  generic_card_id: {
+    type: String,
+    required: true,
+  },
+  card_nickname: {
+    type: String,
+    trim: true,
+  },
+  card_type: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+  user_card_status: {
+    type: String,
+    enum: Object.values(UserCardStatus),
+    default: UserCardStatus.ACTIVE,
+  },
+  card_added_date: {
+    type: Date,
+    default: Date.now,
+  },
+  card_recommended_for: {
+    type: String,
+    trim: true,
+  },
+}, {
+  timestamps: true,
+  versionKey: false,
+});
+
+// Expose enum
+Object.assign(userCardSchema.statics, {
+  UserCardStatus,
+});
+
+// Add compound unique index to prevent duplicate user cards
+userCardSchema.index({ user_id: 1, generic_card_id: 1 }, { unique: true });
+
+module.exports = mongoose.model('user_cards', userCardSchema);

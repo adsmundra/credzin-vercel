@@ -1,4 +1,5 @@
 const { google } = require('googleapis');
+const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const userOauthDetails = require("../models/user_oauth_details")
@@ -10,14 +11,23 @@ const path = require('path');
 // Import the signup function from Auth.js
 const { signup } = require('./Auth');
 const { isBuffer } = require('util');
+const { emailTransporter } = require('../services/notificationService');
+const { resolveNaptr } = require('dns');
+dotenv.config();
 
-const client_secret = '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';
-const client_id = '877634687727-5vce2nfr61eeopaikbhgk100670vplkg.apps.googleusercontent.com';
+const client_secret =process.env.GOOGLE_CLIENT_SECRET 
+const client_id = process.env.GOOGLE_CLIENT_ID
 
-// Use environment variable for redirect URI or default to port 4000
-const PORT = 5000;
-const redirect_uri = `https://api.app.credzin.com/api/v1/auth/oauth/oauth2callback`
+// // Use environment variable for redirect URI or default to port 4000
+const PORT = process.env.PORT 
+const redirect_uri = process.env.GOOGLE_CALLBACK_URL
 //const redirect_uri = `http://localhost:5000/api/v1/auth/oauth/oauth2callback`
+
+// const client_secret=process.env.GOOGLE_CLIENT_SECRET
+// const client_id = process.env.GOOGLE_CLIENT_ID
+// Use environment variable for redirect URI or default to port 4000
+// const PORT = process.env.PORT;
+// const redirect_uri = process.env.GOOGLE_CALLBACK_URL
 
 const oAuth2Client = new google.auth.OAuth2(
     client_id,
@@ -36,7 +46,7 @@ exports.getAuthUrl = async (req, res) => {
             scope: SCOPES,
         });
         console.log('Redirecting to auth URL');
-
+        console.log(authUrl+"\n: " + client_id+"\n: " + client_secret+"\n: " + oAuth2Client+"\n: " +redirect_uri)
         // Redirect the user directly to Google OAuth
         res.redirect(authUrl);
     }
@@ -122,14 +132,16 @@ exports.oauthCallback = async (req, res) => {
             const existing_user = await User.findOne({ email: email });
             if (existing_user) {
                 const newJwt = jwt.sign({ id: existing_user._id }, process.env.JWT_SECRET, {
-                    expiresIn: '1h',
+                    expiresIn: '10d',
                 });
                 existing_user.token = newJwt;
                 await existing_user.save();
                 req.user = { email: email };
-                await exports.fetchGmailMessages(req, res);
+                await exports.fetchGmailMessages(email);
 
-                return res.redirect(`https://api.app.credzin.com/home?token=${existing_user.token}`);
+                // return res.redirect(`https://app.credzin.com/home?token=${existing_user.token}`);
+                return res.redirect(`${process.env.CLIENT_URL}?token=${existing_user.token}`)
+                // return res.redirect(`http://localhost:3000/home?token=${existing_user.token}`);
 
 
             }
@@ -142,7 +154,7 @@ exports.oauthCallback = async (req, res) => {
                 contact,
             });
             const jwt_token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-                expiresIn: '1h',
+                expiresIn: '10d',
             });
             user.token = jwt_token;
             await user.save();
@@ -163,8 +175,10 @@ exports.oauthCallback = async (req, res) => {
 
             req.user = { email: user_email };
             console.log('user:', user);
-            await exports.fetchGmailMessages(req, res);
-            return res.redirect(`https://api.app.credzin.com/googleAdditionaldetails?token=${user.token}`);
+            await exports.fetchGmailMessages(user_email);
+            // return res.redirect(`https://app.credzin.com/googleAdditionaldetails?token=${user.token}`);
+            return res.redirect(`${process.env.CLIENT_URL}/googleAdditionaldetails?token=${user.token}`);
+
 
 
 
@@ -197,15 +211,16 @@ exports.oauthCallback = async (req, res) => {
     }
 }
 
-exports.fetchGmailMessages = async (req, res) => {
+exports.fetchGmailMessages = async (email) => {
     try {
-        const email = req.body?.email || req.user?.email;
+        // const email = req.body?.email || req.user?.email;
+        // const email='aashirwadk@thewelzin.com'
         if (!email) {
-            return res.status(400).json({ success: false, message: 'Email is required' });
+            return { success: false, message: 'Email is required' };
         }
         let oauthDetails = await userOauthDetails.findOne({ user_email: email });
         if (!oauthDetails) {
-            return res.status(401).json({ success: false, message: 'No OAuth details found for user' });
+            return { success: false, message: 'No OAuth details found for user' };
         }
         let accessToken = oauthDetails.access_token;
         const refreshToken = oauthDetails.refresh_token;
@@ -237,11 +252,11 @@ exports.fetchGmailMessages = async (req, res) => {
                 console.log('Access token refreshed and saved.');
             } catch (refreshError) {
                 console.error('Failed to refresh access token:', refreshError.response?.data || refreshError.message);
-                return res.status(401).json({
+                return {
                     success: false,
                     message: 'Failed to refresh access token',
                     error: refreshError.response?.data || refreshError.message
-                });
+                };
             }
         }
 
@@ -253,18 +268,21 @@ exports.fetchGmailMessages = async (req, res) => {
         // Fetch messages using the access token directly
         console.log('Fetching Gmail messages for user:', email);
         let messages = [];
+        console.log("HII")
         try {
+            console.log("call sent")
             const response = await axios.get('https://gmail.googleapis.com/gmail/v1/users/me/messages', {
                 headers: { 'Authorization': `Bearer ${accessToken}` }
             });
+            console.log("this is the respose ",response)
             messages = response.data.messages || [];
         } catch (error) {
             console.error('Error fetching Gmail messages:', error.response?.data || error.message);
-            return res.status(500).json({
+            return{
                 success: false,
                 message: 'Error fetching Gmail messages',
                 error: error.response?.data || error.message
-            });
+            };
         }
         const processedMessages = [];
 
@@ -317,17 +335,17 @@ exports.fetchGmailMessages = async (req, res) => {
             processedMessages.push(processedMessage);
         }
 
-        return res.status(200).json({
+        return {
             success: true,
             messages: processedMessages
-        });
+        };
 
     } catch (error) {
         console.error('Error fetching Gmail messages:', error);
-        return res.status(500).json({
+        return{
             success: false,
             message: 'Error fetching Gmail messages',
             error: error.message
-        });
+        };
     }
 }

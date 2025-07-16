@@ -8,8 +8,6 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const passport = require('passport');
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
 const { connect: connectDB } = require('./config/database');
 
 dotenv.config();
@@ -57,47 +55,34 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // Passport initialization
-app.use(passport.initialize());
-require('./config/passport');
-
-// === Auto-create /images folder for uploads ===
-const imageDir = path.join(__dirname, 'images');
-if (!fs.existsSync(imageDir)) {
-  fs.mkdirSync(imageDir, { recursive: true });
-}
-
-// === Serve profile images statically ===
-
-
-// Add this CORS middleware BEFORE serving static files
-// 
-app.use("/images", express.static(imageDir));
-// app.use('/images', express.static(path.join(__dirname, 'images'), {
-//   setHeaders: (res) => {
-//     res.set({
-//       'Access-Control-Allow-Origin': process.env.CLIENT_URL || 'http://localhost:3000',
-//       'Cross-Origin-Resource-Policy': 'cross-origin'
-//     });
-//   }
-// }));
+// app.use(passport.initialize());
+// require('./config/passport');
 // === ROUTES ===
 const authRoutes = require('./routes/user');
-const googleRoutes = require('./routes/googleAuthRoutes');
+// const googleRoutes = require('./routes/googleAuthRoutes');
 const cardRoutes = require('./routes/cardroutes');
 const oauthRoutes = require('./routes/oauthRoute');
 const profileRoutes = require('./routes/profileRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const groupInvitationRoutes = require('./routes/groupInvitationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const cronRoutes = require('./routes/cronRoutes');
+const yodleeRoutes = require('./routes/yodlee');
 
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/auth/google', googleRoutes);
+// app.use('/api/v1/auth/google', googleRoutes);
 app.use('/api/v1/card', cardRoutes);
 app.use('/api/v1/auth/oauth', oauthRoutes);
 app.use('/api/profile', profileRoutes); // <-- profile route for image upload
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/v1/group/invitation', groupInvitationRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/cron', cronRoutes);
+app.use('/api/v1/yodlee', yodleeRoutes);
+
+// startCronJob();
+
+
 
 // === Health Check ===
 app.get('/health', (req, res) => {
@@ -124,7 +109,7 @@ app.use((err, _req, res, _next) => {
 
 // === Connect to MongoDB ===
 connectDB();
-
+// startCronJob();
 // === Start Server ===
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

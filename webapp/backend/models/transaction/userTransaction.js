@@ -23,9 +23,9 @@ const userTransactionMetadataSchema = new mongoose.Schema({
 }, { _id: false });
 
 const userTransactionSchema = new mongoose.Schema({
-  cardId: {
+  user_card_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'credit_cards', // Assuming this is your card model
+    ref: 'user_cards', // Now references user_card
     required: true,
     index: true,
   },

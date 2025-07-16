@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+The project is made using graphql. Always adhere to graphql best practices. 

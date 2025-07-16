@@ -1,7 +1,7 @@
 package com.credzin.reward.spendreward.standard.application
 
-import com.credzin.featurestore.merchant.MerchantFeatureStoreAdapter
-import com.credzin.featurestore.spendbased.standard.SpendBasedFeatureStore
+import com.credzin.adapter.featurestore.merchant.MerchantFeatureStoreAdapter
+import com.credzin.adapter.featurestore.spendbased.standard.SpendBasedFeatureStore
 import com.credzin.reward.RewardTransactionCreateInput
 import com.credzin.reward.spendreward.standard.domain.StandardSpendBasedRewardAggregate
 import com.credzin.reward.spendreward.standard.domain.StandardSpendBasedRewardRepository

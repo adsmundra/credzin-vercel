@@ -1,0 +1,28 @@
+extend type Mutation {
+    rewardTransactionCreate(input: RewardTransactionCreateInput!): RewardTransaction!
+}
+
+input RewardTransactionCreateInput {
+    cardInput: CardInput!
+    merchantInput: MerchantInput!
+    amount: AmountInput!
+    transactionMetadata: RewardTransactionMetadataInput
+}
+
+input RewardTransactionMetadataInput {
+    location: LocationInput
+    transactionChannel: TransactionChannelType
+    userInput: UserInput #can be used by data engineering jobs
+}
+
+input CardInput {
+    id: ID!
+}
+
+input MerchantInput {
+    id: ID!
+}
+
+input UserInput {
+    id: ID!
+}

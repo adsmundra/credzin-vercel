@@ -21,7 +21,7 @@ const Navbar = () => {
   const user = useSelector((state) => state.auth.user);
 
   console.log("Redux Auth USER:-==", user);
-  
+
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
@@ -29,7 +29,9 @@ const Navbar = () => {
   const handleLogout = () => {
     dispatch(logout());
     localStorage.removeItem("token");
+    localStorage.removeItem("loginType");
     Cookies.remove('user_Auth');
+    sessionStorage.clear();
     navigate("/login");
   };
 
@@ -130,6 +132,7 @@ const Navbar = () => {
               <Search size={24} />
             </button>
           )}
+
           {!isAuthPage && (
             <div className="text-white">
               <NotificationBell />
@@ -154,22 +157,22 @@ const Navbar = () => {
                 Home
               </button>
             </li>
-            <li>
+            {/* <li>
               <button
                 onClick={handleWebsiteClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Website
               </button>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <button
                 onClick={handleBlogClick}
                 className="px-3 py-2 hover:bg-blue-700 rounded-lg transition-colors duration-200 flex items-center"
               >
                 Articles
               </button>
-            </li>
+            </li> */}
             <li>
               <NotificationBell />
             </li>

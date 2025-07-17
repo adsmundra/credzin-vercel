@@ -42,7 +42,7 @@ function Login() {
         localStorage.setItem("token", response.data.token);
         // sessionStorage.setItem("token", response.data.token); // Add session storage
         Cookies.set('user_Auth', response.data.token, {
-          expires: new Date(Date.now() + 45 * 60 * 1000),
+          expires: 10,
           sameSite: 'Lax',
         });
       }

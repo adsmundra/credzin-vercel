@@ -132,7 +132,7 @@ exports.oauthCallback = async (req, res) => {
             const existing_user = await User.findOne({ email: email });
             if (existing_user) {
                 const newJwt = jwt.sign({ id: existing_user._id }, process.env.JWT_SECRET, {
-                    expiresIn: '1h',
+                    expiresIn: '10d',
                 });
                 existing_user.token = newJwt;
                 await existing_user.save();
@@ -154,7 +154,7 @@ exports.oauthCallback = async (req, res) => {
                 contact,
             });
             const jwt_token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-                expiresIn: '1h',
+                expiresIn: '10d',
             });
             user.token = jwt_token;
             await user.save();

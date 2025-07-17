@@ -33,7 +33,7 @@ exports.signup = async (req, res) => {
       contact,
     });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '10d',
     });
     user.token = token;
     await user.save();
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
+      expiresIn: '10d',
     });
     user.token = token;
     await user.save();

@@ -4,7 +4,8 @@ const router= express.Router()
 const {verifyToken} = require("../middlewares/verifyToken")
 const {createCardGroup,addUserToGroup,getAllCard,
     getDistinctGroupsForUser,getGroupWithMembersAndCards,
-    deleteMember,leaveGroup,deleteGroup,acceptGroupInvitation,rejectGroupInvitation
+    deleteMember,leaveGroup,deleteGroup,acceptGroupInvitation,rejectGroupInvitation,
+    cardDetails
 } = require("../controller/cardpool")
 
 const {Cardfetch, recommended_card}=require("../controller/Card/cardfetch")
@@ -22,6 +23,7 @@ router.get("/getGroupWithMembersAndCards/:groupId",verifyToken,getGroupWithMembe
 router.post("/removeUserFromPool",verifyToken,deleteMember )
 router.post("/leaveGroup",verifyToken,leaveGroup)
 router.delete("/deletePool/:groupId", verifyToken, deleteGroup);
+router.post("/cardDetails", verifyToken, cardDetails);
 
 router.post('/invitation/accept/:invitationId', verifyToken, acceptGroupInvitation);
 router.post('/invitation/reject/:invitationId', verifyToken, rejectGroupInvitation)

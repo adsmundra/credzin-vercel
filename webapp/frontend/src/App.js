@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import {
   Route,
@@ -37,7 +38,9 @@ import Cookies from "js-cookie";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import BillPay from "./pages/BillPay";
-import flagsmith from 'flagsmith';
+import flagsmith from "flagsmith";
+import CardDetails from "./pages/CardDetails";
+
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -60,7 +63,7 @@ function App() {
 
     return !!token; // returns true if token exists, false otherwise
   };
-//added comn
+  //added comn
   // useEffect(() => {
   //   const savedUser = Cookies.get('user_Auth');
   //   if( savedUser && savedUser!=='undefined') {
@@ -144,7 +147,6 @@ function App() {
     }
   };
 
-
   const getUserFullDetails = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -186,7 +188,6 @@ function App() {
     }
   };
 
-  
   const getRecommendedCard = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -279,6 +280,7 @@ function App() {
         {isBillFeatureEnabled && (
           <Route path="/bill-pay" element={<BillPay />} />
         )}
+        <Route path="/carddetails/:id" element={<CardDetails />} />{" "}
       </Routes>
       <Footer />
     </div>

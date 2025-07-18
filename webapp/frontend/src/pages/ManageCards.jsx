@@ -39,7 +39,7 @@ const ManageCards = () => {
         dispatch(addToCart(parsedCart));
       }
     }
-  }, [dispatch,cart]);
+  }, [dispatch, cart]);
 
   const bankOptions = [
     { label: "Select Bank", value: "Select Bank" },
@@ -128,7 +128,7 @@ const ManageCards = () => {
         { cardId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       dispatch(removeFromCart(cardId));
 
       // Refresh user cards since the card is now marked as inactive
@@ -207,7 +207,7 @@ const ManageCards = () => {
       {error && (
         <div className="bg-red-500 text-white px-4 py-2 flex justify-between items-center">
           <span>{error}</span>
-          <button 
+          <button
             onClick={() => setError(null)}
             className="text-white hover:text-gray-200"
           >
@@ -222,7 +222,7 @@ const ManageCards = () => {
       {success && (
         <div className="bg-green-500 text-white px-4 py-2 flex justify-between items-center">
           <span>{success}</span>
-          <button 
+          <button
             onClick={() => setSuccess(null)}
             className="text-white hover:text-gray-200"
           >
@@ -238,13 +238,13 @@ const ManageCards = () => {
         {cart.length === 0 ? (
           <p className="text-[#a2abb3] px-4">No cards in your wallet</p>
         ) : (
-          <div className="divide-y divide-[#2c3135]">
+          <div className="divide-y divide-[#2c3135] " >
             {cart.map((card) => (
               <div
                 key={card._id}
                 className="flex items-center gap-4 bg-[#121416] px-4 min-h-[72px] py-2 justify-between"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 cursor-pointer" onClick={() => navigate(`/carddetails/${card._id}`)}>
                   <div
                     className="bg-center bg-no-repeat aspect-video bg-contain h-6 w-10 shrink-0"
                     style={{ backgroundImage: `url(${card.generic_card?.image_url || "https://via.placeholder.com/150"})` }}
@@ -321,11 +321,10 @@ const ManageCards = () => {
                   return (
                     <label
                       key={card._id}
-                      className={`flex items-center p-2 rounded ${
-                        isAlreadyAdded 
-                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                      className={`flex items-center p-2 rounded ${isAlreadyAdded
+                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                           : 'hover:bg-[#2c3135]'
-                      }`}
+                        }`}
                     >
                       <input
                         type="checkbox"

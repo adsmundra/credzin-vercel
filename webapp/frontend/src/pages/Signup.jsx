@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiEndpoint } from '../api';
 import { toast } from 'react-toastify';
 import CircularProgress from '@mui/material/CircularProgress';
+import LoadingOverlay from '../component/LoadingOverlay';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -67,6 +68,7 @@ const Signup = () => {
       className="relative flex min-h-screen flex-col bg-[#1a1a1a] justify-center items-center overflow-x-hidden"
       style={{ fontFamily: 'Manrope, Noto Sans, sans-serif' }}
     >
+      {loading && (<LoadingOverlay />)}
       <div className="w-full max-w-md">
         <h1 className="text-white text-[22px] font-bold px-4 pt-14 pb-3 text-center">Create your account</h1>
 

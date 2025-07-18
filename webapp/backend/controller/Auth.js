@@ -79,9 +79,9 @@ exports.login = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({ user: userObj, token });
+     return res.status(200).json({ user: userObj, token });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+   return  res.status(500).json({ message: 'Internal server error', error: err.message });
   }
 };
 

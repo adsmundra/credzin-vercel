@@ -34,17 +34,20 @@ exports.Cardfetch=async(req,res)=>{
     }
 }
 
-exports.all_bank=async(req, res)=>{
-    try{
-        const bankNames = await Card.distinct('bank_name', { bank_name: { $ne: null } });
-        res.status(200).json({ banks: bankNames });
+// exports.all_bank=async(req, res)=>{
+//     const start = Date.now(); 
+//     try{
+//         const bankNames = await Card.distinct('bank_name', { bank_name: { $ne: null } });
+//         res.status(200).json({ banks: bankNames });
 
-    }
-    catch(err){
-        // console.error('Error fetching bank names:', err);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-}
+//     }
+//     catch(err){
+//         // console.error('Error fetching bank names:', err);
+//         res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//     const end = Date.now();
+//     console.log(`all_bank executed in ${end - start}ms`);
+// }
 exports.recommended_card = async (req, res) => {
     try {
         // console.log("you are in recommended card");
@@ -80,3 +83,36 @@ exports.recommended_card = async (req, res) => {
         });
     }
 };
+
+
+
+// Top of your file
+let cachedBanks = null;
+let cacheTimestamp = null;
+const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
+exports.all_bank = async (req, res) => {
+  try {
+   
+      const now = Date.now();
+    if (cachedBanks && cacheTimestamp && (now - cacheTimestamp < CACHE_DURATION_MS)) {
+        const end = Date.now();
+        console.log(`all_bank (from cache) executed in ${end - now}ms`);
+      return res.status(200).json({ banks: cachedBanks });
+    }
+
+    const bankNames = await Card.distinct('bank_name', { bank_name: { $ne: null } });
+
+    cachedBanks = bankNames;
+    cacheTimestamp = now;
+
+    const end = Date.now();
+    console.log(`all_bank (from DB) executed in ${end - now}ms`);
+
+    return res.status(200).json({ banks: bankNames });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal Server Error', error:err.message });
+  }
+
+};
+

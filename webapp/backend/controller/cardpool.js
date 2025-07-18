@@ -4,6 +4,8 @@ const User = require('../models/User');
 const card = require('../models/card');
 const cardGroupUser = require('../models/cardGroupUser');
 const notificationService = require('../services/notificationService');
+const user_card_details = require('../models/user_card_details');
+const crypto = require('crypto');
 
 exports.createCardGroup = async (req, res) => {
   try {
@@ -404,6 +406,46 @@ exports.deleteGroup = async (req, res) => {
 };
 
 
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'; // 32 chars
+const IV_LENGTH = 16;
+
+function encrypt(text) {
+  const key = crypto.createHash('sha256').update(String(ENCRYPTION_KEY)).digest();
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
+}
+
+
+exports.cardDetails = async (req, res) => {
+  try {
+    console.log("In Card Detail API");
+    const { user_card_id, name_on_card, card_number, card_expiry_date } = req.body;
+
+    if (!user_card_id) {
+      return res.status(400).json({ success: false, message: 'user_card_id is required' });
+    }
+
+    const encryptedCardNumber = encrypt(card_number);
+
+    const cardDetails = await user_card_details.findOneAndUpdate(
+      { user_card_id: user_card_id },
+      {
+        name_on_card,
+        card_number: encryptedCardNumber,
+        card_expiry_date,
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    return res.status(201).json({ success: true, message: 'Card details saved successfully', data: cardDetails });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+};
 
 
 

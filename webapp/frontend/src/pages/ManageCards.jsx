@@ -174,6 +174,7 @@ const ManageCards = () => {
         });
         if (cartRes.status === 200) {
           dispatch(addToCart(cartRes.data.cards));
+          setIsAddingCard(false)
         }
       }
     } catch (error) {

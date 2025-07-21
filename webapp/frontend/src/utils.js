@@ -1,3 +1,6 @@
+import axios from "axios";
+import { apiEndpoint } from "./api";
+
 export const BANKS = [
   {
     id: "axis",
@@ -26,24 +29,24 @@ export const BANKS = [
     logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/SBI_Card_logo.svg/330px-SBI_Card_logo.svg.png",
     cardTypes: ["VISA", "MASTERCARD", "RUPAY"],
   },
-  {
-    id: "hdfc",
-    name: "HDFC Bank",
-    officialName: "HDFC Bank Limited",
-    upiFormat: "[mobile]@hdfcbank",
-    issuerPattern: /HDFC|HDFC BANK/i,
-    logo: "https://static.cdnlogo.com/logos/h/91/hdfc-bank.svg",
-    cardTypes: ["VISA", "MASTERCARD", "RUPAY"],
-  },
-  {
-    id: "pnb",
-    name: "PNB Bank",
-    officialName: "Punjab National Bank",
-    upiFormat: "[mobile]@pnb",
-    issuerPattern: /PUNJAB NATIONAL BANK|PNB/i,
-    logo: "https://static.cdnlogo.com/logos/p/79/punjab-national-bank.svg",
-    cardTypes: ["VISA", "MASTERCARD", "RUPAY"],
-  },
+//   // {
+//   //   id: "hdfc",
+//   //   name: "HDFC Bank",
+//   //   officialName: "HDFC Bank Limited",
+//   //   upiFormat: "[mobile]@hdfcbank",
+//   //   issuerPattern: /HDFC|HDFC BANK/i,
+//   //   logo: "https://static.cdnlogo.com/logos/h/91/hdfc-bank.svg",
+//   //   cardTypes: ["VISA", "MASTERCARD", "RUPAY"],
+//   // },
+//   // {
+//   //   id: "pnb",
+//   //   name: "PNB Bank",
+//   //   officialName: "Punjab National Bank",
+//   //   upiFormat: "[mobile]@pnb",
+//   //   issuerPattern: /PUNJAB NATIONAL BANK|PNB/i,
+//   //   logo: "https://static.cdnlogo.com/logos/p/79/punjab-national-bank.svg",
+//   //   cardTypes: ["VISA", "MASTERCARD", "RUPAY"],
+//   // },
   {
     id: "idfc",
     name: "IDFC Bank",
@@ -96,15 +99,15 @@ export const validateForm = (data) => {
   return errors;
 };
 
-export const generateUpiId = (data, bank) => {
-  const cleanCardNumber = data.cardNumber.replace(/\D/g, "");
-  const last4 = cleanCardNumber.slice(-4);
+// export const generateUpiId = (data, bank) => {
+//   const cleanCardNumber = data.cardNumber.replace(/\D/g, "");
+//   const last4 = cleanCardNumber.slice(-4);
 
-  return bank.upiFormat
-    .replace("[mobile]", data.mobileNumber)
-    .replace("[card]", cleanCardNumber)
-    .replace("[last4]", last4);
-};
+//   return bank.upiFormat
+//     .replace("[mobile]", data.mobileNumber)
+//     .replace("[card]", cleanCardNumber)
+//     .replace("[last4]", last4);
+// };
 
 export const formatCardNumber = (value) => {
   const v = value.replace(/\D/g, "").slice(0, 16);
@@ -114,19 +117,36 @@ export const formatCardNumber = (value) => {
   return `${v.slice(0, 4)} ${v.slice(4, 8)} ${v.slice(8, 12)} ${v.slice(12)}`;
 };
 
+// export const validateCard = async (cardNumber) => {
+//   const cleanNumber = cardNumber.replace(/\D/g, "");
+//   const bin = cleanNumber.slice(0, 6);
+
+//   const response = await fetch(`https://data.handyapi.com/bin/${bin}`, {
+//     headers: { "x-api-key": "PUB-0YZskYqn4Pc52N7X9S8037GLxy4" },
+//   });
+
+//   if (!response.ok) {
+//     throw new Error("Failed to validate card");
+//   }
+
+//   return response.json();
+// };
+
+
+const token = localStorage.getItem("token")
+
 export const validateCard = async (cardNumber) => {
   const cleanNumber = cardNumber.replace(/\D/g, "");
   const bin = cleanNumber.slice(0, 6);
 
-  const response = await fetch(`https://data.handyapi.com/bin/${bin}`, {
-    headers: { "x-api-key": "PUB-0YZskYqn4Pc52N7X9S8037GLxy4" },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to validate card");
-  }
-
-  return response.json();
+  const response = await axios.get(
+    `${apiEndpoint}/api/v1/billpay/validate-card?bin=${bin}`,{
+      headers:{
+        Authorization:`Bearer ${token}`
+      }
+    }
+  );
+  return response.data;
 };
 
 export const findBankByIssuer = (issuer) => {

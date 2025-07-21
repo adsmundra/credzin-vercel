@@ -68,6 +68,7 @@ const groupInvitationRoutes = require('./routes/groupInvitationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const cronRoutes = require('./routes/cronRoutes');
 const yodleeRoutes = require('./routes/yodlee');
+const billRoutes = require("./routes/billPayRoutes")
 
 app.use('/api/v1/auth', authRoutes);
 // app.use('/api/v1/auth/google', googleRoutes);
@@ -79,6 +80,7 @@ app.use('/api/v1/group/invitation', groupInvitationRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
 app.use('/api/v1/cron', cronRoutes);
 app.use('/api/v1/yodlee', yodleeRoutes);
+app.use('/api/v1/billpay', billRoutes);
 
 // startCronJob();
 

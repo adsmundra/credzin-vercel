@@ -32,6 +32,7 @@ COMMIT_MESSAGE="Sync from credzin: $(date '+%Y-%m-%d %H:%M:%S')"
 git commit -m "$COMMIT_MESSAGE"
 
 # Push to the remote repository
+git pull
 git push
 
 echo "Script finished."

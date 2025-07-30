@@ -1,52 +1,20 @@
-2025-06-23 13:27:57,403 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 13:29:11,070 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:22:26,435 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:23:21,121 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:23:21,262 - credzin - INFO - Loading Axis Bank credit cards class
-2025-06-23 21:23:21,825 - credzin - INFO - Loading ICICI Bank credit cards class
-2025-06-23 21:23:21,827 - credzin - INFO - Loading SBI Bank credit cards class
-2025-06-23 21:23:21,943 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:23:21,977 - credzin - INFO - Running main function …
-2025-06-23 21:23:21,977 - credzin - INFO - 
-Processing bank: Amex
-2025-06-23 21:23:21,977 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
-2025-06-23 21:23:23,304 - credzin - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
-2025-06-23 21:23:23,304 - credzin - INFO - Starting credit card scraping process (NEW) ...
-2025-06-23 21:31:26,531 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:31:26,712 - credzin - INFO - Loading Axis Bank credit cards class
-2025-06-23 21:31:27,250 - credzin - INFO - Loading ICICI Bank credit cards class
-2025-06-23 21:31:27,250 - credzin - INFO - Loading SBI Bank credit cards class
-2025-06-23 21:33:13,776 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:33:13,964 - credzin - INFO - Loading Axis Bank credit cards class
-2025-06-23 21:33:14,508 - credzin - INFO - Loading ICICI Bank credit cards class
-2025-06-23 21:33:14,508 - credzin - INFO - Loading SBI Bank credit cards class
-2025-06-23 21:33:14,510 - credzin - INFO - Loading CardInsider credit cards class
-2025-06-23 21:33:14,622 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:33:14,654 - credzin - INFO - Running main function …
-2025-06-23 21:33:14,654 - credzin - INFO - 
-Processing bank: Amex
-2025-06-23 21:33:14,654 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
-2025-06-23 21:33:15,869 - credzin - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
-2025-06-23 21:33:15,869 - credzin - INFO - Starting credit card scraping process (NEW) ...
-2025-06-23 21:36:01,533 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:36:01,721 - credzin - INFO - Loading Axis Bank credit cards class
-2025-06-23 21:36:02,205 - credzin - INFO - Loading ICICI Bank credit cards class
-2025-06-23 21:36:02,205 - credzin - INFO - Loading SBI Bank credit cards class
-2025-06-23 21:36:02,206 - credzin - INFO - Loading CardInsider credit cards class
-2025-06-23 21:36:02,313 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:36:02,346 - credzin - INFO - Running main function …
-2025-06-23 21:36:02,346 - credzin - INFO - 
-Processing bank: Amex
-2025-06-23 21:36:02,346 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
-2025-06-23 21:36:03,564 - credzin - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
-2025-06-23 21:39:01,585 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:39:01,713 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
-2025-06-23 21:39:01,802 - credzin - INFO - Loading Axis Bank credit cards class
-2025-06-23 21:39:02,326 - credzin - INFO - Loading ICICI Bank credit cards class
-2025-06-23 21:39:02,328 - credzin - INFO - Loading SBI Bank credit cards class
-2025-06-23 21:39:02,331 - credzin - INFO - Loading CardInsider credit cards class
-2025-06-23 21:39:02,442 - credzin - INFO - Running main function …
-2025-06-23 21:39:02,442 - credzin - INFO - 
-Processing bank: Amex
-2025-06-23 21:39:02,442 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
-2025-06-23 21:39:03,675 - credzin - INFO - Found 6 cards for Amex: ['Platinum Card', 'Membership Rewards Credit Card', 'SmartEarn Credit Card', 'Platinum Reserve Credit Card', 'Gold Card', 'Platinum Travel Credit Card']
+2025-06-23 15:53:25,436 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-23 15:53:25,601 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-23 15:53:27,213 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-23 15:53:27,214 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-23 15:53:27,432 - credzin - INFO - Running main function …
+2025-06-23 15:53:27,432 - credzin - INFO - 
+Processing bank: Federal
+2025-06-23 15:53:27,432 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-23 15:53:29,653 - credzin - INFO - Found 9 cards for Federal: ['Visa Imperio', 'Visa Signet', 'Fed StarBiz Visa Credit Card', 'Mastercard Celesta', 'Mastercard Imperio', 'Mastercard Signet', 'Rupay Signet', 'Rupay Wave', 'Fed StarBiz RuPay Credit Card']
+2025-06-23 15:53:29,653 - credzin - INFO - Starting credit card scraping process (NEW) ...
+2025-06-23 16:17:09,740 - credzin - INFO - Initializing LLM instance - Llama3.2 model.
+2025-06-23 16:17:09,889 - credzin - INFO - Loading Axis Bank credit cards class
+2025-06-23 16:17:10,958 - credzin - INFO - Loading ICICI Bank credit cards class
+2025-06-23 16:17:10,959 - credzin - INFO - Loading SBI Bank credit cards class
+2025-06-23 16:17:11,161 - credzin - INFO - Running main function …
+2025-06-23 16:17:11,161 - credzin - INFO - 
+Processing bank: Federal
+2025-06-23 16:17:11,162 - credzin - INFO - Reading the Excel workbook to fetch card names & image URLs …
+2025-06-23 16:17:13,288 - credzin - INFO - Found 9 cards for Federal: ['Visa Imperio', 'Visa Signet', 'Fed StarBiz Visa Credit Card', 'Mastercard Celesta', 'Mastercard Imperio', 'Mastercard Signet', 'Rupay Signet', 'Rupay Wave', 'Fed StarBiz RuPay Credit Card']
+2025-06-23 16:17:13,288 - credzin - INFO - Starting credit card scraping process (NEW) ...

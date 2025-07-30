@@ -45,6 +45,13 @@ experiment = Experiment(
     workspace="hub-welzin"  # Replace with your actual Comet workspace
 )
 
+# === Comet ML Configuration ===
+experiment = Experiment(
+    api_key="V26aYJ5ji7OScGEifvpnhRIe5",  # Replace with your actual Comet API key
+    project_name="fintech-articles",
+    workspace="vikram-kumawat"  # Replace with your actual Comet workspace
+)
+
 # === Qdrant setup for both collections ===
 qdrant_client = qdrantdb_client()
 embedder = HuggingFaceEmbeddings(model_name="BAAI/bge-large-en-v1.5")

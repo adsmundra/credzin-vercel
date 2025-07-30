@@ -209,6 +209,7 @@ const fetchCardDetails = async ({ queryKey }) => {
       Authorization: `Bearer ${token}`,
     },
   });
+  console.log("Card details fetched:", data);
   if (!data.success) throw new Error(data.message || 'Card not found');
   return data.data;
 };

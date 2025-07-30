@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Menu, X, Search } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../app/slices/authSlice";
+import { useSelector } from "react-redux";
+// import { logout } from "../app/slices/authSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import NotificationBell from "./NotificationBell";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +15,7 @@ const Navbar = () => {
   const mobileSearchRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
@@ -26,14 +26,14 @@ const Navbar = () => {
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleProfile = () => setProfileOpen(!profileOpen);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    localStorage.removeItem("token");
-    localStorage.removeItem("loginType");
-    Cookies.remove('user_Auth');
-    sessionStorage.clear();
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   dispatch(logout());
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("loginType");
+  //   Cookies.remove('user_Auth');
+  //   sessionStorage.clear();
+  //   navigate("/login");
+  // };
 
   // Profile click outside
   useEffect(() => {
@@ -228,7 +228,7 @@ const Navbar = () => {
                       </button>
                     </li>
                     <li>
-                      <button
+                      {/* <button
                         onClick={() => {
                           handleLogout();
                           setProfileOpen(false);
@@ -236,7 +236,7 @@ const Navbar = () => {
                         className="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-200 text-red-600"
                       >
                         Logout
-                      </button>
+                      </button> */}
                     </li>
                   </ul>
                 </div>
@@ -344,7 +344,7 @@ const Navbar = () => {
               </button>
             </li>
             <li>
-              <button
+              {/* <button
                 onClick={() => {
                   handleLogout();
                   setIsOpen(false);
@@ -352,7 +352,7 @@ const Navbar = () => {
                 className="w-full text-left px-4 py-3 rounded-lg bg-red-500/80 hover:bg-red-600 text-white transition-colors duration-200 border border-red-400/30"
               >
                 Logout
-              </button>
+              </button> */}
             </li>
           </ul>
         </div>

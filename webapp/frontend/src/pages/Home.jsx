@@ -3,11 +3,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Plane, Utensils, Tag } from 'lucide-react';
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import BottomNavBar from "../component/BottomNavBar";
 import Slider from "react-slick";
 import { addToCart, setSelectedCard } from "../app/slices/cartSlice";
+import { apiEndpoint } from "../api";
 
-// Dummy card recommendations
+
 const recommended = [
   {
     title: "Travel Rewards Card",
@@ -22,10 +24,10 @@ const recommended = [
 ];
 
 // Benefits and Offers
-const benefits = [
-  { icon: <Plane size={24} />, title: "Travel Benefits", desc: "Enjoy exclusive travel perks and discounts." },
-  { icon: <Utensils size={24} />, title: "Dining Rewards", desc: "Earn rewards on dining and entertainment." }
-];
+// const benefits = [
+//   { icon: <Plane size={24} />, title: "Travel Benefits", desc: "Enjoy exclusive travel perks and discounts." },
+//   { icon: <Utensils size={24} />, title: "Dining Rewards", desc: "Earn rewards on dining and entertainment." }
+// ];
 
 const offers = [
   { icon: <Tag size={24} />, title: "Shopping Discount", desc: "Get 10% off on your next purchase." }
@@ -53,24 +55,47 @@ const Home = () => {
   const cards = useSelector((state) => state.cart.cart);
   const sliderRef = useRef(null);
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+  const [benifits, setBenifits] = useState([]);
 
   // Sync Redux cart with sessionStorage (on mount or cart change)
+  // useEffect(() => {
+  //   const cachedCart = sessionStorage.getItem("userCart");
+
+  //   if (cachedCart) {
+  //     const parsedCart = JSON.parse(cachedCart);
+  //     console.log("this card details of the user", cards)
+
+  //     const reduxCartIds = cards.map(c => c._id).sort();
+  //     const cachedCartIds = parsedCart.map(c => c._id).sort();
+
+  //     const isSame = JSON.stringify(reduxCartIds) === JSON.stringify(cachedCartIds);
+  //     if (!isSame) {
+  //       dispatch(addToCart(parsedCart));
+  //     }
+  //   }
+  // }, [dispatch, cards]);
+
+
   useEffect(() => {
-    const cachedCart = sessionStorage.getItem("userCart");
-
-    if (cachedCart) {
-      const parsedCart = JSON.parse(cachedCart);
-      console.log("this card details of the user",cards)
-
-      const reduxCartIds = cards.map(c => c._id).sort();
-      const cachedCartIds = parsedCart.map(c => c._id).sort();
-
-      const isSame = JSON.stringify(reduxCartIds) === JSON.stringify(cachedCartIds);
-      if (!isSame) {
+    const syncCart = () => {
+      const cachedCart = sessionStorage.getItem("userCart");
+      if (cachedCart) {
+        const parsedCart = JSON.parse(cachedCart);
         dispatch(addToCart(parsedCart));
       }
-    }
-  }, [dispatch, cards]);
+    };
+
+    // On mount
+    syncCart();
+
+    // Listen for card updates (custom event)
+    window.addEventListener("cardListUpdated", syncCart);
+
+    return () => {
+      window.removeEventListener("cardListUpdated", syncCart);
+    };
+  }, [dispatch]);
+
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#111518] font-sans text-white">
@@ -114,9 +139,42 @@ const Home = () => {
                   className="object-contain w-full h-full transition-transform duration-200 hover:scale-105 cursor-pointer"
 
                   draggable={false}
-                  onClick={() => {
+                  onClick={async () => {
                     dispatch(setSelectedCard(card));
-                    navigate('/home/card-benifits');
+                    console.log("Selected card:", card);
+                    console.log("Card generic_card._id:", card.generic_card_id);
+                    try {
+                      const token = localStorage.getItem("token");
+                      const response = await axios.get(`${apiEndpoint}/api/v1/card/cardfeatures/${card.generic_card_id}`, {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      });
+                      console.log("Card features response:", response.data);
+                      // setBenifits([response.data]);
+                      // const rawFeatures = response.data.features_clean || "";
+                      // const parsedFeatures = rawFeatures
+                      //   .split(";")
+                      //   .map(f => f.trim())
+                      //   .filter(f => f.length > 0);
+                      // setBenifits(parsedFeatures.slice(0, 7));
+                      const data = response.data;
+                      const customBenefits = [
+                        { title: "Bank", value: data.bank_name },
+                        { title: "Card Name", value: data.card_name },
+                        { title: "Features", value: data.features_clean || data.features },
+                        { title: "Rewards", value: data.rewards_clean || data.rewards },
+                        { title: "Movie Offers", value: data.movie_offer ? "Yes" : "No" },
+                        { title: "Fuel Rewards", value: data.fuel_rewards ? "Yes" : "No" },
+                        { title: "Annual Fee", value: data.annual_fee },
+                        { title: "Lounge Access", value: data.airport_lounge_access || data.lounge_access ? "Yes" : "No" },
+                      ];
+
+                      setBenifits(customBenefits);
+
+                    } catch (error) {
+                      console.error("Error fetching card features:", error);
+                    }
                   }}
                 />
               </div>
@@ -129,6 +187,52 @@ const Home = () => {
           ))}
         </Slider>
       </div>
+
+
+
+      {/* Benefits Section */}
+      {/* <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Benefits</h2>
+      <div className="flex flex-col gap-2 px-4">
+        {benifits.map((b, i) => (
+          <div key={i} className="flex items-center gap-4 bg-[#111518] px-4 min-h-[72px] py-2 rounded-lg">
+            <div className="flex items-center justify-center rounded-lg bg-[#283139] size-12">{b.icon}</div>
+            <div className="flex flex-col justify-center">
+              <p className="text-base font-medium">{b.title}</p>
+              <p className="text-[#9cabba] text-sm">{b.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div> */}
+
+
+      {/* Benefits Section */}
+      {/* Benefits Section */}
+      <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Card Benefits</h2>
+      <div className="flex flex-col gap-3 px-4">
+        {benifits.length === 0 ? (
+          <div className="flex items-center justify-center bg-[#1b2127] text-[#9cabba] text-sm px-4 py-6 rounded-lg shadow-inner">
+            <p>🎴 Click on a card above to explore its exclusive benefits here.</p>
+          </div>
+        ) : (
+          benifits.map((item, index) => (
+            <div
+              key={index}
+              className="flex items-start gap-3 bg-[#1b2127] px-4 py-3 rounded-lg shadow-sm hover:bg-[#23272f] transition-all"
+            >
+              <div className="flex items-center justify-center min-w-[32px] min-h-[32px] rounded-full bg-blue-600 text-white font-semibold text-sm">
+                {index + 1}
+              </div>
+              <div className="flex flex-col">
+                <p className="text-white text-sm font-semibold">{item.title}</p>
+                <p className="text-[#9cabba] text-sm">{item.value || "Not Available"}</p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+
+
 
       {/* Recommended Cards */}
       <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Recommended Cards</h2>
@@ -147,19 +251,7 @@ const Home = () => {
         ))}
       </div>
 
-      {/* Benefits Section */}
-      <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Benefits</h2>
-      <div className="flex flex-col gap-2 px-4">
-        {benefits.map((b, i) => (
-          <div key={i} className="flex items-center gap-4 bg-[#111518] px-4 min-h-[72px] py-2 rounded-lg">
-            <div className="flex items-center justify-center rounded-lg bg-[#283139] size-12">{b.icon}</div>
-            <div className="flex flex-col justify-center">
-              <p className="text-base font-medium">{b.title}</p>
-              <p className="text-[#9cabba] text-sm">{b.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       {/* Offers Section */}
       <h2 className="text-[22px] font-bold px-4 pb-3 pt-5">Offers</h2>

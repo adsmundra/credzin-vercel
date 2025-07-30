@@ -37,37 +37,36 @@
 import React from 'react';
 
 const Footer = () => {
-
-const handleBlogClick = () => {
+  const handleBlogClick = () => {
     window.open("http://www.credzin.com/articles/", "_blank");
   };
+
   const handleWebsiteClick = () => {
     window.open("http://www.credzin.com/", "_blank");
   };
 
-
   return (
-    <footer className="bg-black text-white py-3 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 flex flex-col md:flex-row justify-between items-center text-sm md:text-base text-center md:text-left gap-2 md:gap-4">
-        
-        {/* Left Side: Links + Copyright */}
-        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
-            <a href="/website" className="hover:text-gray-400 transition" onClick={handleBlogClick}>Website</a> |
-            <a href="/articles" className="hover:text-gray-400 transition" onClick={handleWebsiteClick}>Articles</a>
+    <footer className="bg-black text-white py-4 shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm md:text-base gap-4">
+
+        {/* Left Section */}
+        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+            <button onClick={handleWebsiteClick} className="hover:text-gray-400 transition">Website</button>
+            <span className="hidden sm:inline">|</span>
+            <button onClick={handleBlogClick} className="hover:text-gray-400 transition">Articles</button>
           </div>
-          <p className="text-center md:text-left">
-            © {new Date().getFullYear()} <span className="font-semibold">Credzin</span>. All rights reserved.
-          </p>
+          <p className="mt-1 md:mt-0">&copy; {new Date().getFullYear()} <span className="font-semibold">Credzin</span>. All rights reserved.</p>
         </div>
 
-        {/* Divider for small screens */}
-        <div className="md:hidden border-t border-gray-700 w-full my-2"></div>
+        {/* Divider for mobile */}
+        <div className="w-full border-t border-gray-700 md:hidden"></div>
 
-        {/* Right Side: Terms */}
-        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-          <a href="/terms" className="hover:text-gray-400 transition">Terms of Service</a> |
-            <a href="/privacy-policy" className="hover:text-gray-400 transition">Privacy Policy</a>
+        {/* Right Section */}
+        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center md:text-right">
+          <a href="/home" className="hover:text-gray-400 transition">Terms of Service</a>
+          <span className="hidden sm:inline">|</span>
+          <a href="/home" className="hover:text-gray-400 transition">Privacy Policy</a>
         </div>
 
       </div>
@@ -76,3 +75,13 @@ const handleBlogClick = () => {
 };
 
 export default Footer;
+
+
+
+
+
+
+
+
+
+

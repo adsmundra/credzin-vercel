@@ -94,12 +94,12 @@ const AdditionalDetails = () => {
             >
               <option value="">Select Salary Range</option>
               <option value="0-10000">Below ₹10,000</option>
-              <option value="10001-25000">₹10,001 - ₹25,000</option>
-              <option value="25001-50000">₹25,001 - ₹50,000</option>
-              <option value="50001-100000">₹50,001 - ₹1,00,000</option>
-              <option value="100001-150000">₹1,00,001 - ₹1,50,000</option>
-              <option value="150001-200000">₹1,50,001 - ₹2,00,000</option>
-              <option value="200001+">Above ₹2,00,000</option>
+              <option value="10000-25000">₹10,000 - ₹25,000</option>
+              <option value="25000-50000">₹25,000 - ₹50,000</option>
+              <option value="50000-100000">₹50,000 - ₹1,00,000</option>
+              <option value="100000-150000">₹1,00,000 - ₹1,50,000</option>
+              <option value="150000-200000">₹1,50,000 - ₹2,00,000</option>
+              <option value="200000+">Above ₹2,00,000</option>
             </select>
           </div>
 

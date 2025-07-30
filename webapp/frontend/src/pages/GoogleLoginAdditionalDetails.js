@@ -89,7 +89,9 @@ const GoogleLoginAdditionalDetails = () => {
               <option value="10000-25000">₹10,000 - ₹25,000</option>
               <option value="25000-50000">₹25,000 - ₹50,000</option>
               <option value="50000-100000">₹50,000 - ₹1,00,000</option>
-              <option value="100000+">Above ₹1,00,000</option>
+              <option value="100000-150000">₹1,00,000 - ₹1,50,000</option>
+              <option value="150000-200000">₹1,50,000 - ₹2,00,000</option>
+              <option value="200000+">Above ₹2,00,000</option>
             </select>
           </div>
 

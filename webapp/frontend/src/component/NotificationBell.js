@@ -130,26 +130,15 @@ const NotificationBell = () => {
 
   // Handle action button clicks
   const handleAction = async (action, notificationId) => {
+    
     if (!token) return;
-
+    
     setActionLoading((prev) => ({ ...prev, [notificationId]: true }));
-
+    
+    console.log("In Action method");
     try {
-      let url = "";
-
-      // Extract invitation ID from the action URL
-      if (
-        action.action === "accept_invitation" ||
-        action.action === "reject_invitation"
-      ) {
-        const urlParts = action.url.split("/");
-        const invitationId = urlParts[urlParts.length - 2]; // Get the invitation ID
-        const actionType =
-          action.action === "accept_invitation" ? "accept" : "reject";
-        url = `${apiEndpoint}/api/v1/group/invitation/${invitationId}/${actionType}`;
-      } else {
-        url = `${apiEndpoint}${action.url}`;
-      }
+      // The action.url from the notification is the source of truth.
+      const url = `${apiEndpoint}${action.url}`;
 
       const response = await axios.post(
         url,
@@ -161,6 +150,8 @@ const NotificationBell = () => {
         }
       );
 
+      console.log("Response", response);
+      
       if (response.status === 200) {
         console.log(`Action ${action.action} completed successfully`);
 
@@ -183,9 +174,15 @@ const NotificationBell = () => {
 
         // ✅ Refresh unread count
         fetchUnreadCount();
+
       }
     } catch (error) {
+      console.log("Error in handleAction:", error);
       console.error(`Error performing action ${action.action}:`, error);
+      if (error.response) {
+        // Log the detailed error response from the backend
+        console.error("Backend error response:", error.response.data);
+      }
       // You might want to show an error toast here
     } finally {
       setActionLoading((prev) => ({ ...prev, [notificationId]: false }));

@@ -23,6 +23,13 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
     // console.log("hii we are inside the signup blockd")
+    const existingContact = await User.findOne({contact})
+    
+    if(existingContact){
+      return res.status(400).json({
+        flag :true,
+        message:'Account link with this contact'})
+    }
 
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -79,9 +86,9 @@ exports.login = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({ user: userObj, token });
+     return res.status(200).json({ user: userObj, token });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+   return  res.status(500).json({ message: 'Internal server error', error: err.message });
   }
 };
 
@@ -263,20 +270,20 @@ exports.addcards = async (req, res) => {
     }
 
     // (Python recommendation logic remains unchanged)
-    const { spawn } = require('child_process');
-    const pythonProcess = spawn('python', [
-      '/home/cygwin/welzin/credzin/pycode/src/agents/CardRecommenderAgent.py',
-      userId
-    ]);
-    pythonProcess.stdout.on('data', (data) => {
-        console.log('Python output:', data.toString());
-    });
-    pythonProcess.stderr.on('data', (data) => {
-        console.error('Python stderr:', data.toString());
-    });
-    pythonProcess.on('close', (code) => {
-        console.log(`Python script finished with code: ${code}`);
-    });
+    // const { spawn } = require('child_process');
+    // const pythonProcess = spawn('python', [
+    //   '/home/cygwin/welzin/credzin/pycode/src/agents/CardRecommenderAgent.py',
+    //   userId
+    // ]);
+    // pythonProcess.stdout.on('data', (data) => {
+    //     console.log('Python output:', data.toString());
+    // });
+    // pythonProcess.stderr.on('data', (data) => {
+    //     console.error('Python stderr:', data.toString());
+    // });
+    // pythonProcess.on('close', (code) => {
+    //     console.log(`Python script finished with code: ${code}`);
+    // });
 
     const totalCardIds = [...newUserCardIds, ...reactivatedCardIds];
     const message = reactivatedCardIds.length > 0 
@@ -410,25 +417,25 @@ exports.removeCardFromCart = async (req, res) => {
     // console.log('Python options:', options);
     // console.log('Script path:', 'C:/Users/MANISH/Downloads/credzin/pycode/src/agents/CardRecommendation.py');
 
-    const { spawn } = require('child_process');
+    // const { spawn } = require('child_process');
 
-    const pythonProcess = spawn('wsl', [
-        'bash', '-c', 
-        //`cd /mnt/c/Users/MANISH/Downloads/credzin && source venv/bin/activate && python pycode/src/agents/CardRecommendation.py ${userId}`
-        `python pycode/src/agents/CardRecommenderAgent.py ${userId}`
-    ]);
+    // const pythonProcess = spawn('wsl', [
+    //     'bash', '-c', 
+    //     //`cd /mnt/c/Users/MANISH/Downloads/credzin && source venv/bin/activate && python pycode/src/agents/CardRecommendation.py ${userId}`
+    //     `python pycode/src/agents/CardRecommenderAgent.py ${userId}`
+    // ]);
 
-    pythonProcess.stdout.on('data', (data) => {
-        console.log('Python output:', data.toString());
-    });
+    // pythonProcess.stdout.on('data', (data) => {
+    //     console.log('Python output:', data.toString());
+    // });
 
-    pythonProcess.stderr.on('data', (data) => {
-        console.error('Python stderr:', data.toString());
-    });
+    // pythonProcess.stderr.on('data', (data) => {
+    //     console.error('Python stderr:', data.toString());
+    // });
 
-    pythonProcess.on('close', (code) => {
-        console.log(`Python script finished with code: ${code}`);
-    });
+    // pythonProcess.on('close', (code) => {
+    //     console.log(`Python script finished with code: ${code}`);
+    // });
     
     return res
       .status(200)
@@ -519,9 +526,8 @@ exports.googlgeLoginUpdateAdditionalDetails = async (req, res) => {
     }
     // Basic validation
     const validAgeRanges = ["18-24", "25-34", "35-44", "45-54", "55+"];
-    const validSalaryRanges = ["0-10000", "10000-25000", "25000-50000", "50000-100000", "100000+"];
+    const validSalaryRanges = ["0-10000", "10000-25000", "25000-50000", "50000-100000","100000-150000","150000-200000","200000+"];
     const validExpenseRanges = ["0-5000", "5000-15000", "15000-30000", "30000+"];
-
     if (
       !validAgeRanges.includes(ageRange) ||
       !validSalaryRanges.includes(salaryRange) ||

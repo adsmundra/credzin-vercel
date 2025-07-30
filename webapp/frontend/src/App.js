@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   Route,
   Routes,
@@ -37,15 +38,21 @@ import Cookies from "js-cookie";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import BillPay from "./pages/BillPay";
-import flagsmith from 'flagsmith';
+import flagsmith from "flagsmith";
+import CardDetails from "./pages/CardDetails";
+
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const initialDataLoaded = useRef(false);
 
+  const checkAuth = useCallback(() => {
+    return !!Cookies.get("user_Auth");
+  }, []);
+
+  const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
   const [isBillFeatureEnabled, setIsBillFeatureEnabled] = useState(false);
-
-  const token = localStorage.getItem("token");
 
   // State to control header visibility
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
@@ -55,21 +62,9 @@ function App() {
     setIsHeaderVisible(visible);
   };
 
-  const checkAuth = () => {
-    const token = Cookies.get("user_Auth");
-
-    return !!token; // returns true if token exists, false otherwise
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
   };
-//added comn
-  // useEffect(() => {
-  //   const savedUser = Cookies.get('user_Auth');
-  //   if( savedUser && savedUser!=='undefined') {
-  //     localStorage.setItem("token", savedUser);
-  //     navigate("/home");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // }, []);
 
   useEffect(() => {
     flagsmith.init({
@@ -86,80 +81,54 @@ function App() {
     const queryParams = new URLSearchParams(location.search);
     const tokenFromURL = queryParams.get("token");
 
-    // If token comes from URL (e.g., OAuth redirect)
     if (
       tokenFromURL &&
       tokenFromURL !== "null" &&
       tokenFromURL !== "undefined"
     ) {
       localStorage.setItem("token", tokenFromURL);
-      // sessionStorage.setItem("token", tokenFromURL);
       Cookies.set("user_Auth", tokenFromURL, {
         expires: 10,
         sameSite: "Lax",
       });
-      // Clean the URL
+      setIsAuthenticated(true); // Set auth state on token from URL
       navigate(location.pathname, { replace: true });
     }
 
-    // Check if user is authenticated
-    const isAuthenticated = checkAuth();
-
-    if (
-      !isAuthenticated &&
-      location.pathname !== "/login" &&
-      location.pathname !== "/signup" &&
-      location.pathname !== "/forgot-password"
-    ) {
+    if (!isAuthenticated && location.pathname !== "/login" && location.pathname !== "/signup" && location.pathname !== "/forgot-password") {
       navigate("/login");
-    } else if (
-      isAuthenticated &&
-      (location.pathname === "/login" ||
-        location.pathname === "/signup" ||
-        location.pathname === "/")
-    ) {
-      // token = localStorage.setItem("token",)
+    } else if (isAuthenticated && (location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/")) {
       navigate("/home");
     }
-  }, [location, navigate]);
+  }, [location, navigate, isAuthenticated]);
 
-  const get_all_bank = async () => {
+  const get_all_bank = useCallback(async () => {
     const cachedBanks = sessionStorage.getItem("banks");
-
     if (cachedBanks) {
-      //  Load banks from cache
       dispatch(setBankList(JSON.parse(cachedBanks)));
       return;
     }
-
     try {
       const response = await axios.get(`${apiEndpoint}/api/v1/card/all_bank`);
       const banks = response.data?.banks || [];
       dispatch(setBankList(banks));
-
-      // 💾 Cache banks in sessionStorage
       sessionStorage.setItem("banks", JSON.stringify(banks));
     } catch (err) {
       console.error("Error fetching banks:", err.response?.data || err);
     }
-  };
+  }, [dispatch]);
 
-
-  const getUserFullDetails = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    const cachedUser = sessionStorage.getItem("userDetails");
-
-    if (cachedUser) {
-      const userData = JSON.parse(cachedUser);
+  const getUserFullDetails = useCallback(async () => {
+    const cachedUserDetails = sessionStorage.getItem("userDetails");
+    if (cachedUserDetails) {
+      const userData = JSON.parse(cachedUserDetails);
       const { CardAdded, ...userInfo } = userData;
-
       dispatch(setUser(userInfo));
       if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
       return;
     }
-
+    const token = localStorage.getItem("token");
+    if (!token) return;
     try {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/auth/userdetail`,
@@ -167,36 +136,26 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       if (response.status === 200) {
         const userData = response.data.data;
         const { CardAdded, ...userInfo } = userData;
-
         dispatch(setUser(userInfo));
         if (Array.isArray(CardAdded)) dispatch(setCart(CardAdded));
-
-        //  Cache entire user data
         sessionStorage.setItem("userDetails", JSON.stringify(userData));
       }
     } catch (error) {
-      console.error(
-        "Error fetching user data:",
-        error.response?.data || error.message
-      );
+      console.error("Error fetching user data:", error.response?.data || error.message);
     }
-  };
+  }, [dispatch]);
 
-  
-  const getRecommendedCard = async () => {
+  const getRecommendedCard = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
     const cachedRecommended = sessionStorage.getItem("recommendedCards");
     if (cachedRecommended) {
       dispatch(setRecommendedList(JSON.parse(cachedRecommended)));
       return;
     }
-
     try {
       const response = await axios.get(
         `${apiEndpoint}/api/v1/card/recommendedcard`,
@@ -204,34 +163,33 @@ function App() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       if (response.status === 200) {
         const recommendedCards = response.data.cards;
         dispatch(setRecommendedList(recommendedCards));
-
-        sessionStorage.setItem(
-          "recommendedCards",
-          JSON.stringify(recommendedCards)
-        );
+        sessionStorage.setItem("recommendedCards", JSON.stringify(recommendedCards));
       }
     } catch (error) {
-      console.error(
-        "Error fetching recommended cards:",
-        error.response?.data || error.message
-      );
+      console.error("Error fetching recommended cards:", error.response?.data || error.message);
     }
-  };
+  }, [dispatch]);
 
-  // Step 4: Run once on mount
   useEffect(() => {
-    const isAuthenticated = checkAuth();
-
-    if (isAuthenticated) {
+    if (isAuthenticated && !initialDataLoaded.current) {
       getUserFullDetails();
       get_all_bank();
       getRecommendedCard();
+      initialDataLoaded.current = true;
     }
-  }, [location.pathname]);
+  }, [isAuthenticated, getUserFullDetails, get_all_bank, getRecommendedCard]);
+
+  const handleLogout = () => {
+    Cookies.remove("user_Auth");
+    sessionStorage.clear();
+    localStorage.clear();
+    setIsAuthenticated(false);
+    initialDataLoaded.current = false;
+    navigate("/login");
+  };
 
   return (
     <div className="App">
@@ -240,18 +198,13 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route
           path="/home"
-          element={
-            // <PrivateRoute>
-            <Home showHeader={isHeaderVisible} />
-            // </PrivateRoute>
-          }
+          element={<Home showHeader={isHeaderVisible} />}
         />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/manage-cards" element={<ManageCards />} />{" "}
-        {/* New Route */}
+        <Route path="/manage-cards" element={<ManageCards />} />
         <Route path="/additional-details" element={<AdditionalDetails />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
         <Route
           path="/googleAdditionaldetails"
           element={<GoogleLoginAdditionalDetails />}
@@ -272,13 +225,14 @@ function App() {
           path="/notification-settings"
           element={<NotificationSettings />}
         />
-        <Route path="#" element={<PrivacyPolicy />}></Route>
-        <Route path="/home/card-benifits" element={<CardBenifits />}></Route>
-        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
-        <Route path="/reset-password" element={<ResetPassword />} />{" "}
+        <Route path="#" element={<PrivacyPolicy />} />
+        <Route path="/home/card-benifits" element={<CardBenifits />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         {isBillFeatureEnabled && (
           <Route path="/bill-pay" element={<BillPay />} />
         )}
+        <Route path="/carddetails/:id" element={<CardDetails />} />
       </Routes>
       <Footer />
     </div>

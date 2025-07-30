@@ -182,7 +182,7 @@ exports.acceptInvitation = async (req, res) => {
       name: invitation.invitedUser.firstName,
       user_id: invitation.invitedUser._id,
       group_id: invitation.groupId._id,
-      card_list: invitation.invitedUser.CardAdded
+      card_list: [] // Initialize with an empty array to avoid casting errors
     });
 
     // Get all group members to notify them
@@ -339,4 +339,4 @@ exports.getPendingInvitations = async (req, res) => {
       error: error.message
     });
   }
-}; 
+};

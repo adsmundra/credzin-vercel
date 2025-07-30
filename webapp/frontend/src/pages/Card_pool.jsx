@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import BottomNavBar from "../component/BottomNavBar";
 import { apiEndpoint } from "../api";
@@ -11,6 +11,7 @@ const CardPool = () => {
   const [groups, setGroups] = useState([]);
   const [pendingInvitations, setPendingInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
   const [showCreatePoolModal, setShowCreatePoolModal] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [deletingGroup, setDeletingGroup] = useState(null);
@@ -25,82 +26,49 @@ const CardPool = () => {
     return groupInfo.find(info => info.groupId === groupId);
   };
 
-
-  useEffect(() => {
-    const shouldRefresh = sessionStorage.getItem("cardPoolNeedsRefresh") === "true";
-
-    if (shouldRefresh) {
-      sessionStorage.removeItem("groups");
-      sessionStorage.removeItem("groupInfo");
-      sessionStorage.removeItem("pendingInvitations");
-      sessionStorage.removeItem("cardPoolNeedsRefresh");
+  // Fetch all data (no sessionStorage, always fresh)
+  const fetchData = useCallback(async (showLoading = false) => {
+    if (showLoading) setLoading(true);
+    try {
+      const [groupsRes, invitationsRes, groupInfoRes] = await Promise.all([
+        axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiEndpoint}/api/v1/group/invitation/pending`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${apiEndpoint}/api/v1/card/getAllUserCard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+      setGroups(groupsRes.data.data || []);
+      setPendingInvitations(invitationsRes.data.data || []);
+      setGroupInfo(groupInfoRes.data.data || []);
+    } catch (err) {
+      setGroups([]);
+      setPendingInvitations([]);
+    } finally {
+      setLoading(false);
+      setFirstLoad(false);
     }
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const cachedGroups = sessionStorage.getItem("groups");
-        const cachedInvitations = sessionStorage.getItem("pendingInvitations");
-        const cachedGroupInfo = sessionStorage.getItem("groupInfo");
-
-        if (cachedGroups && cachedInvitations && cachedGroupInfo && !shouldRefresh) {
-          setGroups(JSON.parse(cachedGroups));
-          setPendingInvitations(JSON.parse(cachedInvitations));
-          setGroupInfo(JSON.parse(cachedGroupInfo));
-          setLoading(false);
-          return;
-        }
-
-
-        const [groupsRes, invitationsRes, groupInfoRes] = await Promise.all([
-          axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${apiEndpoint}/api/v1/group/invitation/pending`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${apiEndpoint}/api/v1/card/getAllUserCard`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        const groupsData = groupsRes.data.data || [];
-        const invitationsData = invitationsRes.data.data || [];
-        const groupInfoData = groupInfoRes.data.data || {};
-
-        
-        sessionStorage.setItem("groups", JSON.stringify(groupsData));
-        sessionStorage.setItem("pendingInvitations", JSON.stringify(invitationsData));
-        sessionStorage.setItem("groupInfo", JSON.stringify(groupInfoData));
-
-        setGroups(groupsData);
-        setPendingInvitations(invitationsData);
-        setGroupInfo(groupInfoData);
-
-      } catch (err) {
-        console.error("Error loading data:", err);
-        setGroups([]);
-        setPendingInvitations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
   }, [token]);
 
+  useEffect(() => {
+    fetchData(true); // show loading on first load
+  }, [fetchData]);
 
+  // Polling for real-time updates (every 5 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData(false); // don't show loading on polling
+    }, 5000); // 5 seconds
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
-
-
-
-
-  // 🧹 Refresh group cache after creating a new pool
-  const handleCreatePool = async (e) => {
+  const handleCreatePool = useCallback(async (e) => {
     e.preventDefault();
     if (isCreating) return;
     setIsCreating(true);
-
     try {
       const response = await axios.post(
         `${apiEndpoint}/api/v1/card/createPool`,
@@ -109,20 +77,10 @@ const CardPool = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       if (response.status === 200) {
         setShowCreatePoolModal(false);
         setGroupName("");
-
-        // ✅ Refresh group list from backend
-        const res = await axios.get(`${apiEndpoint}/api/v1/card/getDistinctGroupsForUser`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const updatedGroups = res.data.data || [];
-        setGroups(updatedGroups);
-
-        // 💾 Update sessionStorage
-        sessionStorage.setItem("groups", JSON.stringify(updatedGroups));
+        await fetchData();
       } else {
         alert("Failed to create pool.");
       }
@@ -131,13 +89,12 @@ const CardPool = () => {
     } finally {
       setIsCreating(false);
     }
-  };
+  }, [groupName, isCreating, token, fetchData]);
 
-  // 🧹 Remove group from sessionStorage and state
-  const handleDeleteGroup = async (groupId) => {
+  // Remove group from state
+  const handleDeleteGroup = useCallback(async (groupId) => {
     if (!window.confirm("Are you sure you want to delete this group?")) return;
     setDeletingGroup(groupId);
-
     try {
       const response = await axios.delete(
         `${apiEndpoint}/api/v1/card/deletePool/${groupId}`,
@@ -145,13 +102,8 @@ const CardPool = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       if (response.status === 200) {
-        const updatedGroups = groups.filter(group => group._id !== groupId);
-        setGroups(updatedGroups);
-
-        // 💾 Update sessionStorage
-        sessionStorage.setItem("groups", JSON.stringify(updatedGroups));
+        await fetchData();
       } else {
         alert("Failed to delete group.");
       }
@@ -160,13 +112,13 @@ const CardPool = () => {
     } finally {
       setDeletingGroup(null);
     }
-  };
+  }, [token, fetchData]);
 
-  const handleGroupClick = (groupId) => {
+  const handleGroupClick = useCallback((groupId) => {
     navigate(`/group/${groupId}`);
     console.log('groupinfo', groupInfo);
     console.log("Groups", groups);
-  };
+  }, [navigate, groupInfo, groups]);
 
   return (
     <div className="min-h-screen bg-[#111518] text-white font-sans px-4 py-6 pt-20">
@@ -205,7 +157,7 @@ const CardPool = () => {
 
       {/* List of Groups */}
       <div className="mb-10">
-        {loading ? (
+        {firstLoad && loading ? (
           <div className="text-[#9cabba]">Loading groups...</div>
         ) : groups.length === 0 ? (
           <div className="text-[#9cabba]">No Pools Found.</div>
@@ -214,7 +166,6 @@ const CardPool = () => {
             {groups.map((group) => {
               // Find the specific group info for this group
               const currentGroupInfo = getGroupInfoById(group._id);
-
               return (
                 <li
                   key={group._id}
@@ -312,3 +263,11 @@ const CardPool = () => {
 };
 
 export default CardPool;
+
+
+
+
+
+
+
+

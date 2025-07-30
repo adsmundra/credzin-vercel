@@ -1,3 +1,5 @@
+from comet_ml import Experiment
+
 import os
 import re
 from datetime import datetime
@@ -13,23 +15,35 @@ from langchain_core.documents import Document
 from langchain_qdrant import QdrantVectorStore, FastEmbedSparse, RetrievalMode
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# Opik imports
+# Updated Opik and Comet imports
 import opik
 from opik import Opik, track
-from opik.evaluation import evaluate_prompt, evaluate
-from opik.evaluation.metrics import Hallucination, AnswerRelevance, Moderation
+from opik.evaluation import evaluate
+from opik.evaluation.metrics import Hallucination
+from comet_ml import Experiment
 
 from utils.logger import configure_logging
 from utils.utilities import setup_env
 from DataLoaders.QdrantDB import qdrantdb_client
+
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 
 # === Setup ===
 logger = configure_logging("BloggerAgent")
 setup_env()
 
 # === Opik Configuration ===
-os.environ["OPIK_API_KEY"] = "V26aYJ5ji7OScGEifvpnhRIe5" 
-os.environ["OPIK_WORKSPACE"] = "vikram-kumawat"
+os.environ["OPIK_API_KEY"] = "OoELaezFSqRJFAzN5VyQx2ODc" 
+os.environ["OPIK_WORKSPACE"] = "hub-welzin"
+
+# === Comet ML Configuration ===
+experiment = Experiment(
+    api_key="OoELaezFSqRJFAzN5VyQx2ODc",  # Replace with your actual Comet API key
+    project_name="fintech-articles",
+    workspace="hub-welzin"  # Replace with your actual Comet workspace
+)
 
 # === Qdrant setup for both collections ===
 qdrant_client = qdrantdb_client()
@@ -103,68 +117,42 @@ ollama_model = Ollama(
     options={"temperature": 0, "top_p": 0.95}
 )
 
-# Custom Opik Evaluation Metrics
-class ArticleQualityMetric:
-    """Custom metric for evaluating article quality"""
-    def __init__(self):
-        self.name = "article_quality"
-
-    def score(self, article: str, topic: str, sources: List[str]) -> Dict[str, Any]:
-        """Score article based on quality metrics"""
-        score_data = {
-            "length_score": min(len(article) / 3000, 1.0),  # Target 3000+ chars
-            "structure_score": self._evaluate_structure(article),
-            "factual_coverage": self._evaluate_factual_coverage(article),
-            "readability_score": self._evaluate_readability(article),
-            "source_integration": self._evaluate_source_integration(article, sources)
-        }
-        overall_score = sum(score_data.values()) / len(score_data)
-        score_data["overall_score"] = overall_score
-        return {
-            "value": overall_score,
-            "reason": f"Article quality assessment: {score_data}"
-        }
-
-    def _evaluate_structure(self, article: str) -> float:
-        """Evaluate article structure"""
+# Updated Custom Quality Metric Function
+def article_quality_metric(article: str, topic: str, sources: List[str]) -> float:
+    """Enhanced article quality scoring"""
+    try:
+        # Base score from length and sources
+        length_score = min(len(article) / 3000, 1.0)  # Target 3000+ chars
+        sources_score = len(sources) * 0.1
+        
+        # Structure scoring
         required_sections = [
             "introduction", "credit card", "tier", "features", 
             "fees", "bonus", "reward", "comparison", "conclusion"
         ]
         article_lower = article.lower()
-        found_sections = sum(1 for section in required_sections if section in article_lower)
-        return found_sections / len(required_sections)
-
-    def _evaluate_factual_coverage(self, article: str) -> float:
-        """Evaluate factual coverage"""
+        structure_score = sum(1 for section in required_sections if section in article_lower) / len(required_sections)
+        
+        # Content quality indicators
         key_elements = [
             "annual fee", "reward", "eligibility", "benefit", 
             "welcome bonus", "cashback", "points"
         ]
-        article_lower = article.lower()
-        found_elements = sum(1 for element in key_elements if element in article_lower)
-        return found_elements / len(key_elements)
-
-    def _evaluate_readability(self, article: str) -> float:
-        """Basic readability assessment"""
-        has_tables = "|" in article or "markdown" in article.lower()
-        has_bullets = "•" in article or "-" in article
-        has_headers = "#" in article
-        readability_features = [has_tables, has_bullets, has_headers]
-        return sum(readability_features) / len(readability_features)
-
-    def _evaluate_source_integration(self, article: str, sources: List[str]) -> float:
-        """Evaluate how well sources are integrated"""
-        if not sources:
-            return 0.0
-        source_mentions = 0
-        for source in sources:
-            if any(domain in article.lower() for domain in ["SBI", "HDFC", "Axis", "ICICI", "Amex","Yes", "IDFC", "AU", "IDBI", "IndusInd", "RBL", "HSBC", "Standard Chartered", "BOBCARD", "Kotak", "Federal"]):
-                source_mentions += 1
-        return min(source_mentions / len(sources), 1.0)
-
-# Initialize custom metric
-article_quality_metric = ArticleQualityMetric()
+        content_score = sum(1 for element in key_elements if element in article_lower) / len(key_elements)
+        
+        # Readability features
+        has_formatting = any(marker in article for marker in ["|", "#", "•", "-"])
+        readability_score = 0.2 if has_formatting else 0.0
+        
+        # Calculate final score
+        final_score = (length_score * 0.3 + sources_score * 0.2 + structure_score * 0.3 + 
+                      content_score * 0.15 + readability_score * 0.05)
+        
+        return min(final_score, 1.0)
+        
+    except Exception as e:
+        logger.error(f"Error in article quality metric: {e}")
+        return 0.5  # Default score on error
 
 # AGENTS with Opik tracking
 @track(name="searcher_agent")
@@ -273,7 +261,7 @@ def create_editor_team():
             "- The article must be more than 2000 characters in length.",
             "Step 2: Structure Clearly. Organize your content using headings and subheadings that reflect the structure and flow of the original retrieved data.",
             "- Maintain logical order and readability.",
-            "- If the source data includes sections like “Features,” “Benefits,” or “Eligibility,” replicate those sections accordingly.",
+            "- If the source data includes sections like: Features, Benefits, or Eligibility, replicate those sections accordingly.",
             "Step 3: Attribute Precisely. Ensure every fact, feature, number, or quote is matched exactly as it appears in the source.",
             "- Attribute data points to their original context or source text as presented in Qdrant.",
             "- Avoid any rounding, paraphrasing, or altering of facts.",
@@ -287,26 +275,38 @@ def create_editor_team():
         ]
     )
 
+# Updated evaluation function
 @track(name="evaluate_article_with_opik")
 def evaluate_article_with_opik(article: str, topic: str, sources: List[str], context: str = ""):
-    """Evaluate article using Opik's built-in and custom metrics"""
+    """Evaluate article using Opik's built-in metrics and custom scoring"""
     evaluation_data = [{
-        "input": topic,
+        "input": {
+            "question": topic,
+            "context": context
+        },
         "output": article,
         "expected_output": f"High-quality article about {topic}",
-        "context": context,
         "metadata": {
             "sources_count": len(sources),
             "article_length": len(article),
             "topic": topic
         }
     }]
-    # Only use task argument, no metrics argument
-    evaluation_results = evaluate(
-        dataset=evaluation_data,
-        task="text-generation for financial article",
-    )
-    quality_score = article_quality_metric.score(article, topic, sources)
+    
+    try:
+        # Evaluate with Opik using Hallucination metric
+        evaluation_results = evaluate(
+            dataset=evaluation_data,
+            task="text-generation for financial article",
+            scoring_metrics=[Hallucination()]
+        )
+    except Exception as e:
+        logger.error(f"Opik evaluation failed: {e}")
+        evaluation_results = []
+    
+    # Calculate custom quality score
+    quality_score = article_quality_metric(article, topic, sources)
+    
     results = {
         "opik_evaluation": evaluation_results,
         "custom_quality_score": quality_score,
@@ -316,14 +316,19 @@ def evaluate_article_with_opik(article: str, topic: str, sources: List[str], con
             "evaluation_timestamp": datetime.now().isoformat()
         }
     }
+    
     return results
 
-@track(name="main_article_generation")
+# Updated main article generation function
+@track(name="generate_article_with_evaluation")
 def generate_article_with_evaluation(topic: str, output_dir: str):
-    """Main function to generate and evaluate article"""
+    """Main function to generate and evaluate article with enhanced logging"""
     logger.info(f"Generating article for: {topic}")
+    
+    # Generate article using the editor team
     editor = create_editor_team()
     response_list = editor.run(f"Write a detailed article about {topic}.")
+    
     # Find the Writer's response
     writer_response = None
     if isinstance(response_list, list):
@@ -340,15 +345,23 @@ def generate_article_with_evaluation(topic: str, output_dir: str):
     else:
         article_content = writer_response.content
 
+    # Retrieve context and sources for evaluation
+    try:
+        retrieved_docs: List[Document] = combined_retriever(topic)
+        retrieved_context = "\n\n".join([doc.page_content for doc in retrieved_docs])
+        sources = [doc.metadata.get("source", "unknown") for doc in retrieved_docs]
+    except Exception as e:
+        logger.error(f"Error retrieving context: {e}")
+        retrieved_context = ""
+        sources = []
 
-    sources = []  # Optionally extract from writer_response if available
-
+    # Evaluate article
     try:
         evaluation_results = evaluate_article_with_opik(
             article=article_content,
             topic=topic,
             sources=sources,
-            context="Credit card article for Indian market"
+            context=retrieved_context
         )
         logger.info("=== OPIK EVALUATION RESULTS ===")
         logger.info(f"Custom Quality Score: {evaluation_results['custom_quality_score']}")
@@ -356,21 +369,53 @@ def generate_article_with_evaluation(topic: str, output_dir: str):
     except Exception as eval_error:
         logger.error(f"Evaluation failed: {eval_error}")
         evaluation_results = {
-            "custom_quality_score": {"value": 0, "reason": "Evaluation failed"},
+            "custom_quality_score": 0,
             "opik_evaluation": "Evaluation failed",
             "metadata": {
-                "article_length": len(response_list.content),
+                "article_length": len(article_content),
                 "sources_used": len(sources),
                 "evaluation_timestamp": datetime.now().isoformat()
             }
         }
 
+    # Save article to file
     filename = re.sub(r'[\\/*?:"<>|]', "", topic).replace(" ", "_") + ".md"
     file_path = os.path.join(output_dir, filename)
 
-    # Ensure the output directory exists
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(article_content)
+
+    # Log to Comet ML
+    try:
+        experiment.log_text(article_content, metadata={"topic": topic, "file_path": file_path})
+        experiment.log_metric("custom_quality_score", evaluation_results["custom_quality_score"])
+        experiment.log_metric("article_length", len(article_content))
+        experiment.log_metric("sources_count", len(sources))
+        
+        # Log Opik evaluation results if available
+        if evaluation_results["opik_evaluation"] and isinstance(evaluation_results["opik_evaluation"], list):
+            # Flatten if nested list
+            flat_results = []
+            for item in evaluation_results["opik_evaluation"]:
+                if isinstance(item, list):
+                    flat_results.extend(item)
+                else:
+                    flat_results.append(item)
+
+            for result in flat_results:
+                if isinstance(result, dict):
+                    experiment.log_metric(result.get("name", "unknown_metric"), result.get("value", 0))
+                    if "reason" in result:
+                        experiment.log_text(result["reason"], metadata={
+                            "topic": topic, 
+                            "metric_type": result.get("name", "unknown"),
+                            "reason_type": "evaluation_reason"
+                        })
+
+        
+        logger.info("Successfully logged to Comet ML")
+    except Exception as comet_error:
+        logger.error(f"Failed to log to Comet ML: {comet_error}")
 
     logger.info(f"Enhanced article with evaluation saved to {file_path}")
     return evaluation_results
@@ -382,17 +427,17 @@ if __name__ == "__main__":
     output_dir = os.path.join(base_dir, "Output", "blogs", date_str)
     os.makedirs(output_dir, exist_ok=True)
 
-    topics = ["SBI credit card for different user profiles in India 2025"]
+    topics = ["How to use Credit card effectively",]
 
     for topic in topics:
         try:
             evaluation_results = generate_article_with_evaluation(topic, output_dir)
             logger.info(f"\n=== FINAL EVALUATION FOR: {topic} ===")
-            logger.info(f"Overall Quality Score: {evaluation_results['custom_quality_score']['value']}")
+            logger.info(f"Overall Quality Score: {evaluation_results['custom_quality_score']}")
             logger.info("=" * 50)
         except Exception as e:
             logger.error(f"Error processing topic '{topic}': {str(e)}")
             continue
 
-
-        
+    # End the Comet experiment
+    experiment.end()

@@ -186,7 +186,8 @@ class NotificationService {
         { _id: notificationId, userId },
         { 
           status: 'read',
-          readAt: new Date()
+          readAt: new Date(),
+          actions: [] // Clear actions when marked as read
         },
         { new: true }
       );

@@ -5,7 +5,8 @@
 // import { User, Phone, MapPin, CreditCard, Upload } from 'lucide-react';
 // import BottomNavBar from "../component/BottomNavBar";
 // import { useDispatch } from "react-redux";
-// import { setUser } from "../app/slices/authSlice"; // adjust path based on your structure
+// import { setUser } from "../app/slices/authSlice";
+// import { setCart } from "../app/slices/cartSlice"; // adjust path based on your structure
 
 // const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a2abb3'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7.35 18.5C8.66 17.56 10.27 17 12 17s3.34.56 4.65 1.5c-1.31.94-2.91 1.5-4.65 1.5s-3.34-.56-4.65-1.5zm10.79-1.38C16.45 15.8 14.32 15 12 15s-4.45.8-6.14 2.12A7.96 7.96 0 0 1 4 12c0-4.42 3.58-8 8-8s8 3.58 8 8c0 1.85-.63 3.54-1.86 4.12zM12 6c-1.93 0-3.5 1.57-3.5 3.5S10.07 13 12 13s3.5-1.57 3.5-3.5S13.93 6 12 6zm0 5c-.83 0-1.5-.67-1.5-1.5S11.17 8 12 8s1.5.67 1.5 1.5S12.83 11 12 11z'/%3E%3C/svg%3E";
 
@@ -379,21 +380,24 @@
 // export default UserProfile;
 
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { User, Phone, MapPin, CreditCard, Upload, Mail } from 'lucide-react';
+import { User, Phone, MapPin, CreditCard, Upload, Mail, LogOut } from 'lucide-react';
 import BottomNavBar from "../component/BottomNavBar";
 import { setUser } from "../app/slices/authSlice";
+import { setCart } from "../app/slices/cartSlice";
 import { Buffer } from 'buffer';
+import Cookies from 'js-cookie';
+import { logout } from "../app/slices/authSlice";
 window.Buffer = Buffer
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a2abb3'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM7.35 18.5C8.66 17.56 10.27 17 12 17s3.34.56 4.65 1.5c-1.31.94-2.91 1.5-4.65 1.5s-3.34-.56-4.65-1.5zm10.79-1.38C16.45 15.8 14.32 15 12 15s-4.45.8-6.14 2.12A7.96 7.96 0 0 1 4 12c0-4.42 3.58-8 8-8s8 3.58 8 8c0 1.85-.63 3.54-1.86 4.12zM12 6c-1.93 0-3.5 1.57-3.5 3.5S10.07 13 12 13s3.5-1.57 3.5-3.5S13.93 6 12 6zm0 5c-.83 0-1.5-.67-1.5-1.5S11.17 8 12 8s1.5.67 1.5 1.5S12.83 11 12 11z'/%3E%3C/svg%3E";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const UserProfile = () => {
+const UserProfile = ({ onLogout }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
@@ -418,24 +422,18 @@ const UserProfile = () => {
 
       if (user?.profilePic) {
         if (typeof user.profilePic === 'string') {
-          // If it's already a URL string
           newAvatarPreview = user.profilePic;
         } else if (user.profilePic.data) {
-          // If it's a Base64 string in data field
           if (typeof user.profilePic.data === 'string') {
             newAvatarPreview = `data:${user.profilePic.contentType};base64,${user.profilePic.data}`;
           }
-          // Handle ArrayBuffer or Uint8Array (common alternative to Buffer)
           else if (user.profilePic.data.data && Array.isArray(user.profilePic.data.data)) {
             try {
-              // Convert array to Uint8Array
               const uint8Array = new Uint8Array(user.profilePic.data.data);
-              // Convert to binary string
               let binaryString = '';
               uint8Array.forEach(byte => {
                 binaryString += String.fromCharCode(byte);
               });
-              // Convert to base64
               const base64String = btoa(binaryString);
               newAvatarPreview = `data:${user.profilePic.contentType};base64,${base64String}`;
             } catch (error) {
@@ -461,7 +459,13 @@ const UserProfile = () => {
     };
   }, [avatarPreview]);
 
-  const validateForm = () => {
+  const handleLogout = useCallback(() => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      onLogout();
+    }
+  }, [onLogout]);
+
+  const validateForm = useCallback(() => {
     const newErrors = {};
     if (!editUser.firstName?.trim()) {
       newErrors.firstName = "First name is required";
@@ -474,9 +478,9 @@ const UserProfile = () => {
     }
     setState(prev => ({ ...prev, errors: newErrors }));
     return Object.keys(newErrors).length === 0;
-  };
+  }, [editUser]);
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = useCallback((e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -512,9 +516,9 @@ const UserProfile = () => {
       }));
     };
     reader.readAsDataURL(file);
-  };
+  }, []);
 
-  const handleEdit = () => {
+  const handleEdit = useCallback(() => {
     setState(prev => ({
       ...prev,
       editMode: true,
@@ -523,23 +527,23 @@ const UserProfile = () => {
         lastName: user?.lastName || "",
         contact: user?.contact || "",
         // address: user?.address || "",
-         location: user?.location || "",
+        location: user?.location || "",
         email: user?.email || ""
       },
       submitError: null
     }));
-  };
+  }, [user]);
 
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setState(prev => ({
       ...prev,
       editUser: { ...prev.editUser, [name]: value },
       errors: { ...prev.errors, [name]: '' }
     }));
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!validateForm()) return;
     if (!window.confirm("Are you sure you want to save changes?")) return;
 
@@ -576,13 +580,13 @@ const UserProfile = () => {
       // Update local state and avatar
       const updatedUser = response.data.data;
       dispatch(setUser(updatedUser));
+      dispatch(setCart(updatedUser.CardAdded));
 
-      const previousUserData = sessionStorage.getItem("userDetails");
-      if (previousUserData) {
-        const parsedData = JSON.parse(previousUserData);
-        const updatedSessionUser = { ...parsedData, ...updatedUser };
-        sessionStorage.setItem("userDetails", JSON.stringify(updatedSessionUser));
-      }
+      // Clear the entire session cache to force a refetch on all components
+      sessionStorage.clear();
+      
+      // Re-populate the userDetails cache with the fresh data
+      sessionStorage.setItem("userDetails", JSON.stringify(response.data.data));
 
       let updatedPreview = DEFAULT_AVATAR;
       if (updatedUser.profilePic) {
@@ -612,9 +616,9 @@ const UserProfile = () => {
         submitError: errorMessage
       }));
     }
-  };
+  }, [validateForm, editUser, state.avatarFile, dispatch]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     if (window.confirm("Are you sure you want to discard changes?")) {
       setState(prev => ({
         ...prev,
@@ -628,7 +632,7 @@ const UserProfile = () => {
           : DEFAULT_AVATAR
       }));
     }
-  };
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -890,6 +894,26 @@ const UserProfile = () => {
           </p>
         </div>
       </div>
+
+
+      {/* Log out */}
+      <h2 className="text-lg sm:text-xl font-bold tracking-tight px-4 sm:px-6 md:px-8 pb-2 pt-4">
+        Log out
+      </h2>
+
+      <div className="flex justify-center px-4 sm:px-6 md:px-8 mt-6 mb-24">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg transition-all w-full sm:w-auto"
+          aria-label="Logout"
+        >
+          <LogOut size={20} />
+          Log Out
+        </button>
+      </div>
+
+
+
 
       {/* Error Display */}
       {submitError && (

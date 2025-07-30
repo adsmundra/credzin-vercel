@@ -15,6 +15,7 @@ const GroupDetails = () => {
 
   const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [firstLoad, setFirstLoad] = useState(true);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [searchContact, setSearchContact] = useState("");
   const [searching, setSearching] = useState(false);
@@ -68,116 +69,32 @@ const GroupDetails = () => {
     ],
   };
 
-  // const fetchGroup = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(
-  //       `${apiEndpoint}/api/v1/card/getGroupWithMembersAndCards/${groupId}`,
-  //       { headers: { Authorization: `Bearer ${token}` } }
-  //     );
-
-  //     const groupData = res.data;
-
-  //     console.log("groupDataaaaaaaa", groupData);
-
-  //     setGroup(groupData);
-
-  //     if (token) {
-  //       const decodedToken = jwtDecode(token);
-  //       const userId = decodedToken.id;
-  //       setCurrentUserId(userId);
-  //       setCurrentUserName(decodedToken.name || "User");
-
-  //       // Set isAdmin only if currentUserId === groupAdminId
-  //       console.log("groupData.groupAdmin", groupData.groupMembers[0].user_id?._id, "userId", userId);
-
-  //       if (groupData.groupMembers[0].user_id?._id === userId) {
-  //         setIsAdmin(true);
-  //       } else {
-  //         setIsAdmin(false);
-  //       }
-  //     }
-  //   } catch (err) {
-  //     console.error("Error fetching group:", err);
-  //     setGroup(null);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-
-
-
-
-
-
-
   const fetchGroup = async () => {
-    setLoading(true);
-
+    if (firstLoad) setLoading(true);
     try {
-      //  Check if cached group data exists
-      const cachedData = sessionStorage.getItem(`group_${groupId}`);
-
-      if (cachedData) {
-        const parsedData = JSON.parse(cachedData);
-        setGroup(parsedData);
-
-        //  Set current user data from token
-        if (token) {
-          const decodedToken = jwtDecode(token);
-          const userId = decodedToken.id;
-          setCurrentUserId(userId);
-          setCurrentUserName(decodedToken.name || "User");
-
-          // ✅ Check if the user is the group admin
-          if (parsedData.groupMembers[0].user_id?._id === userId) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-          }
-        }
-
-        setLoading(false);
-        return; // Exit early since we loaded from cache
-      }
-
       const res = await axios.get(
         `${apiEndpoint}/api/v1/card/getGroupWithMembersAndCards/${groupId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const groupData = res.data;
-
-      console.log("groupDataaaaaaaa", groupData);
-
-      // Handle the response structure - groupMembers is directly in the response
       setGroup({
         groupMembers: groupData.groupMembers || [],
         groupName: groupData.groupName || "Card Group"
       });
-
       // Safety check for group members
       if (!groupData.groupMembers || groupData.groupMembers.length === 0) {
         console.warn("No group members found");
+        setLoading(false);
+        setFirstLoad(false);
         return;
       }
-
-
-      sessionStorage.setItem(`group_${groupId}`, JSON.stringify(groupData));
-
       if (token) {
         const decodedToken = jwtDecode(token);
         const userId = decodedToken.id;
         setCurrentUserId(userId);
         setCurrentUserName(decodedToken.name || "User");
-
-
         // ✅ Set isAdmin only if currentUserId === groupAdminId
-        console.log("groupData.groupAdmin", groupData.groupMembers[0]?.user_id?._id, "userId", userId);
-        
         if (groupData.groupMembers[0]?.user_id?._id === userId) {
-
           setIsAdmin(true);
         } else {
           setIsAdmin(false);
@@ -188,14 +105,20 @@ const GroupDetails = () => {
       setGroup(null);
     } finally {
       setLoading(false);
+      setFirstLoad(false);
     }
   };
 
-
-
-
   useEffect(() => {
     fetchGroup();
+  }, [groupId, token]);
+
+  // Optional: Polling for real-time updates (every 5 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchGroup();
+    }, 5000); // 5 seconds
+    return () => clearInterval(interval);
   }, [groupId, token]);
 
   const handleSearch = async (e) => {
@@ -285,9 +208,7 @@ const GroupDetails = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert("Member removed from group!");
-        sessionStorage.removeItem(`group_${groupId}`);
-        sessionStorage.setItem("cardPoolNeedsRefresh", "true");
-        await fetchGroup();
+        await fetchGroup(true);
       } catch (error) {
         alert(error.response?.data?.message || "Error removing member from group.");
       }
@@ -302,8 +223,7 @@ const GroupDetails = () => {
           { groupId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        sessionStorage.removeItem(`group_${groupId}`);
-        sessionStorage.setItem("cardPoolNeedsRefresh", "true");
+        await fetchGroup(true);
         alert("You have left the group!");
 
         navigate("/card-pool");
@@ -414,10 +334,8 @@ const GroupDetails = () => {
         )}
       </AnimatePresence>
 
-      {loading ? (
-        <div className="text-center py-20 text-lg animate-pulse">
-          Loading group details...
-        </div>
+      {firstLoad && loading ? (
+        <div className="text-[#9cabba]">Loading group...</div>
       ) : !group?.groupMembers?.length ? (
         <div className="text-center py-10 text-[#9cabba]">
           No members or cards found in this group.

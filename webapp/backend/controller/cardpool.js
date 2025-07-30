@@ -4,7 +4,11 @@ const User = require('../models/User');
 const card = require('../models/card');
 const cardGroupUser = require('../models/cardGroupUser');
 const notificationService = require('../services/notificationService');
-
+const user_card_details = require('../models/user_card_details');
+const credit_cards = require('../models/card');
+const crypto = require('crypto');
+const decrypt = require('../utils/decrypt');
+const { log } = require('console');
 exports.createCardGroup = async (req, res) => {
   try {
     const adminId = req.id;
@@ -127,6 +131,7 @@ exports.getGroupWithMembersAndCards = async (req, res) => {
           const genericCardMap = {};
           genericCards.forEach((card) => {
             genericCardMap[card._id] = {
+              _id: card._id,
               card_name: card.card_name,
               image_url: card.image_url,
             };
@@ -162,28 +167,26 @@ exports.getGroupWithMembersAndCards = async (req, res) => {
     });
   }
 };
-// exports.removeTheUserFromGroup=async(req,res)=>{
-//     try{
-//         const userId= req.body;
-//         const groupId= req.params
+exports.removeTheUserFromGroup = async (req, res) => {
+  try {
+    const userId = req.body;
+    const groupId = req.params;
 
-//         await card_group_user.findOneAndDelete({
-//             user_id:userId,
-//             group_id:groupId
-//         })
-//         return res.status(200).json({
-//             status:true,
-//             message:'user deleted',
-
-//         })
-//     }catch(error){
-//         return res.status(500).json({
-//             status:false,
-//             message:'Network Error'
-//         })
-
-//     }
-// }
+    await card_group_user.findOneAndDelete({
+      user_id: userId,
+      group_id: groupId,
+    });
+    return res.status(200).json({
+      status: true,
+      message: 'user deleted',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: 'Network Error',
+    });
+  }
+};
 exports.getDistinctGroupsForUser = async (req, res) => {
   try {
     const userId = req.id;
@@ -359,10 +362,6 @@ exports.addUserToGroup = async (req, res) => {
 //   }
 // };
 
-
-
-
-
 exports.deleteGroup = async (req, res) => {
   const { groupId } = req.params;
   const userId = req.id;
@@ -385,7 +384,6 @@ exports.deleteGroup = async (req, res) => {
 
     // Notify all members
     for (const member of members) {
-        
       await notificationService.sendNotification(
         member.user_id,
         'group_deleted', // Or custom type like 'group_deleted'
@@ -403,11 +401,113 @@ exports.deleteGroup = async (req, res) => {
   }
 };
 
+const ENCRYPTION_KEY =
+  process.env.ENCRYPTION_KEY || '12345678901234567890123456789012'; // 32 chars
+const IV_LENGTH = 16;
 
+function encrypt(text) {
+  const key = crypto
+    .createHash('sha256')
+    .update(String(ENCRYPTION_KEY))
+    .digest();
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return iv.toString('hex') + ':' + encrypted;
+}
 
+exports.cardDetails = async (req, res) => {
+  try {
+    const { user_card_id, name_on_card, card_number, card_expiry_date } =
+      req.body;
+    console.log('In Card Detail API');
 
+    if (!user_card_id) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'user_card_id is required' });
+    }
 
+    console.log('In Card Detail API 2');
+    const encryptedCardNumber = encrypt(card_number);
 
+    const cardDetails = await user_card_details.findOneAndUpdate(
+      { user_card_id: user_card_id },
+      {
+        name_on_card,
+        card_number: encryptedCardNumber,
+        card_expiry_date,
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
+    console.log('cardDetails', cardDetails);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Card details saved successfully',
+      data: cardDetails,
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: false, message: 'Server error', error: err.message });
+  }
+};
+
+exports.getCardDetails = async (req, res) => {
+  try {
+    const cardDetails = await user_card_details.findOne({
+      user_card_id: req.params.user_card_id,
+    });
+    console.log('In req params', req.params.user_card_id);
+
+    console.log('cardDetails', cardDetails);
+
+    // Check if card exists
+    if (!cardDetails) {
+      return res.status(404).json({
+        success: false,
+        message: 'Card not found',
+      });
+    }
+
+    // Optional: log for debugging
+    console.log('Fetched cardDetails:', cardDetails);
+
+    const decryptedCardNumber = cardDetails.card_number
+      ? decrypt(cardDetails.card_number)
+      : null;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        ...cardDetails.toObject(),
+        card_number: decryptedCardNumber,
+      },
+    });
+  } catch (error) {
+    console.error('Error getting card details:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong',
+    });
+  }
+};
+
+exports.getCardFeatures = async (req, res) => {
+  try {
+    console.log(req.params.id)
+    const card = await credit_cards.findById(req.params.id);
+    if (!card) {
+      return res.status(404).send('Card not found');
+    }
+    res.json(card);
+  } catch (err) {
+    res.status(500).send('Server Error: ' + err.message);
+  }
+};
 
 // added all the feature
 
@@ -712,3 +812,119 @@ exports.rejectGroupInvitation = async (req, res) => {
     });
   }
 };
+
+// exports.getGroupWithMembersAndCards = async (req, res) => {
+//   try {
+//     const { groupId } = req.params;
+
+//     const groupData = await card_group_user.aggregate([
+//       {
+//         $match: { group_id: groupId }
+//       },
+//       {
+//         $lookup: {
+//           from: 'users',
+//           localField: 'user_id',
+//           foreignField: '_id',
+//           as: 'user'
+//         }
+//       },
+//       { $unwind: '$user' },
+//       {
+//         $lookup: {
+//           from: 'user_cards',
+//           let: { cardIds: '$user.CardAdded' },
+//           pipeline: [
+//             { $match: {
+//               $expr: {
+//                 $and: [
+//                   { $in: ['$_id', '$$cardIds'] },
+//                   { $eq: ['$user_card_status', 'ACTIVE'] }
+//                 ]
+//               }
+//             }}
+//           ],
+//           as: 'active_user_cards'
+//         }
+//       },
+//       {
+//         $lookup: {
+//           from: 'credit_cards',
+//           let: { genericCardIds: '$active_user_cards.generic_card_id' },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: { $in: ['$_id', '$$genericCardIds'] }
+//               }
+//             },
+//             {
+//               $project: {
+//                 _id: 1,
+//                 card_name: 1,
+//                 image_url: 1
+//               }
+//             }
+//           ],
+//           as: 'generic_cards'
+//         }
+//       },
+//       {
+//         $addFields: {
+//           user: {
+//             _id: '$user._id',
+//             firstName: '$user.firstName',
+//             lastName: '$user.lastName',
+//             email: '$user.email',
+//             CardAdded: {
+//               $map: {
+//                 input: '$active_user_cards',
+//                 as: 'userCard',
+//                 in: {
+//                   $mergeObjects: [
+//                     '$$userCard',
+//                     {
+//                       generic_card: {
+//                         $arrayElemAt: [
+//                           {
+//                             $filter: {
+//                               input: '$generic_cards',
+//                               as: 'gen',
+//                               cond: { $eq: ['$$gen._id', '$$userCard.generic_card_id'] }
+//                             }
+//                           },
+//                           0
+//                         ]
+//                       }
+//                     }
+//                   ]
+//                 }
+//               }
+//             }
+//           }
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           group_id: 1,
+//           user_id: 1,
+//           card_list: 1,
+//           user: 1
+//         }
+//       }
+//     ]);
+
+//     res.status(200).json({
+//       success: true,
+//       groupMembers: groupData
+//     });
+
+//   } catch (error) {
+//     console.error('Error fetching group details:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Server Error',
+//       error: error.message
+//     });
+//   }
+// };

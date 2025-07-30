@@ -1,7 +1,6 @@
 DataLoaders
 Transactions
 agents
-dashboard
 processing
 recommender
 scrapers
